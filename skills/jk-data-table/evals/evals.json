@@ -1,0 +1,20 @@
+{
+  "skill_name": "jk-data-table",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a CSV with obsId, time, and narrow range bounds. Help me create a Jinkō data table safely and check if it is valid for calibration fitness.",
+      "expected_output": "Uses create_data_table_from_csv, validates range-row columns, requires --apply before upload, and checks metadata.public.validForFitnessFunction."
+    },
+    {
+      "id": 2,
+      "prompt": "Show me how to upload a pandas dataframe as a Jinkō data table for trial overlay observations.",
+      "expected_output": "Uses create_data_table_from_dataframe with point-value schema columns and notes pandas dependency."
+    },
+    {
+      "id": 3,
+      "prompt": "Can this skill create output sets too? I need outputs for a trial.",
+      "expected_output": "States output sets are out of scope for jk-data-table and keeps focus on data-table upload/inspection."
+    }
+  ]
+}

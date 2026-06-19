@@ -1,0 +1,20 @@
+{
+  "skill_name": "jk-protocol",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a three-arm Jinkō protocol design for an existing model: two IV arms, one PO arm, and three different doses. Keep dosing logic out of the protocol.",
+      "expected_output": "Explains model/protocol separation, uses create_protocol_design with three arms overriding Dose and route, includes control relationships, and requires --apply before mutation."
+    },
+    {
+      "id": 2,
+      "prompt": "Can a protocol define a dosing schedule event, or should it only override the schedule parameters?",
+      "expected_output": "States that dosing events and schedule formulas are model-level; the protocol assigns arm-specific values to those model inputs."
+    },
+    {
+      "id": 3,
+      "prompt": "I need to replace the arms in protocol design pd-123 from a JSON file. Show the SDK-safe approach.",
+      "expected_output": "Uses get_protocol_design, content, update_raw with scenarioArms replacement, and recommends the dry-run/--apply script."
+    }
+  ]
+}

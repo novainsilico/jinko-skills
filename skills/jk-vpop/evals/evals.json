@@ -1,0 +1,20 @@
+{
+  "skill_name": "jk-vpop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a CSV with patientIndex and model descriptor columns. Help me create a Jinkō vpop safely with the SDK.",
+      "expected_output": "Uses create_vpop_from_csv or create_vpop_from_dataframe, checks patientIndex and descriptor headers, and requires --apply before upload."
+    },
+    {
+      "id": 2,
+      "prompt": "Create a vpop design from marginal distributions for Dose and k_elim and generate 10 patients from it.",
+      "expected_output": "Uses create_vpop_generator_from_design with marginal_distributions from a list of id/distribution entries, checks distrib.json, and uses generate_vpop_by_design."
+    },
+    {
+      "id": 3,
+      "prompt": "Can I edit a generated vpop? I need to change the marginal distribution for k_elim.",
+      "expected_output": "Explains that generated/uploaded Vpop items are not edited in place; edit the Vpop design and regenerate a new Vpop."
+    }
+  ]
+}

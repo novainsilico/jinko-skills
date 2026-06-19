@@ -1,0 +1,88 @@
+{
+  "oneOf": [
+    {
+      "properties": {
+        "obsId": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string",
+          "format": "ISO8601"
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "format": "physical_unit"
+        },
+        "armScope": {
+          "type": "string"
+        },
+        "wideRangeLowBound": {
+          "type": "number"
+        },
+        "wideRangeHighBound": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "experimentRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "obsId",
+        "time",
+        "value"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "obsId": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string",
+          "format": "ISO8601"
+        },
+        "narrowRangeLowBound": {
+          "type": "number"
+        },
+        "narrowRangeHighBound": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "format": "physical_unit"
+        },
+        "armScope": {
+          "type": "string"
+        },
+        "wideRangeLowBound": {
+          "type": "number"
+        },
+        "wideRangeHighBound": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "experimentRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "obsId",
+        "time",
+        "narrowRangeLowBound",
+        "narrowRangeHighBound"
+      ],
+      "type": "object"
+    }
+  ]
+}

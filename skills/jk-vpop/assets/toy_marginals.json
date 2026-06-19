@@ -1,0 +1,20 @@
+[
+  {
+    "id": "Dose",
+    "distribution": {
+      "tag": "Uniform",
+      "lowBound": 0.8,
+      "highBound": 1.2
+    }
+  },
+  {
+    "id": "k_elim",
+    "distribution": {
+      "tag": "NormalTruncated",
+      "mean": 0.1,
+      "stdev": 0.02,
+      "lowBound": 0.01,
+      "highBound": 0.3
+    }
+  }
+]

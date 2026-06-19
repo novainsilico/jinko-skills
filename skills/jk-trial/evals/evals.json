@@ -1,0 +1,20 @@
+{
+  "skill_name": "jk-trial",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a minimum Jinkō trial from model cm-123 that saves Drug and run it only if sanity passes.",
+      "expected_output": "Creates a simple output set from Drug, creates the trial from the model, checks sanity/status before run, uses --apply/--run gates, and polls with wait_until_completed."
+    },
+    {
+      "id": 2,
+      "prompt": "Find a completed trial in my project, print its summary, and download timeseries and scalar results as pandas dataframes.",
+      "expected_output": "Uses client.list_trials, filters status == completed, calls trial.results.summary, trial.output_ids, trial.results.timeseries(...).to_dataframe, and trial.results.scalars(...).to_dataframe."
+    },
+    {
+      "id": 3,
+      "prompt": "Why can't I launch this trial when my data table armScope does not match the protocol arms?",
+      "expected_output": "Explains trial sanity constraints, specifically that data-table armScope values must match protocol arms, and recommends fixing data table or protocol before launch."
+    }
+  ]
+}
