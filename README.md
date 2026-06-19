@@ -1,11 +1,11 @@
 # Jinkō Skills
 
-Agent skills for [Jinkō](https://jinko.ai) QSP modeling workflows, following the
+Agent skills for [Jinkō](https://jinko.ai) pharmacometrics workflows, following the
 [agentskills.io](https://agentskills.io) specification.
 
 These skills give AI coding agents specialized, task-focused workflows for
-building and running quantitative systems pharmacology (QSP) models on Jinkō
-through the [`jinko` Python SDK](https://pypi.org/project/jinko/).
+building and running QSP or PK-PD models on Jinkō
+through the [`jinko` Python SDK](https://pypi.org/project/jinko-sdk/).
 
 ## What is Jinkō?
 
@@ -13,14 +13,10 @@ through the [`jinko` Python SDK](https://pypi.org/project/jinko/).
 cloud platform for **in-silico clinical trials**: it combines mechanistic
 disease modeling (QSP / PK-PD) with AI/ML to build virtual patients and entire
 virtual populations, then runs simulated trials that predict clinical outcomes.
-The approach has been validated against real studies — for example
-[prospectively reproducing the Phase III FLAURA2 lung-cancer trial](https://www.novainsilico.ai/wp-content/uploads/2024/06/FLAURA2_2024_POSTER_NSCLC_ASCO.pdf)
-within hours.
 
 A complete project lifecycle runs through these skills and the SDK: curate
 data and knowledge, build or adapt a model, design multi-arm protocols,
-generate virtual populations, run trials at scale, and analyze results — all
-without leaving your agentic toolchain.
+generate virtual populations, run trials at scale, and analyze results.
 
 ## Why Jinkō is powerful for agents
 
@@ -50,7 +46,7 @@ version. These skills give external agents that same bounded, auditable surface.
 
 ## Available skills
 
-Together these skills cover the full in-silico trial lifecycle — from context
+Together these skills cover the full in-silico trial lifecycle: from context
 and setup, through modeling and population design, to running trials and
 analyzing results.
 
@@ -88,7 +84,7 @@ using the workflow skills.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT: see [LICENSE](./LICENSE).
 
 ---
 
