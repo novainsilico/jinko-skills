@@ -1,0 +1,42 @@
+{
+  "skill_name": "jk-literature-search",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using the attached scientific use-cases file, prepare a targeted literature-discovery plan and candidate shortlist format for Use Case 1, the IL-2 pathway modulation pharmacometrics use case. Do not extract quantitative endpoints or propose calibrated parameter values yet.",
+      "expected_output": "Clarifies the pharmacometric evidence frame, proposes targeted PubMed query batches for recombinant IL-2 PK, regulatory T-cell baseline, autoimmune disease state, comparator treatment types, and immune-cell effects, and returns a publication inventory template while avoiding extraction/calibration claims.",
+      "files": [
+        "evals/files/scientific-use-cases.md"
+      ],
+      "expectations": [
+        "The output treats QSP as one pharmacometrics use case rather than the whole scope.",
+        "The output separates searches by evidence type such as PK, baseline immune-cell populations, Treg expansion, and SLE disease state.",
+        "The output includes concrete PubMed query clauses or full query strings.",
+        "The output includes a candidate publication shortlist or inventory schema.",
+        "The output states that quantitative extraction and calibration planning are downstream handoffs, not completed by this skill."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need public literature candidates to support a population PK/PD model of semaglutide exposure-response in obesity. Please give me a focused discovery workflow and the CLI command you would run if network access is available.",
+      "expected_output": "Frames a pharmacometrics literature search, identifies PK/PD and exposure-response evidence types, gives targeted query strategy, and provides a literature_search.py command without drifting into model fitting.",
+      "expectations": [
+        "The output asks or states assumptions about drug, population, model purpose, and evidence types.",
+        "The output gives a focused PubMed query strategy for PK/PD or exposure-response evidence.",
+        "The output includes a valid literature_search.py CLI command.",
+        "The output avoids claiming that identified papers contain extracted numeric data unless inspected."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I already have five papers and want you to digitize their plots, create calibration tables, and tell me the first parameters to fit for a PBPK model. Is jk-literature-search the right skill?",
+      "expected_output": "Explains that jk-literature-search is only for discovery and shortlist preparation, not OCR, digitization, quantitative extraction, or calibration execution, and suggests appropriate handoffs while still offering to organize the provided papers as a candidate inventory.",
+      "expectations": [
+        "The output says quantitative extraction, plot digitization, and calibration execution are out of scope.",
+        "The output offers a useful in-scope alternative such as organizing or prioritizing the provided papers.",
+        "The output mentions relevant downstream handoffs such as OCR, data-table, model, or calibration workflows.",
+        "The output does not reference misspelled or nonexistent skill names."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "skill_name": "jk-trial-data-scoping",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using the attached trial-scoping use-cases file, prepare a ClinicalTrials.gov registry/results scoping plan and trial inventory format for Use Case 1, the treatment de-escalation question in metastatic lung cancer. Do not extract numeric endpoints or propose a Jinko trial execution plan.",
+      "expected_output": "Clarifies the trial evidence frame, proposes targeted ClinicalTrials.gov query batches for intervention, condition, comparator/control-arm, completed/results-available studies, and returns a trial inventory template while avoiding extraction or execution claims.",
+      "files": [
+        "evals/files/trial-scoping-use-cases.md"
+      ],
+      "expectations": [
+        "The output treats ClinicalTrials.gov as a registry/results source rather than publication discovery.",
+        "The output separates searches by trial evidence need such as comparator/control-arm, status/results availability, population, and endpoint categories.",
+        "The output includes concrete ClinicalTrials.gov query terms or full query strings.",
+        "The output includes a trial inventory schema with NCT ID, phase/status, results availability, population, interventions, endpoints, and priority.",
+        "The output states that quantitative endpoint extraction and Jinko trial execution are downstream handoffs, not completed by this skill."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need public registry candidates to understand control-arm constraints and natural-history evidence for a rare disease program. Please give me a focused ClinicalTrials.gov scoping workflow and the CLI command you would run if network access is available.",
+      "expected_output": "Frames a ClinicalTrials.gov scoping task, identifies status/results availability and control/natural-history evidence types, gives targeted query strategy, and provides a clinical_trials.py command without drifting into protocol design or trial execution.",
+      "expectations": [
+        "The output asks or states assumptions about condition, population, evidence purpose, and trial attributes.",
+        "The output gives a focused ClinicalTrials.gov query strategy for control-arm, natural-history, status, and results-availability evidence.",
+        "The output includes a valid clinical_trials.py CLI command under skills/jk-trial-data-scoping.",
+        "The output avoids claiming that registry records contain extracted numeric endpoint data unless inspected."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want papers on semaglutide exposure-response and DOI-normalized AMA citations. Is jk-trial-data-scoping the right skill?",
+      "expected_output": "Explains that jk-trial-data-scoping is only for ClinicalTrials.gov registry/result scoping, not PubMed publication discovery or citation normalization, and points to jk-literature-search while offering an in-scope ClinicalTrials.gov trial inventory if needed.",
+      "expectations": [
+        "The output says PubMed publication discovery and citation normalization are out of scope.",
+        "The output points to jk-literature-search for literature and citation work.",
+        "The output offers a useful in-scope alternative such as ClinicalTrials.gov trial scoping.",
+        "The output does not reference misspelled or nonexistent skill names."
+      ]
+    }
+  ]
+}

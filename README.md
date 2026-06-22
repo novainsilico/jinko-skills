@@ -1,65 +1,91 @@
 # Jinkō Skills
 
-Agent skills for [Jinkō](https://jinko.ai) pharmacometrics workflows, following the
+Agent skills for using [Jinkō](https://jinko.ai) through AI assistants, coding
+agents, and agentic workflows, following the
 [agentskills.io](https://agentskills.io) specification.
 
+Jinkō is a platform for biology-grounded modeling, virtual populations, and *In-Silico* trial simulation. These skills make Jinkō easier for agents to use safely and consistently through the [`jinko` Python SDK](https://pypi.org/project/jinko-sdk/).
+
+## Vision
+
+The scientific software of tomorrow is agent-ready.
+
+That does not mean humans disappear from the workflow. It means agents can
+perform scoped, repeatable work while scientists keep control of assumptions,
+interpretation, and decisions.
+
 These skills give AI coding agents specialized, task-focused workflows for
-building and running QSP or PK-PD models on Jinkō
-through the [`jinko` Python SDK](https://pypi.org/project/jinko-sdk/).
+modelers working with biology-grounded models on Jinkō.
+
+The Jinkō UI remains the shared workspace where humans and agents can review,
+correct, validate, and continue work on mechanistic modeling and in silico trial
+simulation together.
+
+Headless does not mean UI-less. It means agent-ready.
 
 ## What is Jinkō?
 
 [Jinkō](https://doc.jinko.ai) is [Nova In Silico's](https://novainsilico.ai)
-cloud platform for **in-silico clinical trials**: it combines mechanistic
-disease modeling (QSP / PK-PD) with AI/ML to build virtual patients and entire
-virtual populations, then runs simulated trials that predict clinical outcomes.
+cloud platform for biology-grounded modeling and **in silico trial simulation**:
+it combines computational models with AI/ML to build digital twins and virtual
+cohorts, then runs simulations that help predict outcomes.
 
-A complete project lifecycle runs through these skills and the SDK: curate
-data and knowledge, build or adapt a model, design multi-arm protocols,
-generate virtual populations, run trials at scale, and analyze results.
+A complete project lifecycle can run through these skills and the SDK: scope
+evidence, curate data and knowledge, build or adapt a model, design multi-arm
+protocols, generate virtual populations, run trials at scale, and analyze
+results.
 
 ## Why Jinkō is powerful for agents
 
 Jinkō is engineered around guarantees that make autonomous and semi-autonomous
 agents safe and effective:
 
+- **Versioned & Deterministic**: Resources are versioned and immutable;
+  simulations are reproducible from their referenced inputs. An agent can re-run, diff, and revert to any prior version in one step, with no hidden state.
 - **Collaboration**: Models, trials, data tables, and results are shared,
-  human-readable assets. Agents, modelers, scientists, and trial managers all
+  human-readable assets. Agents, modelers, scientists, and project teams all
   operate on the same linked objects, breaking silos between R&D roles.
 - **Auditability**: Every action maps to a documented REST API operation.
   Each change spawns a labeled version snapshot recording *who*, *what payload*,
   and *when*, so an agent's work is fully traceable and reviewable.
-- **Deterministic & immutable**: Resources are versioned and immutable;
-  simulations are reproducible from their referenced inputs. An agent can re-run,
-  diff, and revert to any prior version in one step, with no hidden state.
+- **Verifiable loops**: The SDK exposes a practical harness for agent workflows:
+  agents can create or edit assets, call sanity checks, inspect structured
+  feedback, apply a focused fix, and check again. Automated diagnostics cover
+  issues such as unit checking failures, missing variables, invalid references,
+  circular references, and trial setup problems before expensive runs start.
 - **Validation & diagnostics**: Built-in calibration, goodness-of-fit, and
-  quantitative validation methods let agents check model and trial outputs
+  quantitative validation methods let agents compare model and trial outputs
   against data and surface actionable errors instead of silent failures.
 - **Efficiency & scalability**: Out-of-the-box parallelization runs large
   virtual populations and trial sweeps across many cores or a cluster, so agents
   can explore broad scenario spaces quickly.
 
-The platform's own AI assistant, [Kōhai](https://doc.jinko.ai/docs/platform/core-features-AI/kohai-philosophy/),
+The platform's own AI assistant,
+[Kōhai](https://doc.jinko.ai/docs/platform/core-features-AI/kohai-philosophy/),
 embodies the same contract: it can do nothing a user could not do via the UI or
 API, keeps the human in the loop, and records every action as a reversible
 version. These skills give external agents that same bounded, auditable surface.
 
 ## Available skills
 
-Together these skills cover the full in-silico trial lifecycle: from context
-and setup, through modeling and population design, to running trials and
-analyzing results.
+Together these skills cover a broad modeler workflow: from context, setup, and
+evidence scoping, through model and population design, to running in silico
+trials and analyzing results.
 
 | Skill | Purpose |
 | --- | --- |
 | `jk-context` | Core Jinkō concepts, navigation, and domain terminology. |
-| `jk-sdk-setup` | Authenticate and configure access to a Jinkō project. |
-| `jk-model` | Build or edit Jinkō computational models (QSP / PK-PD). |
-| `jk-protocol` | Design or edit multi-arm protocol designs. |
-| `jk-vpop` | Create, generate, and inspect virtual populations. |
 | `jk-data-table` | Create or inspect data tables for overlays and calibration. |
-| `jk-trial` | Set up, run, poll, and download in-silico trial results. |
+| `jk-literature-search` | Find and shortlist citation-grounded biomedical publications. |
+| `jk-model` | Build, edit, sanity-check, and debug Jinkō computational models. |
+| `jk-protocol` | Design or edit multi-arm protocol designs. |
+| `jk-sdk-setup` | Authenticate and configure access to a Jinkō project. |
 | `jk-solution-and-product-guide` | Guidance on Jinkō solutions and product features. |
+| `jk-trial` | Set up, sanity-check, run, poll, and download in silico trial results. |
+| `jk-trial-data-scoping` | Scope public ClinicalTrials.gov records and results availability. |
+| `jk-vpop` | Create, generate, and inspect virtual populations. |
+
+Need a Jinkō account? [Request a demo](https://www.jinko.ai/) to get started.
 
 ## Installation
 
@@ -88,6 +114,6 @@ MIT: see [LICENSE](./LICENSE).
 
 ---
 
-Maintained by [Nova In Silico](https://novainsilico.ai). This repository is
-published from an internal monorepo; please open issues and discussion at the
-public repository.
+Maintained by [Nova In Silico](https://www.novainsilico.ai/). This repository is
+published from an internal monorepo. You can open issues, discussions, and skill
+requests directly in this public GitHub repository.
