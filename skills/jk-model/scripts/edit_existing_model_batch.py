@@ -117,10 +117,10 @@ def main() -> int:
         model = client.get_model(args.model_sid)
         model = model.edit_solving_options(
             {"unitCheck": args.unit_check},
-            version_name=f"{args.version_name}: solving options",
+            version=f"{args.version}: solving options",
         )
 
-        with model.components.batch(version_name=args.version_name) as batch:
+        with model.components.batch(version=args.version) as batch:
             batch.edit_parameter(args.parameter_id).set_formula(args.parameter_formula)
             batch.create_parameter(
                 id=args.new_parameter_id,
@@ -140,7 +140,7 @@ def main() -> int:
                 )
 
         refreshed = client.get_model(args.model_sid)
-        diagnostics = refreshed.get_diagnostics().errors()
+        diagnostics = refreshed.diagnostics.errors()
         if diagnostics:
             print(
                 "Batch committed, but model diagnostics contain errors:",

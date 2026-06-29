@@ -387,7 +387,7 @@ def main() -> int:
         if folder is not None:
             output_set = output_set.move_to_folder(
                 folder,
-                version_name="move simple output set to folder",
+                version="move simple output set to folder",
             )
         if data_tables:
             trial = create_trial_with_data_tables(

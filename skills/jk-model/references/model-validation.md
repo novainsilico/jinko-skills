@@ -5,7 +5,7 @@ A complete technical model has no error-level diagnostics and can solve with `si
 ## Diagnostics
 
 ```python
-diagnostics = model.get_diagnostics().errors()
+diagnostics = model.diagnostics.errors()
 if diagnostics:
     for entry in diagnostics:
         diagnostic = entry.diagnostic

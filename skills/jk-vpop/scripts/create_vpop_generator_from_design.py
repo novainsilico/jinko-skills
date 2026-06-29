@@ -166,7 +166,7 @@ def main() -> int:
             print(generator.url)
 
         if args.generate:
-            vpop = generator.generate_vpop_by_design(
+            vpop = generator.generate_vpop(
                 size=args.size,
                 seed=args.seed,
                 variance_reduction=args.variance_reduction,

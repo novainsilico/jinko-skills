@@ -4,7 +4,7 @@ Agent skills for using [Jinkō](https://jinko.ai) through AI assistants, coding
 agents, and agentic workflows, following the
 [agentskills.io](https://agentskills.io) specification.
 
-Jinkō is a platform for biology-grounded modeling, virtual populations, and *In-Silico* trial simulation. These skills make Jinkō easier for agents to use safely and consistently through the [`jinko` Python SDK](https://pypi.org/project/jinko-sdk/).
+Jinkō is a platform for biology-grounded modeling, virtual populations, and *In-Silico* trial simulation. These skills make Jinkō easier for agents to use safely and consistently through the typed python [`jinko-sdk`](https://pypi.org/project/jinko-sdk/).
 
 ## Vision
 
@@ -26,7 +26,7 @@ Headless does not mean UI-less. It means agent-ready.
 ## What is Jinkō?
 
 [Jinkō](https://doc.jinko.ai) is [Nova In Silico's](https://novainsilico.ai)
-cloud platform for biology-grounded modeling and **in silico trial simulation**:
+platform for biology-grounded modeling and **in silico trial simulation**:
 it combines computational models with AI/ML to build digital twins and virtual
 cohorts, then runs simulations that help predict outcomes.
 
@@ -34,6 +34,8 @@ A complete project lifecycle can run through these skills and the SDK: scope
 evidence, curate data and knowledge, build or adapt a model, design multi-arm
 protocols, generate virtual populations, run trials at scale, and analyze
 results.
+
+Jinkō comes in two flavors: multi-tenant SaaS (managed by Nova) or **on-premise**, deployed as a dedicated instance within your own private cloud environment, such as instances on AWS, Azure or Google Cloud Platform.
 
 ## Why Jinkō is powerful for agents
 
@@ -48,8 +50,8 @@ agents safe and effective:
 - **Auditability**: Every action maps to a documented REST API operation.
   Each change spawns a labeled version snapshot recording *who*, *what payload*,
   and *when*, so an agent's work is fully traceable and reviewable.
-- **Verifiable loops**: The SDK exposes a practical harness for agent workflows:
-  agents can create or edit assets, call sanity checks, inspect structured
+- **Verifiable loops**: The SDK exposes an actionable harness for agent workflows:
+  agents can create or edit assets, call **sanity checks**, get
   feedback, apply a focused fix, and check again. Automated diagnostics cover
   issues such as unit checking failures, missing variables, invalid references,
   circular references, and trial setup problems before expensive runs start.
@@ -60,12 +62,6 @@ agents safe and effective:
   virtual populations and trial sweeps across many cores or a cluster, so agents
   can explore broad scenario spaces quickly.
 
-The platform's own AI assistant,
-[Kōhai](https://doc.jinko.ai/docs/platform/core-features-AI/kohai-philosophy/),
-embodies the same contract: it can do nothing a user could not do via the UI or
-API, keeps the human in the loop, and records every action as a reversible
-version. These skills give external agents that same bounded, auditable surface.
-
 ## Available skills
 
 Together these skills cover a broad modeler workflow: from context, setup, and
@@ -74,18 +70,21 @@ trials and analyzing results.
 
 | Skill | Purpose |
 | --- | --- |
-| `jk-context` | Core Jinkō concepts, navigation, and domain terminology. |
-| `jk-data-table` | Create or inspect data tables for overlays and calibration. |
-| `jk-literature-search` | Find and shortlist citation-grounded biomedical publications. |
-| `jk-model` | Build, edit, sanity-check, and debug Jinkō computational models. |
-| `jk-protocol` | Design or edit multi-arm protocol designs. |
-| `jk-sdk-setup` | Authenticate and configure access to a Jinkō project. |
-| `jk-solution-and-product-guide` | Guidance on Jinkō solutions and product features. |
-| `jk-trial` | Set up, sanity-check, run, poll, and download in silico trial results. |
-| `jk-trial-data-scoping` | Scope public ClinicalTrials.gov records and results availability. |
-| `jk-vpop` | Create, generate, and inspect virtual populations. |
+| [`jk-context`](./skills/jk-context/SKILL.md) | Core Jinkō concepts, navigation, and domain terminology. |
+| [`jk-data-table`](./skills/jk-data-table/SKILL.md) | Create or inspect data tables for overlays and calibration. |
+| [`jk-document`](./skills/jk-document/SKILL.md) | Create or update Jinkō documents from markdown through the SDK. |
+| [`jk-literature-search`](./skills/jk-literature-search/SKILL.md) | Find and shortlist citation-grounded biomedical publications. |
+| [`jk-mistral-ocr`](./skills/jk-mistral-ocr/SKILL.md) | Run one PDF through Mistral OCR with annotations and image crops. |
+| [`jk-model`](./skills/jk-model/SKILL.md) | Build, edit, sanity-check, and debug Jinkō computational models. |
+| [`jk-protocol`](./skills/jk-protocol/SKILL.md) | Design or edit multi-arm protocol designs. |
+| [`jk-sdk-setup`](./skills/jk-sdk-setup/SKILL.md) | Authenticate and configure access to a Jinkō project. |
+| [`jk-solution-and-product-guide`](./skills/jk-solution-and-product-guide/SKILL.md) | Guidance on Jinkō solutions and product features. |
+| [`jk-trial`](./skills/jk-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |
+| [`jk-trial-data-scoping`](./skills/jk-trial-data-scoping/SKILL.md) | Scope public ClinicalTrials.gov records and results availability. |
+| [`jk-trial-viz`](./skills/jk-trial-viz/SKILL.md) | Create, inspect, sanity-check, and retrieve Jinkō trial visualizations. |
+| [`jk-vpop`](./skills/jk-vpop/SKILL.md) | Create, generate, and inspect virtual populations. |
 
-Need a Jinkō account? [Request a demo](https://www.jinko.ai/) to get started.
+Need a Jinkō account? [Request a demo](https://www.jinko.ai/#Form) to get started.
 
 ## Installation
 

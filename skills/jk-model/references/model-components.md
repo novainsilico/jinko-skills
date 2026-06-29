@@ -5,7 +5,7 @@ Use high-level component methods on `model.components`. Prefer batching for edit
 ## Batch Pattern
 
 ```python
-with model.components.batch(version_name="retune") as batch:
+with model.components.batch(version="retune") as batch:
     batch.edit_parameter("k_clearance").set_formula("CL2 / V")
     batch.create_parameter(id="k_new", formula="0.8", unit="1/h")
 ```

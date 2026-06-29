@@ -116,7 +116,7 @@ def main() -> int:
     try:
         client = JinkoClient()
         model = client.get_model(args.model_sid)
-        diagnostics = model.get_diagnostics().errors()
+        diagnostics = model.diagnostics.errors()
         has_error = False
 
         if diagnostics:

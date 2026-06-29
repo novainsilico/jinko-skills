@@ -67,7 +67,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
 
 
 def report_diagnostics(model: Any) -> bool:
-    diagnostics = model.get_diagnostics().errors()
+    diagnostics = model.diagnostics.errors()
     if not diagnostics:
         return False
 
@@ -145,10 +145,10 @@ def main() -> int:
                 "unitCheck": PREFERRED_UNIT_CHECK,
                 "extentUnits": "mol",
             },
-            version_name="set unit policy",
+            version="set unit policy",
         )
 
-        with model.components.batch(version_name="minimal model components") as batch:
+        with model.components.batch(version="minimal model components") as batch:
             batch.create_compartment(id="central", volume=1.0, unit="L", constant=True)
             batch.create_parameter(id="Dose", formula=1.0, unit="mol", constant=True)
             batch.create_parameter(id="k_elim", formula=0.1, unit="1/h", constant=True)

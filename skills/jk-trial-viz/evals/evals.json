@@ -1,0 +1,29 @@
+{
+  "skill_name": "jk-trial-viz",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a Jinkō trial visualization for trial SID tr-demo with time-series plots for Drug and TumorVolume, scalar plots for AUC and Cmax, and show me how to sanity-check just those sections.",
+      "expected_output": "Uses jk-trial-viz, resolves trial core/snapshot ids from the trial SID, creates a TrialVisualization through the raw result_manager endpoint or bundled script, configures timeseries and scalars sections, and includes a scoped sanity check for timeseries and scalars.",
+      "files": [],
+      "assertions": [
+        "The output treats TrialVisualization creation as a raw request or uses the bundled trial_viz_raw.py script.",
+        "The output includes trialId with coreItemId and snapshotId resolved from the trial SID.",
+        "The output configures both timeseries and scalars sections.",
+        "The output includes a sanity-check step scoped to timeseries and scalars."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I already have a trial viz tv-demo. Patch it to add a scatter plot comparing AUC vs Cmax across control and treated arms, then retrieve the resulting visualization JSON.",
+      "expected_output": "Uses a PATCH against the TrialVisualization core item or the bundled script, builds an XvsY scatterPlotConfig with x=AUC, y=Cmax and arms control/treated, and fetches the latest visualization content afterward.",
+      "files": [],
+      "assertions": [
+        "The output patches an existing TrialVisualization rather than creating an unrelated new trial.",
+        "The output uses scatterPlots.scatterPlotConfig with mode XvsY.",
+        "The output includes x variable AUC, y variable Cmax, and the control and treated arms.",
+        "The output retrieves the visualization JSON after patching."
+      ]
+    }
+  ]
+}

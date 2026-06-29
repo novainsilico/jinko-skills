@@ -19,7 +19,7 @@ Use this skill for technical model construction and editing through the SDK. Kee
 - Prefer editing an existing model over recreating a model from scratch.
 - Start a new model only when the user explicitly needs one, using `client.create_empty_model()`.
 - Favor high-level component methods; do not build raw model payloads unless the typed SDK surface cannot express the requested edit.
-- Favor `model.components.batch(version_name=...)` for component changes so related edits are committed as one model version.
+- Favor `model.components.batch(version=...)` for component changes so related edits are committed as one model version.
 - Treat a complete model as one with no error-level diagnostics and a successful `simple_solve()` for relevant outputs.
 - Report diagnostics or solve errors clearly and ask whether the user wants them fixed.
 
@@ -36,9 +36,9 @@ Use this skill for technical model construction and editing through the SDK. Kee
 2. If the user has a model SID, retrieve it with `client.get_model("<model-sid>")`.
 3. If the user needs a new model, create an empty model, then add components in a batch.
 4. Set solving options intentionally, especially `unitCheck`.
-5. Stage component changes with `model.components.batch(version_name="...")`.
+5. Stage component changes with `model.components.batch(version="...")`.
 6. Re-fetch the model after edits if you need fresh diagnostics or solving behavior.
-7. Check diagnostics with `model.get_diagnostics().errors()`.
+7. Check diagnostics with `model.diagnostics.errors()`.
 8. Check solvability with `model.simple_solve(timeseries_ids=[...])`, using `model.time_dependent_ids()` as the default candidate outputs when the user has not specified ids.
 9. If the default `simple_solve` candidates exceed 10 ids, preselect the first 10 returned by `model.time_dependent_ids()` and ask the user to confirm or adjust the selection before solving.
 
