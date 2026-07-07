@@ -53,6 +53,36 @@ protocol = client.create_protocol_design(
 )
 ```
 
+## SDK Create From CSV Pattern
+
+`create_protocol_design_from_csv` posts the CSV file as-is; the platform
+parses and validates it server-side against its own protocol design CSV
+schema, one row per arm. `armControl`, `armIsActive`, and `armWeight` are
+optional columns; every other column is an override key, matching the same
+`Dose`/`route` overrides used in the JSON example above.
+
+`assets/toy_protocol_arms.csv` (equivalent to the JSON arms above, minus
+`iv_high_dose`'s override values differing only by dose):
+
+```csv
+armName,armControl,armIsActive,armWeight,Dose,route
+iv_low_dose,,true,1,1.0,iv
+po_mid_dose,iv_low_dose,true,1,2.0,po
+iv_high_dose,iv_low_dose,true,1,3.0,iv
+```
+
+```python
+folder = client.folders.get_by_name("2026-06-15-regimens", exact_match_only=True)
+protocol = client.create_protocol_design_from_csv(
+    csv_file_path="skills/jk-protocol/assets/toy_protocol_arms.csv",
+    folder=folder,
+)
+```
+
+This path does not accept a `model` argument. To bind a model, use
+`client.create_protocol_design(arms, model=model)` with an explicit arm list
+instead.
+
 ## Override Keys
 
 The override `key` must target a model input that can be overridden by the protocol. For the toy model, `Dose` and `route` are model components. If these inputs are absent, use `jk-model` first.

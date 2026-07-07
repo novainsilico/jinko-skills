@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import time
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree as ET
 
 try:
     from common import (
@@ -15,6 +17,7 @@ try:
         load_env_file,
         normalize_doi,
         require_ncbi_params,
+        require_requests,
         write_json,
     )
     from publication_download import download_publications
@@ -25,13 +28,16 @@ except ImportError:  # pragma: no cover
         load_env_file,
         normalize_doi,
         require_ncbi_params,
+        require_requests,
         write_json,
     )
     from .publication_download import download_publications
 
 ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 ESUMMARY_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 CROSSREF_WORKS_URL = "https://api.crossref.org/works"
+ICITE_URL = "https://icite.od.nih.gov/api/pubs"
 MONTHS = {
     "jan": 1,
     "feb": 2,
@@ -482,16 +488,200 @@ def _select_references_human_in_loop(
         return [references[index - 1] for index in indices]
 
 
+def _fetch_abstracts_via_efetch(
+    pmids: list[str],
+    base_params: dict[str, str],
+    output_dir: Path,
+) -> dict[str, str]:
+    """Fetch abstract text for each PMID via PubMed efetch. Returns {pmid: abstract}.
+
+    Structured abstracts (with Label attributes) are concatenated with their labels.
+    Best-effort: errors return an empty dict rather than crashing the pipeline.
+    """
+    if not pmids:
+        return {}
+    requests = require_requests()
+    time.sleep(0.34)  # PubMed rate limit: 3 req/s without API key
+    try:
+        response = requests.get(
+            EFETCH_URL,
+            params={
+                **base_params,
+                "db": "pubmed",
+                "id": ",".join(pmids),
+                "rettype": "abstract",
+                "retmode": "xml",
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        xml_text = response.text
+    except Exception:
+        return {}
+    (output_dir / "efetch_abstracts.xml").write_text(xml_text, encoding="utf-8")
+    abstracts: dict[str, str] = {}
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return abstracts
+    for article in root.iter("PubmedArticle"):
+        pmid_el = article.find(".//MedlineCitation/PMID")
+        if pmid_el is None or not pmid_el.text:
+            continue
+        pmid = pmid_el.text.strip()
+        parts: list[str] = []
+        for abs_text in article.findall(".//Abstract/AbstractText"):
+            label = abs_text.get("Label", "").strip()
+            text = "".join(abs_text.itertext()).strip()
+            if not text:
+                continue
+            parts.append(f"{label}: {text}" if label else text)
+        if parts:
+            abstracts[pmid] = "\n".join(parts)
+    return abstracts
+
+
+def _fetch_icite_citations(pmids: list[str]) -> dict[str, int]:
+    """Fetch citation counts via NIH iCite. Returns {pmid: citation_count}.
+
+    iCite is more reliable than Crossref for PubMed papers, especially older trials.
+    Best-effort: errors return what was collected so far rather than crashing.
+    """
+    if not pmids:
+        return {}
+    requests = require_requests()
+    counts: dict[str, int] = {}
+    chunk_size = 500  # iCite accepts up to ~1000 PMIDs per call; 500 is safer
+    for i in range(0, len(pmids), chunk_size):
+        chunk = pmids[i : i + chunk_size]
+        try:
+            response = requests.get(
+                ICITE_URL,
+                params={"pmids": ",".join(chunk)},
+                timeout=30,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception:
+            continue
+        if not isinstance(payload, dict):
+            continue
+        data = payload.get("data", [])
+        if not isinstance(data, list):
+            continue
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            pmid = str(item.get("pmid", "")).strip()
+            count = item.get("citation_count")
+            if pmid and isinstance(count, int):
+                counts[pmid] = count
+    return counts
+
+
+def _fetch_pmc_text_excerpt(pmcid: str, base_params: dict[str, str]) -> str:
+    """Fetch PMC full-text XML and extract Results + Methods sections (truncated).
+
+    Returns up to ~5000 chars of section text, prefixed with section titles.
+    Best-effort: errors return empty string.
+    """
+    if not pmcid:
+        return ""
+    pmcid_num = pmcid.replace("PMC", "").strip()
+    if not pmcid_num:
+        return ""
+    requests = require_requests()
+    time.sleep(0.34)
+    try:
+        response = requests.get(
+            EFETCH_URL,
+            params={
+                **base_params,
+                "db": "pmc",
+                "id": pmcid_num,
+                "retmode": "xml",
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        xml_text = response.text
+    except Exception:
+        return ""
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return ""
+    parts: list[str] = []
+    keywords = ("result", "method", "discussion", "finding", "outcome")
+    for sec in root.iter("sec"):
+        # Match by sec-type attribute (common) OR by <title> text (more common in practice).
+        sec_type = (sec.get("sec-type", "") or "").lower()
+        title_el = sec.find("title")
+        title_text = ""
+        if title_el is not None:
+            title_text = "".join(title_el.itertext()).strip()
+        haystack = (sec_type + " " + title_text).lower()
+        if not any(k in haystack for k in keywords):
+            continue
+        text = " ".join(sec.itertext()).strip()
+        if text:
+            label = title_text or sec_type or "section"
+            parts.append(f"[{label}]\n{text[:3000]}")
+    return "\n\n".join(parts)[:5000]
+
+
+def _enrich_references(
+    references: list[dict[str, Any]],
+    abstracts_by_pmid: dict[str, str],
+    icite_by_pmid: dict[str, int],
+) -> None:
+    """In-place: add `abstract`, `icite_citation_count`; update `is_referenced_by_count`."""
+    for ref in references:
+        pmid = str(ref.get("pmid", "")).strip()
+        if not pmid:
+            continue
+        if pmid in abstracts_by_pmid:
+            ref["abstract"] = abstracts_by_pmid[pmid]
+        if pmid in icite_by_pmid:
+            icite_count = int(icite_by_pmid[pmid])
+            ref["icite_citation_count"] = icite_count
+            crossref_count = int(ref.get("is_referenced_by_count") or 0)
+            ref["is_referenced_by_count"] = max(crossref_count, icite_count)
+
+
+def _enrich_references_with_pmc_text(
+    references: list[dict[str, Any]],
+    base_params: dict[str, str],
+) -> int:
+    """For each ref with a `pmcid`, fetch PMC text and attach `pmc_text_excerpt`.
+
+    Returns the number of references successfully enriched.
+    """
+    enriched = 0
+    for ref in references:
+        pmcid = str(ref.get("pmcid", "")).strip()
+        if not pmcid:
+            continue
+        excerpt = _fetch_pmc_text_excerpt(pmcid, base_params)
+        if excerpt:
+            ref["pmc_text_excerpt"] = excerpt
+            enriched += 1
+    return enriched
+
+
 def run_literature_search(
     *,
     query: str,
     output_dir: Path,
-    retmax: int = 10,
+    retmax: int = 50,
     enable_prompt_selection: bool = True,
     enable_publication_download: bool = False,
     enable_ranking: bool = False,
     objective_keywords: str = "",
     compartment_keywords: str = "",
+    seed_pmids: list[str] | None = None,
+    fetch_pmc_fulltext: bool = False,
+    sort: str = "relevance",
 ) -> dict[str, Any]:
     """Run the standalone literature search pipeline and persist artifacts."""
     load_env_file(Path(".env"))
@@ -499,7 +689,9 @@ def run_literature_search(
     output_dir_abs.mkdir(parents=True, exist_ok=True)
 
     base_params = require_ncbi_params()
-    safe_retmax = max(1, min(retmax, 50))
+    safe_retmax = max(1, min(retmax, 200))
+    allowed_sorts = {"relevance", "pub_date", "Author", "JournalName"}
+    safe_sort = sort if sort in allowed_sorts else "relevance"
     esearch_payload = get_json(
         ESEARCH_URL,
         {
@@ -507,7 +699,7 @@ def run_literature_search(
             "db": "pubmed",
             "retmode": "json",
             "retmax": safe_retmax,
-            "sort": "relevance",
+            "sort": safe_sort,
             "term": query,
         },
     )
@@ -519,6 +711,31 @@ def run_literature_search(
         if isinstance(id_list, list)
         else []
     )
+
+    # Seed-PMID extra esearch (calibration-context recovery for known anchors)
+    seed_pmid_set: set[str] = set()
+    if seed_pmids:
+        seed_clean = [str(p).strip() for p in seed_pmids if str(p).strip()]
+        if seed_clean:
+            seed_query = " OR ".join(f"{p}[uid]" for p in seed_clean)
+            seed_payload = get_json(
+                ESEARCH_URL,
+                {
+                    **base_params,
+                    "db": "pubmed",
+                    "retmode": "json",
+                    "retmax": max(len(seed_clean), 1),
+                    "term": seed_query,
+                },
+            )
+            write_json(output_dir_abs / "esearch_seed.json", seed_payload)
+            seed_ids = seed_payload.get("esearchresult", {}).get("idlist", []) or []
+            for sid in seed_ids:
+                sid_str = str(sid).strip()
+                if sid_str:
+                    seed_pmid_set.add(sid_str)
+                    if sid_str not in pmids:
+                        pmids.append(sid_str)
 
     esummary_payload: dict[str, Any] = {"result": {"uids": []}}
     if pmids:
@@ -596,6 +813,22 @@ def run_literature_search(
             )
             seen_pmids.add(pmid)
 
+    # Enrich: abstracts via efetch + citation counts via iCite (always on)
+    abstracts_by_pmid = _fetch_abstracts_via_efetch(pmids, base_params, output_dir_abs)
+    icite_by_pmid = _fetch_icite_citations(pmids)
+    _enrich_references(references, abstracts_by_pmid, icite_by_pmid)
+
+    # Optional: PMC full-text excerpt for refs with PMCID
+    pmc_enriched_count = 0
+    if fetch_pmc_fulltext:
+        pmc_enriched_count = _enrich_references_with_pmc_text(references, base_params)
+
+    # Flag seeded refs in their query_provenance so downstream ranking can see them
+    if seed_pmid_set:
+        for ref in references:
+            if str(ref.get("pmid", "")).strip() in seed_pmid_set:
+                ref["seeded_anchor"] = True
+
     references.sort(key=lambda ref: int(ref.get("pmid", "0") or 0), reverse=True)
     if enable_ranking:
         references = _apply_reference_ranking(
@@ -646,18 +879,31 @@ def run_literature_search(
         "summary_table.json": display_path(output_dir_abs / "summary_table.json"),
         "README.md": display_path(output_dir_abs / "README.md"),
     }
+    if (output_dir_abs / "efetch_abstracts.xml").exists():
+        artifacts["efetch_abstracts.xml"] = display_path(
+            output_dir_abs / "efetch_abstracts.xml"
+        )
+    if seed_pmid_set and (output_dir_abs / "esearch_seed.json").exists():
+        artifacts["esearch_seed.json"] = display_path(
+            output_dir_abs / "esearch_seed.json"
+        )
     if download_manifest_path is not None:
         artifacts["downloads_manifest.json"] = display_path(download_manifest_path)
     manifest = {
-        "stage": "jk-literature-search-standalone",
+        "stage": "jk-task-literature-search-standalone",
         "query": query,
         "retmax": safe_retmax,
+        "sort": safe_sort,
         "selection_mode": "prompt" if enable_prompt_selection else "non_interactive",
         "status": "completed",
         "counts": {
             "pmids": len(pmids),
             "doi_candidates": len(summary_by_doi),
             "crossref_matches": len(references),
+            "abstracts_fetched": len(abstracts_by_pmid),
+            "icite_enriched": len(icite_by_pmid),
+            "pmc_fulltext_enriched": pmc_enriched_count,
+            "seeded_anchors": len(seed_pmid_set),
             "selected": len(selected_references),
             "downloaded": (
                 int(download_summary.get("downloaded_count", 0))
@@ -698,7 +944,28 @@ def _build_parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, required=True, help="Artifact destination."
     )
     parser.add_argument(
-        "--retmax", type=int, default=10, help="PubMed max result count."
+        "--retmax",
+        type=int,
+        default=50,
+        help=(
+            "PubMed max result count per query. "
+            "Default 50, hard cap 200 (raised from the previous hard cap of 50). "
+            "Above the cap the script silently downcaps; 200 is the sweet spot "
+            "where PubMed relevance signal is still meaningful."
+        ),
+    )
+    parser.add_argument(
+        "--sort",
+        type=str,
+        default="relevance",
+        choices=["relevance", "pub_date", "Author", "JournalName"],
+        help=(
+            "PubMed esearch sort order. `relevance` (default) favours recent + "
+            "highly cited contemporary work; `pub_date` returns most-recent first "
+            "and is the right choice when recovering foundational older papers "
+            "(combine with a date range in the query). `Author` / `JournalName` "
+            "are niche."
+        ),
     )
     parser.add_argument(
         "--no-prompt-selection",
@@ -727,12 +994,34 @@ def _build_parser() -> argparse.ArgumentParser:
         default="",
         help="Optional compartment keywords for ranking.",
     )
+    parser.add_argument(
+        "--seed-pmids",
+        type=str,
+        default="",
+        help=(
+            "Comma-separated PMIDs to guarantee in the candidate pool "
+            "(calibration-context anchor recovery). Each PMID is added via an "
+            "extra esearch using <PMID>[uid] OR clauses."
+        ),
+    )
+    parser.add_argument(
+        "--fetch-pmc-fulltext",
+        action="store_true",
+        help=(
+            "For each reference with a PMCID, fetch PMC full-text Results+Methods "
+            "section excerpts (truncated to ~5000 chars) and attach as "
+            "`pmc_text_excerpt`."
+        ),
+    )
     return parser
 
 
 def main() -> None:
     """Run literature search from CLI."""
     args = _build_parser().parse_args()
+    seed_pmids_list: list[str] | None = None
+    if args.seed_pmids:
+        seed_pmids_list = [p.strip() for p in args.seed_pmids.split(",") if p.strip()]
     summary = run_literature_search(
         query=args.query,
         output_dir=args.output_dir,
@@ -742,6 +1031,9 @@ def main() -> None:
         enable_ranking=args.enable_ranking,
         objective_keywords=args.objective_keywords,
         compartment_keywords=args.compartment_keywords,
+        seed_pmids=seed_pmids_list,
+        fetch_pmc_fulltext=args.fetch_pmc_fulltext,
+        sort=args.sort,
     )
     print(json.dumps(summary, indent=2))
 

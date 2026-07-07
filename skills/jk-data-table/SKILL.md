@@ -1,7 +1,7 @@
 ---
 name: jk-data-table
 description: >-
-  Create or inspect Jinkō data tables via the jinko-sdk. Use this skill whenever the user wants to upload observed data for trial overlays or calibration objectives from CSV, SQLite, or pandas DataFrame; check data-table schema columns; inspect existing data tables; or verify metadata.public.validForFitnessFunction. Do not use this skill for output sets; output sets are intentionally out of scope for now.
+  Create or inspect Jinkō data tables via the jinko-sdk. Use this skill whenever the user wants to upload observed data for trial overlays or calibration objectives from CSV, SQLite, or pandas DataFrame; check data-table schema columns; inspect existing data tables; or verify metadata.public.validForFitnessFunction. Do not use this skill for output sets; use jk-output-set for that.
 compatibility: >-
   Check set-up with the `jk-sdk-setup` skill. Creating data tables requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:

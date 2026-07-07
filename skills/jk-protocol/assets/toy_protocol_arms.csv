@@ -1,0 +1,4 @@
+armName,armControl,armIsActive,armWeight,Dose,route
+iv_low_dose,,true,1,1.0,iv
+po_mid_dose,iv_low_dose,true,1,2.0,po
+iv_high_dose,iv_low_dose,true,1,3.0,iv

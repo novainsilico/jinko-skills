@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "jk-task-literature-search shortlist candidate",
+  "description": "Structured per-candidate object emitted by jk-task-literature-search. One row in summary_table.json with extras in references.json. The Markdown shortlist (Step 4) is rendered from this object; downstream skills (nova-workflow-knowledge-investigation, nova-workflow-calib-plan, nova-workflow-project-scoping, jk-task-extract-data-table) consume this shape.",
+  "type": "object",
+  "required": [
+    "intent_group",
+    "evidence_type",
+    "entities",
+    "verification_passed",
+    "priority",
+    "priority_rationale",
+    "query_provenance"
+  ],
+  "properties": {
+    "pmid": { "type": "string" },
+    "doi": { "type": "string" },
+    "nct_id": {
+      "type": "string",
+      "description": "ClinicalTrials.gov NCT identifier when the candidate is a registry / results record, or when a publication has been linked to its registry entry by jk-trial-data-scoping."
+    },
+    "citation_ama": { "type": "string" },
+    "year": { "type": "integer" },
+    "venue": { "type": "string" },
+    "intent_group": {
+      "type": "string",
+      "enum": ["Knowledge", "Data", "Models"]
+    },
+    "evidence_type": {
+      "type": "string",
+      "description": "review | phase-3 trial | phase-2 trial | phase-1 trial | observational study | cohort study | registry | animal study | in vitro study | QSP model | PBPK model | Pop-PK model | mechanistic model | mathematical model | computational model | practice guideline | meta-analysis | clinical trial registry | clinical trial results | natural history registry | observational study registry"
+    },
+    "entities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "canonical_name values from the Entity Table built in Step 0"
+    },
+    "population_or_system": { "type": "string" },
+    "intervention_or_pathway": { "type": "string" },
+    "expected_evidence": {
+      "type": "string",
+      "description": "mechanism description | time-course data | dose-response data | equations and parameters | baseline characteristics | endpoint summary | etc."
+    },
+    "verification_passed": { "type": "boolean" },
+    "verification_note": {
+      "type": "string",
+      "description": "One line listing the matched verification signals (e.g. 'Table 1 reports week-24 HbA1c change-from-baseline, N=303')."
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "priority_rationale": { "type": "string" },
+    "query_provenance": {
+      "type": "array",
+      "description": "Which angled queries from the single search pass surfaced this candidate.",
+      "items": {
+        "type": "object",
+        "required": ["angle"],
+        "properties": {
+          "angle": { "type": "string", "description": "The PubMed query string (or, for NCT-seeded queries, the `<NCT_ID>[si]` query) that returned this candidate." }
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "properties": {
+        "pmcid": { "type": "string" },
+        "supplement_available": { "type": "boolean" },
+        "open_access": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -25,6 +25,7 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 ## Core Rules
 
 - Prefer `client.create_protocol_design(arms, model=model)` when a model is available.
+- Use `client.create_protocol_design_from_csv(csv_file_path=...)` when arms come from a spreadsheet. The CSV is posted as-is; the platform parses and validates it against its own protocol design CSV schema. This path does not accept a `model` argument; link a model with `client.create_protocol_design(...)` instead if that's required. See `assets/toy_protocol_arms.csv` for an example file and `references/protocol-design.md` for the SDK call.
 - Link protocol designs to a model when possible so the protocol design carries the model snapshot reference.
 - The override `key` must target a protocol-runnable model input, such as `Dose` or `route` in the toy model.
 - Use formulas as strings, for example `"1.0"`, `"iv"`, or `"PT24H"` depending on the target component.
@@ -41,11 +42,13 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 ## Bundled Assets
 
 - `assets/toy_protocol_arms.json`: three arms with two routes and three doses. The `iv` route repeats across two arms.
+- `assets/toy_protocol_arms.csv`: the same three arms in CSV form, one row per arm, for use with `create_protocol_design_from_csv`.
 - `assets/protocol.json`: subset of the OpenAPI schema for protocol arm shape.
 
 ## Bundled Scripts
 
 - `scripts/create_protocol_design.py`: creates a three-arm protocol design, optionally linked to a model.
+- `scripts/create_protocol_design_from_csv.py`: creates a protocol design from a CSV file of arms.
 - `scripts/edit_protocol_design_arms.py`: replaces scenario arms on an existing protocol design.
 - `scripts/inspect_protocol_design.py`: prints protocol content or a concise arm summary.
 
@@ -55,6 +58,7 @@ Examples:
 python skills/jk-protocol/scripts/create_protocol_design.py --model-sid cm-...
 python skills/jk-protocol/scripts/create_protocol_design.py --model-sid cm-... --apply
 python skills/jk-protocol/scripts/create_protocol_design.py --model-sid cm-... --folder 2026-06-15-regimens --create-folder --apply
+python skills/jk-protocol/scripts/create_protocol_design_from_csv.py --csv skills/jk-protocol/assets/toy_protocol_arms.csv --apply
 python skills/jk-protocol/scripts/edit_protocol_design_arms.py --protocol-design-sid pd-... --arms skills/jk-protocol/assets/toy_protocol_arms.json --apply
 python skills/jk-protocol/scripts/inspect_protocol_design.py --protocol-design-sid pd-... --summary
 ```

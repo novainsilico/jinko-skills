@@ -73,7 +73,7 @@ trials and analyzing results.
 | [`jk-context`](./skills/jk-context/SKILL.md) | Core Jinkō concepts, navigation, and domain terminology. |
 | [`jk-data-table`](./skills/jk-data-table/SKILL.md) | Create or inspect data tables for overlays and calibration. |
 | [`jk-document`](./skills/jk-document/SKILL.md) | Create or update Jinkō documents from markdown through the SDK. |
-| [`jk-literature-search`](./skills/jk-literature-search/SKILL.md) | Find and shortlist citation-grounded biomedical publications. |
+| [`jk-task-literature-search`](./skills/jk-task-literature-search/SKILL.md) | Find and shortlist citation-grounded biomedical publications. |
 | [`jk-mistral-ocr`](./skills/jk-mistral-ocr/SKILL.md) | Run one PDF through Mistral OCR with annotations and image crops. |
 | [`jk-model`](./skills/jk-model/SKILL.md) | Build, edit, sanity-check, and debug Jinkō computational models. |
 | [`jk-protocol`](./skills/jk-protocol/SKILL.md) | Design or edit multi-arm protocol designs. |

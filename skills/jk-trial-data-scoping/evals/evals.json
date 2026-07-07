@@ -30,10 +30,10 @@
     {
       "id": 3,
       "prompt": "I want papers on semaglutide exposure-response and DOI-normalized AMA citations. Is jk-trial-data-scoping the right skill?",
-      "expected_output": "Explains that jk-trial-data-scoping is only for ClinicalTrials.gov registry/result scoping, not PubMed publication discovery or citation normalization, and points to jk-literature-search while offering an in-scope ClinicalTrials.gov trial inventory if needed.",
+      "expected_output": "Explains that jk-trial-data-scoping is only for ClinicalTrials.gov registry/result scoping, not PubMed publication discovery or citation normalization, and points to jk-task-literature-search while offering an in-scope ClinicalTrials.gov trial inventory if needed.",
       "expectations": [
         "The output says PubMed publication discovery and citation normalization are out of scope.",
-        "The output points to jk-literature-search for literature and citation work.",
+        "The output points to jk-task-literature-search for literature and citation work.",
         "The output offers a useful in-scope alternative such as ClinicalTrials.gov trial scoping.",
         "The output does not reference misspelled or nonexistent skill names."
       ]

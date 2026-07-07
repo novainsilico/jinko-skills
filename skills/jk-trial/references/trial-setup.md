@@ -9,7 +9,7 @@ model = client.get_model("cm-...")
 folder = client.folders.get_by_name("2026-06-15-trial-run", exact_match_only=True)
 output_set = client.create_simple_output_set(model, ["Drug"])
 output_set = output_set.move_to_folder(folder)
-trial = client.create_trial(model, output_set=output_set, folder=folder)
+trial = client.create_trial(model, simple_output_set=output_set, folder=folder)
 ```
 
 Optional inputs can be added when they already exist:
@@ -19,11 +19,13 @@ trial = client.create_trial(
     model,
     vpop=client.get_vpop("vp-..."),
     protocol=client.get_protocol_design("pd-..."),
-    output_set=output_set,
-    scoring=client.get_scoring("sc-..."),
+    simple_output_set=output_set,
+    advanced_output_set=client.get_advanced_output_set("sc-..."),
     folder=folder,
 )
 ```
+
+For creating and editing the advanced output set itself (constraints, scalars, objectives, diagnostics), see `jk-output-set`.
 
 ## Data Tables
 

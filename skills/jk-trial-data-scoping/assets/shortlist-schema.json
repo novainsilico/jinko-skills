@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "jk-trial-data-scoping shortlist candidate",
+  "description": "Structured per-candidate object emitted by jk-trial-data-scoping. SHARED SCHEMA — kept in sync with .agents/skills-wip/jk-task-literature-search/assets/shortlist-schema.json so workflow callers (nova-workflow-calib-plan, nova-workflow-project-scoping) can union the two skills' shortlists into a single Data inventory. Trial-scoping candidates use intent_group = Data; evidence_type ∈ {clinical trial registry, clinical trial results, natural history registry, observational study registry}; query_provenance.angle holds the ClinicalTrials.gov v2 query string instead of a PubMed query string. Update both files together when extending fields.",
+  "type": "object",
+  "required": [
+    "intent_group",
+    "evidence_type",
+    "entities",
+    "verification_passed",
+    "priority",
+    "priority_rationale",
+    "query_provenance"
+  ],
+  "properties": {
+    "pmid": { "type": "string" },
+    "doi": { "type": "string" },
+    "nct_id": {
+      "type": "string",
+      "description": "ClinicalTrials.gov NCT identifier. Primary identifier for trial-scoping candidates."
+    },
+    "citation_ama": { "type": "string" },
+    "year": { "type": "integer" },
+    "venue": { "type": "string" },
+    "intent_group": {
+      "type": "string",
+      "enum": ["Knowledge", "Data", "Models"]
+    },
+    "evidence_type": {
+      "type": "string",
+      "description": "review | phase-3 trial | phase-2 trial | phase-1 trial | observational study | cohort study | registry | animal study | in vitro study | QSP model | PBPK model | Pop-PK model | mechanistic model | mathematical model | computational model | practice guideline | meta-analysis | clinical trial registry | clinical trial results | natural history registry | observational study registry"
+    },
+    "entities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "canonical_name values from the Entity Table built (or inherited from jk-task-literature-search) in Step 0."
+    },
+    "population_or_system": { "type": "string" },
+    "intervention_or_pathway": { "type": "string" },
+    "expected_evidence": {
+      "type": "string",
+      "description": "registry metadata | posted results | eligibility criteria | sites and sponsor | arms / interventions | recruitment status | declared endpoints | etc."
+    },
+    "verification_passed": { "type": "boolean" },
+    "verification_note": {
+      "type": "string",
+      "description": "One line listing the matched verification signals (e.g. 'hasResults=true; primary outcome table present; N=4733; Completed 2018')."
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "priority_rationale": { "type": "string" },
+    "query_provenance": {
+      "type": "array",
+      "description": "Which angled queries from the single search pass surfaced this candidate.",
+      "items": {
+        "type": "object",
+        "required": ["angle"],
+        "properties": {
+          "angle": { "type": "string", "description": "The ClinicalTrials.gov v2 query string (or facet) that returned this candidate." }
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "properties": {
+        "pmcid": { "type": "string" },
+        "supplement_available": { "type": "boolean" },
+        "open_access": { "type": "boolean" },
+        "has_results": {
+          "type": "boolean",
+          "description": "Whether the NCT record has a posted results section on ClinicalTrials.gov."
+        },
+        "overall_status": {
+          "type": "string",
+          "description": "ClinicalTrials.gov overall status (e.g. Completed, Active not recruiting, Recruiting, Terminated)."
+        }
+      }
+    }
+  }
+}

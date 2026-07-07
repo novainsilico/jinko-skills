@@ -82,7 +82,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
     return client.folders.create(folder_ref)
 
 
-def create_trial_with_data_tables(
+def create_trial_raw(
     client: Any,
     *,
     model: Any,
@@ -116,7 +116,7 @@ def create_trial_with_data_tables(
         payload["scoringDesignId"] = ref(scoring)
     if solving_options_override is not None:
         payload["solvingOptionsOverride"] = solving_options_override
-    return client.create_raw_trial(
+    return client.create_trial_from_json(
         payload,
         folder=folder,
         name=name,
@@ -377,7 +377,11 @@ def main() -> int:
             if args.protocol_design_sid
             else None
         )
-        scoring = client.get_scoring(args.scoring_sid) if args.scoring_sid else None
+        scoring = (
+            client.get_advanced_output_set(args.scoring_sid)
+            if args.scoring_sid
+            else None
+        )
         data_tables = [client.get_data_table(sid) for sid in args.data_table_sid]
         ensure_data_tables_can_attach(data_tables)
         output_ids = resolve_output_ids(model, args.output_id)
@@ -389,32 +393,19 @@ def main() -> int:
                 folder,
                 version="move simple output set to folder",
             )
-        if data_tables:
-            trial = create_trial_with_data_tables(
-                client,
-                model=model,
-                output_set=output_set,
-                vpop=vpop,
-                protocol=protocol,
-                scoring=scoring,
-                data_tables=data_tables,
-                solving_options_override=solving_options_override,
-                folder=folder,
-                name=args.name,
-                description=args.description,
-            )
-        else:
-            trial = client.create_trial(
-                model,
-                vpop=vpop,
-                protocol=protocol,
-                output_set=output_set,
-                scoring=scoring,
-                solving_options_override=solving_options_override,
-                folder=folder,
-                name=args.name,
-                description=args.description,
-            )
+        trial = create_trial_raw(
+            client,
+            model=model,
+            output_set=output_set,
+            vpop=vpop,
+            protocol=protocol,
+            scoring=scoring,
+            data_tables=data_tables,
+            solving_options_override=solving_options_override,
+            folder=folder,
+            name=args.name,
+            description=args.description,
+        )
 
         print(f"Created output set {output_set.sid}")
         print(f"Created trial {trial.sid}")

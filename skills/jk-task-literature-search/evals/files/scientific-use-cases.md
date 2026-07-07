@@ -1,6 +1,6 @@
 # Scientific Use Cases
 
-This file contains concise scientific briefs for testing `jk-literature-search`. Each use case is limited to scientific context, modeling question, and publication-discovery problem framing.
+This file contains concise scientific briefs for testing `jk-task-literature-search`. Each use case is limited to scientific context, modeling question, and publication-discovery problem framing.
 
 ## Use Case 1 - IL-2 Pathway Modulation In Autoimmune Disease
 

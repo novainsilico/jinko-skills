@@ -19,7 +19,7 @@ def require_requests() -> Any:
         return import_module("requests")
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
-            "The jk-literature-search scripts need the 'requests' package for "
+            "The jk-task-literature-search scripts need the 'requests' package for "
             "network calls. Run them through the repository Nix environment or "
             "install requests in the active Python environment."
         ) from exc
