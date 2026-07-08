@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "I am new to the Jinkō Python SDK. Help me install it, configure my .env, and run a minimal check that my API key and project ID work without exposing secrets.",
-      "expected_output": "Guides the user to install jinko and python-dotenv, use the .env.example template, avoid pasting secrets, and run scripts/check_jinko_connection.py."
+      "expected_output": "Guides the user to install jinko-sdk, use the .env.example template, avoid pasting secrets, and run scripts/check_jinko_connection.py."
     },
     {
       "id": 2,

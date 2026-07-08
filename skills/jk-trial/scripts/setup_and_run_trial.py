@@ -117,7 +117,7 @@ def create_trial_raw(
     if solving_options_override is not None:
         payload["solvingOptionsOverride"] = solving_options_override
     return client.create_trial_from_json(
-        payload,
+        json_content=payload,
         folder=folder,
         name=name,
         description=description,

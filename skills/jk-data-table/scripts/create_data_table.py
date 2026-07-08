@@ -168,14 +168,14 @@ def main() -> int:
         folder = resolve_folder(client, args.folder, create=args.create_folder)
         if args.method == "csv":
             table = client.create_data_table_from_csv(
-                str(source),
+                csv_file_path=str(source),
                 folder=folder,
                 name=args.name,
                 description=args.description,
             )
         elif args.method == "sqlite":
             table = client.create_data_table_from_sqlite(
-                str(source),
+                sqlite_file_path=str(source),
                 folder=folder,
                 name=args.name,
                 description=args.description,

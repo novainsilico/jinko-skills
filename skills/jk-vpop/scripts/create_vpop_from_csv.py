@@ -128,7 +128,7 @@ def main() -> int:
         folder = resolve_folder(client, args.folder, create=args.create_folder)
         if args.method == "csv":
             vpop = client.create_vpop_from_csv(
-                str(csv_path),
+                csv_file_path=str(csv_path),
                 folder=folder,
                 name=args.name,
                 description=args.description,

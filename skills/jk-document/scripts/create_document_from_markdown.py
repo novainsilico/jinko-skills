@@ -220,7 +220,7 @@ def main() -> None:
         markdown = inject_references(markdown, references_block)
 
     document = client.create_document_from_markdown(
-        markdown,
+        markdown_content=markdown,
         name=args.name,
         folder=args.folder,
         description=args.description,

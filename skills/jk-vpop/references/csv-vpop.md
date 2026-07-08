@@ -16,14 +16,19 @@ patientIndex,Dose,k_elim
 
 ## SDK Methods
 
-- `client.create_vpop_from_csv(path_or_bytes, name=...)`
+- `client.create_vpop_from_csv(csv_file_path=..., name=...)`
+- `client.create_vpop_from_csv(csv_content=..., name=...)`
 - `client.create_vpop_from_dataframe(df, name=..., folder=folder)`
 
 Example single-folder create:
 
 ```python
 folder = client.folders.get_by_name("2026-06-15-vpop-study", exact_match_only=True)
-vpop = client.create_vpop_from_csv("toy_vpop.csv", name="sdk-toy-vpop", folder=folder)
+vpop = client.create_vpop_from_csv(
+    csv_file_path="toy_vpop.csv",
+    name="sdk-toy-vpop",
+    folder=folder,
+)
 ```
 
 DataFrame upload serializes to CSV internally and requires pandas.
