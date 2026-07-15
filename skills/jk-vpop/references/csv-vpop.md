@@ -23,7 +23,7 @@ patientIndex,Dose,k_elim
 Example single-folder create:
 
 ```python
-folder = client.folders.get_by_name("2026-06-15-vpop-study", exact_match_only=True)
+folder = client.get_folder_by_name("2026-06-15-vpop-study", exact_match_only=True)
 vpop = client.create_vpop_from_csv(
     csv_file_path="toy_vpop.csv",
     name="sdk-toy-vpop",

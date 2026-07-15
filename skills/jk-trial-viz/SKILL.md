@@ -1,9 +1,9 @@
 ---
 name: jk-trial-viz
 description: >-
-  Create, update, inspect, sanity-check, and retrieve Jinkō TrialVisualization project items for completed or running trials. Use this skill whenever the user wants a trial visualization, trial viz, time-series plot setup, scalar result plots, scatter plots, contribution analysis, survival analysis, data overlays, or to fetch the current visualization JSON. TrialVisualization has only limited high-level SDK helpers; use SDK metadata listing/getting when available and raw Jinkō requests for content creation and plot configuration.
+  Create, update, inspect, sanity-check, and retrieve Jinkō TrialVisualization project items for completed or running trials. Use this skill whenever the user wants a trial visualization, trial viz, time-series plot setup, scalar result plots, scatter plots, contribution analysis, survival analysis, data overlays, or to fetch the current visualization JSON. The SDK exposes a typed TrialVisualization API: creation helpers plus a per-section subservice for every plot type.
 compatibility: >-
-  Check set-up with the `jk-sdk-setup` skill. Creating or patching trial visualizations requires write access to the Jinkō project. The current SDK exposes metadata helpers for trial visualizations but not rich content create/update helpers, so raw requests are expected.
+  Check set-up with the `jk-sdk-setup` skill. Creating or patching trial visualizations requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
   requires_sdk: ">=1.2,<2.0"
@@ -18,62 +18,52 @@ Keep trial execution and result downloads in `jk-trial`. Use this skill after a 
 
 ## Core Workflow
 
-1. Resolve the trial identifier.
-   - If the user gives a trial SID, use `client.get_trial(trial_sid)` and read `trial.core_id` and `trial.snapshot_id`.
-   - If the user gives core item id and snapshot id directly, use those as `trialId`.
-2. Decide the plot sections needed:
-   - `timeseries` for time-course outputs.
-   - `scalars` for scalar result distributions and central-location plots.
-   - `scatterPlots` for X-vs-X arms or X-vs-Y variables.
-   - `survivalAnalysis` for time-to-event visualizations.
-   - `contributionAnalysis` for tornado-style sensitivity/contribution views.
-   - `dataOverlay` when observed data tables should appear in the visualization.
-3. Create the TrialVisualization with raw `POST /core/v2/result_manager/trial_visualization`.
-4. Fetch the created content and run sanity, especially when plot ids, arm ids, data tables, or selectors were inferred.
-5. Patch top-level plot sections with raw `PATCH /core/v2/result_manager/trial_visualization/{coreItemId}` when the user asks to add or change plots.
+1. Resolve the trial: `trial = client.get_trial(trial_sid)`.
+2. Create an empty visualization bound to the trial: `viz = trial.create_empty_trial_visualization(folder=..., name=..., description=...)`.
+3. Decide the plot sections needed and configure each through its typed subservice:
+   - `viz.timeseries` for time-course outputs.
+   - `viz.scalars` for scalar result distributions and central-location plots.
+   - `viz.scatter_plots` for X-vs-X arms or X-vs-Y variables.
+   - `viz.survival_analysis` for time-to-event visualizations.
+   - `viz.contribution_analysis` for tornado-style sensitivity/contribution views.
+   - `viz.data_overlay` / `viz.patients_overlay` when observed data or patient-level data should appear.
+   - `viz.filters` / `viz.groups` for scoping and grouping.
+   - `viz.set_selected_arms(...)`, `viz.set_equate_baseline(...)`, `viz.set_time_unit(...)` for top-level options.
+4. Run `viz.sanity` after configuring sections, especially when plot ids, arm ids, data tables, or selectors were inferred.
+5. Reconfigure a section at any time by calling its setter again (e.g. `viz.timeseries.set_selectors([...])`) — each call patches only that section.
 
 ## SDK Surface
 
-The SDK currently exposes metadata helpers:
+- `trial.create_empty_trial_visualization(folder=, name=, description=, version=)` and `trial.create_trial_visualization_from_json(data, ...)` — creation, bound to a trial.
+- `client.list_trial_visualizations(...)`, `client.iter_trial_visualizations(...)`, `client.get_trial_visualization(sid)` — metadata lookup.
+- `viz.content(revision=...)` — full typed content; `viz.sanity` / `viz.sanity_at(revision, only=[...])` — diagnostics (`.errors()`, `.warnings()`, `.has_errors()`, `.for_field(...)`, `.by_field()`).
+- Section subservices, each with `get()`/`clear()` plus section-specific setters: `viz.timeseries.set_selectors(...)`/`add_selectors(...)`, `viz.scalars.set_selectors(...)`/`add_selectors(...)`, `viz.survival_analysis.set_selectors(...)`/`set_observation_window_from_start_until_end(...)`/`set_observation_window_from_start_until_time(...)`/`set_confidence_interval(...)`, `viz.contribution_analysis.set_selectors(...)`/`set_quantile(...)`/`set_input_baseline_only(...)`/`set_all_baseline(...)`/`set_custom_baseline(...)`, `viz.scatter_plots.add_x_vs_x_plot(...)`/`add_x_vs_y_plot(...)`/`set_config(...)`/`set_regression(...)`, `viz.data_overlay.add_table(...)`/`set_tables(...)`/`set_ranges_enabled(...)`, `viz.filters.add_numeric(...)`/`add_categorical(...)`/`add_patient_list(...)`, `viz.groups.set_group_by_arm(...)`/`add_scalar_*_grouping(...)`/`add_categorical_grouping(...)`.
 
-- `client.list_trial_visualizations(...)`
-- `client.iter_trial_visualizations(...)`
-- `client.get_trial_visualization(sid)`
-
-The SDK `TrialVisualizationsService` does not yet implement rich `create_raw`, `get_content`, or `update_raw` helpers. Use `client.raw_request(...)` for content operations.
-
-## Raw Request Endpoints
-
-Read `references/trial-viz-raw-api.md` before writing a custom payload or raw request. It contains the endpoint list, minimal payloads, and plot-section examples.
-
-Common paths:
-
-- Create: `POST /core/v2/result_manager/trial_visualization`
-- Get latest content: `GET /core/v2/result_manager/trial_visualization/{coreItemId}`
-- Get snapshot content: `GET /core/v2/result_manager/trial_visualization/{coreItemId}/snapshots/{snapshotId}`
-- Patch latest content: `PATCH /core/v2/result_manager/trial_visualization/{coreItemId}`
-- Sanity: `GET /core/v2/result_manager/trial_visualization/{coreItemId}/snapshots/{snapshotId}/sanity`
+Read `references/trial-viz-typed-api.md` for full examples of each subservice.
 
 ## Bundled Script
 
-Use the script for repeatable create, patch, get, list, and sanity operations.
+Use the script for repeatable create, update, get, list, and sanity operations through the typed API.
 
 ```bash
-python skills/jk-trial-viz/scripts/trial_viz_raw.py list --limit 20
-python skills/jk-trial-viz/scripts/trial_viz_raw.py create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC
-python skills/jk-trial-viz/scripts/trial_viz_raw.py create --trial-core-id 00000000-0000-0000-0000-000000000000 --trial-snapshot-id 11111111-1111-1111-1111-111111111111 --payload-file viz.json --name "Configured viz"
-python skills/jk-trial-viz/scripts/trial_viz_raw.py get --trial-viz-sid tv-... --output-file viz.content.json
-python skills/jk-trial-viz/scripts/trial_viz_raw.py patch --trial-viz-sid tv-... --payload-file patch.json
-python skills/jk-trial-viz/scripts/trial_viz_raw.py sanity --trial-viz-sid tv-... --only timeseries --only scatterPlots
+python skills/jk-trial-viz/scripts/trial_viz.py list --limit 20
+python skills/jk-trial-viz/scripts/trial_viz.py create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC
+python skills/jk-trial-viz/scripts/trial_viz.py get --trial-viz-sid tv-... --output-file viz.content.json
+python skills/jk-trial-viz/scripts/trial_viz.py update --trial-viz-sid tv-... --scatter-xvsy "AUC,Cmax,control,treated"
+python skills/jk-trial-viz/scripts/trial_viz.py sanity --trial-viz-sid tv-... --only timeseries --only scatterPlots
 ```
 
-Prefer `--payload-file` for non-trivial scatter, survival, contribution, overlay, grouping, or filter configuration. Use the quick flags only for simple time-series/scalar selector setup.
+For scatter, overlay, filter, or grouping configuration beyond the script's flags, use the typed subservices directly in Python (see `references/trial-viz-typed-api.md`).
 
 ## Project Folder Hygiene
 
 - Prefer creating trial visualizations in the same folder as the trial or in a dedicated analysis folder.
-- If only a folder id is available, pass it through creation headers with the bundled script's `--folder-id`.
-- Reuse existing trial visualizations when the user wants an additional plot on the same analysis; patch the relevant top-level section instead of creating duplicates.
+- Pass a folder id or exact folder name through the bundled script's `--folder`, or `folder=folder` on `create_empty_trial_visualization(...)` directly.
+- Reuse existing trial visualizations when the user wants an additional plot on the same analysis; call the relevant section's setter instead of creating duplicates.
+
+## Reference Routing
+
+- Read `references/trial-viz-typed-api.md` for the typed subservice API.
 
 ## Output Expectations
 

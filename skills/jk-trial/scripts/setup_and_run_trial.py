@@ -31,7 +31,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv pandas",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk pandas",
             file=sys.stderr,
         )
         return None
@@ -66,11 +66,11 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
     if folder_ref is None:
         return None
 
-    folder = client.folders.get_by_id(folder_ref)
+    folder = client.get_folder(folder_ref)
     if folder is not None:
         return folder
 
-    folder = client.folders.get_by_name(folder_ref, exact_match_only=True)
+    folder = client.get_folder_by_name(folder_ref, exact_match_only=True)
     if folder is not None:
         return folder
 
@@ -79,7 +79,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
             f"Folder {folder_ref!r} was not found. Pass --create-folder to create it."
         )
 
-    return client.folders.create(folder_ref)
+    return client.create_folder(folder_ref)
 
 
 def create_trial_raw(
@@ -223,7 +223,7 @@ def write_tabular_download(download: Any, output_dir: Path, stem: str) -> None:
     except Exception as exc:  # noqa: BLE001 - fallback is intentionally dependency driven
         if "pandas" not in str(exc).lower():
             raise
-        payload = download.bytes
+        payload = download.raw_bytes
         raw_path = output_dir / f"{stem}.bin"
         raw_path.write_bytes(payload)
         if zipfile.is_zipfile(io.BytesIO(payload)):
@@ -410,7 +410,7 @@ def main() -> int:
         print(f"Created output set {output_set.sid}")
         print(f"Created trial {trial.sid}")
         if folder is not None:
-            print(f"Folder: {client.folders.get_path(folder)}")
+            print(f"Folder: {folder.path}")
         print(trial.url)
 
         ensure_trial_sane(trial)

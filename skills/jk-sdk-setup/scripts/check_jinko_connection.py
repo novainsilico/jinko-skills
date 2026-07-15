@@ -55,7 +55,7 @@ def load_jinko_sdk():
     except ImportError as exc:
         print(
             "Cannot import jinko. Install the SDK in this Python environment: "
-            "pip install jinko python-dotenv",
+            "pip install jinko-sdk",
             file=sys.stderr,
         )
         return None

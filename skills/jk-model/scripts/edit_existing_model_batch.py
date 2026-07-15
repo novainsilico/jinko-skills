@@ -27,7 +27,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
@@ -117,10 +117,10 @@ def main() -> int:
         model = client.get_model(args.model_sid)
         model = model.edit_solving_options(
             {"unitCheck": args.unit_check},
-            version=f"{args.version}: solving options",
+            version=f"{args.version_name}: solving options",
         )
 
-        with model.components.batch(version=args.version) as batch:
+        with model.components.batch(version=args.version_name) as batch:
             batch.edit_parameter(args.parameter_id).set_formula(args.parameter_formula)
             batch.create_parameter(
                 id=args.new_parameter_id,

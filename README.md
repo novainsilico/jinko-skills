@@ -101,7 +101,7 @@ Skills that use the Jinkō SDK declare a compatible SDK version range in their
 `jinko` SDK version:
 
 ```bash
-pip install "jinko>=1.2,<2.0"
+pip install "jinko-sdk>=1.2,<2.0"
 ```
 
 Start with `jk-sdk-setup` to verify your credentials and SDK installation before

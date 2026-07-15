@@ -30,12 +30,13 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 - The override `key` must target a protocol-runnable model input, such as `Dose` or `route` in the toy model.
 - Use formulas as strings, for example `"1.0"`, `"iv"`, or `"PT24H"` depending on the target component.
 - Include control relationships when comparing arms; use `armControl` to identify the comparator arm.
+- Edit individual arms on an existing design with `protocol.arms` (`get`, `create`, `set_control`, `set_active`, `set_weight`, `set_override`, `delete`, `compare_overrides`), not by replacing the raw design payload.
 - Require explicit confirmation or script `--apply` before creating or updating project items.
 
 ## Project Folder Hygiene
 
 - Prefer creating protocol designs inside a dedicated Jinkō folder instead of the project root. At the start of a workflow, ask for or propose a folder name, for example `YYYY-MM-DD-<experiment-name>`.
-- Reuse an existing exact-match folder when possible: `client.folders.get_by_name(name, exact_match_only=True)`.
+- Reuse an existing exact-match folder when possible: `client.get_folder_by_name(name, exact_match_only=True)`.
 - If the folder does not exist, create it only after user confirmation or when a script is run with `--apply`.
 - Resolve one folder object or folder id, then pass `folder=folder` to SDK creation calls that support it.
 
@@ -49,7 +50,7 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 
 - `scripts/create_protocol_design.py`: creates a three-arm protocol design, optionally linked to a model.
 - `scripts/create_protocol_design_from_csv.py`: creates a protocol design from a CSV file of arms.
-- `scripts/edit_protocol_design_arms.py`: replaces scenario arms on an existing protocol design.
+- `scripts/edit_protocol_design_arms.py`: creates or updates arms on an existing protocol design via the `arms` mutator service.
 - `scripts/inspect_protocol_design.py`: prints protocol content or a concise arm summary.
 
 Examples:

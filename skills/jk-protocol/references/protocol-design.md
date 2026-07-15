@@ -24,7 +24,7 @@ The protocol should not encode dosing mechanics. It should only instantiate valu
 
 ```python
 model = client.get_model("cm-...")
-folder = client.folders.get_by_name("2026-06-15-regimens", exact_match_only=True)
+folder = client.get_folder_by_name("2026-06-15-regimens", exact_match_only=True)
 protocol = client.create_protocol_design(
     [
         {
@@ -72,7 +72,7 @@ iv_high_dose,iv_low_dose,true,1,3.0,iv
 ```
 
 ```python
-folder = client.folders.get_by_name("2026-06-15-regimens", exact_match_only=True)
+folder = client.get_folder_by_name("2026-06-15-regimens", exact_match_only=True)
 protocol = client.create_protocol_design_from_csv(
     csv_file_path="skills/jk-protocol/assets/toy_protocol_arms.csv",
     folder=folder,
@@ -86,6 +86,28 @@ instead.
 ## Override Keys
 
 The override `key` must target a model input that can be overridden by the protocol. For the toy model, `Dose` and `route` are model components. If these inputs are absent, use `jk-model` first.
+
+## Editing An Existing Design's Arms
+
+Edit arms through `protocol.arms`, the design's arm mutator service, rather than replacing the whole payload:
+
+```python
+protocol = client.get_protocol_design("pd-...")
+
+arm = protocol.arms.get("iv_low_dose")
+arm.set_override("Dose", "1.5")
+arm.set_weight(2)
+
+protocol.arms.create(
+    "iv_new_dose",
+    control="iv_low_dose",
+    overrides={"Dose": "4.0", "route": "iv"},
+    weight=1,
+    active=True,
+)
+```
+
+`protocol.arms.list()` and `protocol.arms.get(arm_id)` return `ProtocolArm` handles; `arm.delete()` removes an arm, and `arm.compare_to(other_arm_id)` (or `protocol.arms.compare_overrides(...)`) diffs overrides between two arms.
 
 ## Arm Payload Shape
 

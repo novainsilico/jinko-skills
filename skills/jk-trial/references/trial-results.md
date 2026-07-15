@@ -43,4 +43,4 @@ timeseries_df = download.to_dataframe()
 scalar_df = trial.results.scalars(scalar_ids).to_dataframe()
 ```
 
-`to_dataframe()` requires pandas and handles CSV or zipped CSV payloads. If pandas is not available, use `download.bytes` and write the raw payload; result payloads can be plain CSV or zipped CSV.
+`to_dataframe()` requires pandas and handles CSV or zipped CSV payloads. If pandas is not available, use `download.raw_bytes` and write the raw payload; result payloads can be plain CSV or zipped CSV.

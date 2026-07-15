@@ -31,13 +31,16 @@ Optional trial inputs:
 
 ## Sanity Constraints
 
-Do not launch while trial sanity reports errors. These constraints are checked by Jinkō sanity:
+Do not launch while trial sanity reports errors. **Always confirm this by calling `trial.sanity()` — not by re-running standalone checks from upstream skills (`validate_scoring_formula`, `client.validate_scoring_condition`, `scoring_design.diagnostics`, etc.).** Those checks only validate an asset in isolation; they cannot see how it behaves once bound to this concrete trial. `trial.sanity()` is the same trial-context check the Jinkō UI runs before launch and is the source of truth for launch-readiness — see `references/trial-setup.md` for the pre-launch workflow and `errors after standalone validation passed` troubleshooting.
+
+Typical constraints surfaced by trial sanity:
 
 - The computational model cannot have sanity errors.
 - All descriptors in the protocol must correspond to model components.
 - All descriptors in the vpop must correspond to model components.
 - All descriptors in data-table `obsId` columns must correspond to model components.
 - All data-table `armScope` values must correspond to protocol arms when a protocol is used.
+- The advanced output set (scoring design) must resolve cleanly against this trial's model outputs and simple output set — this can fail here (`ADVANCED_OUTPUTS_ERRORS`) even when `jk-output-set`'s standalone validation passed.
 
 If sanity errors are reported, show them and ask whether the user wants help fixing the upstream asset.
 
@@ -45,20 +48,21 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 
 - Create simple output set: `client.create_simple_output_set(model, model.time_dependent_ids())` unless explicit output ids were requested. See `jk-output-set` for measure shapes and advanced output sets (constraints/scalars/objectives).
 - Create trial: `client.create_trial(model, vpop=..., protocol=..., simple_output_set=..., advanced_output_set=...)`.
+- Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
 - Poll: `trial.wait_until_completed(timeout=1800)`.
 - Discover time series: `trial.output_ids()`.
 - Discover scalars and arms: `trial.results.summary()`.
 - Download time series as pandas when available: `trial.results.timeseries({...}).to_dataframe()`.
 - Download scalars as pandas when available: `trial.results.scalars([...]).to_dataframe()`.
-- Without pandas, use `TabularDownload.bytes`; result payloads may be CSV or zipped CSV.
+- Without pandas, use `TabularDownload.raw_bytes`; result payloads may be CSV or zipped CSV.
 
 When data tables are attached, the current SDK high-level trial helper does not expose a `data_table` argument. Use raw trial creation with `dataTableDesigns` only for that case. Verify each data table reports `metadata.public.validForFitnessFunction: True` before creating the trial; otherwise launch can fail with backend sanity errors.
 
 ## Project Folder Hygiene
 
 - Prefer creating output sets and trials inside a dedicated Jinkō folder instead of the project root. At the start of a workflow, ask for or propose a folder name, for example `YYYY-MM-DD-<experiment-name>`.
-- Reuse an existing exact-match folder when possible: `client.folders.get_by_name(name, exact_match_only=True)`.
+- Reuse an existing exact-match folder when possible: `client.get_folder_by_name(name, exact_match_only=True)`.
 - If the folder does not exist, create it only after user confirmation or when a script is run with `--apply`.
 - Resolve one folder object or folder id, then pass `folder=folder` to trial creation calls. For simple output sets, create them first and then move them with `output_set.move_to_folder(folder)`.
 
@@ -79,5 +83,5 @@ python skills/jk-trial/scripts/setup_and_run_trial.py --model-sid cm-... --outpu
 
 ## Reference Routing
 
-- Read `references/trial-setup.md` for trial creation and sanity-check flow.
+- Read `references/trial-setup.md` for trial creation, the safe pre-launch sanity-check workflow, and troubleshooting `ADVANCED_OUTPUTS_ERRORS`/"The following advanced outputs have errors".
 - Read `references/trial-results.md` for completed-trial discovery and result downloads.

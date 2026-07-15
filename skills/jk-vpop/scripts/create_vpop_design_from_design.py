@@ -29,7 +29,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
@@ -60,11 +60,11 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
     if folder_ref is None:
         return None
 
-    folder = client.folders.get_by_id(folder_ref)
+    folder = client.get_folder(folder_ref)
     if folder is not None:
         return folder
 
-    folder = client.folders.get_by_name(folder_ref, exact_match_only=True)
+    folder = client.get_folder_by_name(folder_ref, exact_match_only=True)
     if folder is not None:
         return folder
 
@@ -73,7 +73,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
             f"Folder {folder_ref!r} was not found. Pass --create-folder to create it."
         )
 
-    return client.folders.create(folder_ref)
+    return client.create_folder(folder_ref)
 
 
 def main() -> int:
@@ -152,27 +152,27 @@ def main() -> int:
         client = JinkoClient()
         folder = resolve_folder(client, args.folder, create=args.create_folder)
         model = client.get_model(args.model_sid) if args.model_sid else None
-        generator = client.create_vpop_generator_from_design(
+        design = client.create_vpop_design_from_design(
             model=model,
             marginal_distributions=marginal_mapping(entries),
             folder=folder,
             name=args.name,
             description=args.description,
         )
-        print(f"Created Vpop design {generator.sid}")
+        print(f"Created Vpop design {design.sid}")
         if folder is not None:
-            print(f"Folder: {client.folders.get_path(folder)}")
-        if getattr(generator, "url", None):
-            print(generator.url)
+            print(f"Folder: {folder.path}")
+        if getattr(design, "url", None):
+            print(design.url)
 
         if args.generate:
-            vpop = generator.generate_vpop(
+            vpop = design.generate_vpop(
                 size=args.size,
                 seed=args.seed,
                 variance_reduction=args.variance_reduction,
                 folder=folder,
                 name=args.vpop_name,
-                description=f"Generated from Vpop design {generator.sid}.",
+                description=f"Generated from Vpop design {design.sid}.",
             )
             print(f"Generated Vpop {vpop.sid}")
             if getattr(vpop, "url", None):

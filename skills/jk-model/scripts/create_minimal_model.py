@@ -30,7 +30,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
@@ -50,11 +50,11 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
     if folder_ref is None:
         return None
 
-    folder = client.folders.get_by_id(folder_ref)
+    folder = client.get_folder(folder_ref)
     if folder is not None:
         return folder
 
-    folder = client.folders.get_by_name(folder_ref, exact_match_only=True)
+    folder = client.get_folder_by_name(folder_ref, exact_match_only=True)
     if folder is not None:
         return folder
 
@@ -63,7 +63,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
             f"Folder {folder_ref!r} was not found. Pass --create-folder to create it."
         )
 
-    return client.folders.create(folder_ref)
+    return client.create_folder(folder_ref)
 
 
 def report_diagnostics(model: Any) -> bool:
@@ -188,7 +188,7 @@ def main() -> int:
 
         print(f"Created model {model.sid}")
         if folder is not None:
-            print(f"Folder: {client.folders.get_path(folder)}")
+            print(f"Folder: {folder.path}")
         if getattr(model, "url", None):
             print(model.url)
         return 1 if failed else 0

@@ -26,7 +26,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv pandas",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk pandas",
             file=sys.stderr,
         )
         return None

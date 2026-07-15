@@ -26,7 +26,7 @@ license: MIT
 # Jinkō Output Set SDK Workflows
 
 Use this skill for output-set mechanics through the SDK: creating, validating, inspecting, and incrementally editing simple and advanced output sets.
-Keep trial/calibration attachment in `jk-trial` (and, for CMA-ES calibrations, `jk-task-cmaes`), and data tables in `jk-data-table`.
+Keep trial attachment in `jk-trial`, calibration attachment in `jk-calibration-cmaes` (business rules in `jk-task-cmaes`), and data tables in `jk-data-table`.
 
 ## Core Concepts
 
@@ -46,6 +46,7 @@ Never invent output ids.
 Call `model.time_dependent_ids()` to discover the model's valid output ids before creating a simple output set, same as `jk-trial` does.
 Advanced-output-set formulas reference output ids or other scalar ids by name.
 If unsure whether a piece of formula syntax is still supported, validate it with `client.validate_scoring_formula(...)` rather than assuming old examples still apply.
+Read `references/formula-language.md` before writing any non-trivial constraint/scalar/objective formula — it covers the actual grammar (time reduction functions, time indexing, arm references) rather than the single `"AUC_drug"` example in this file, and documents pitfalls that `validate_scoring_formula`'s error messages disguise as something else (wrong function case, `x@TEnd` parsing but meaning "arm named TEnd" instead of "value at end time", etc).
 
 ## Simple Output Set Workflow
 
@@ -100,12 +101,15 @@ if scoring_design.diagnostics.errors():
 `sd.diagnostics` is chainable: `.for_kind(...)`, `.with_severity(...)`, `.with_code(...)`, `.for_component(...)`, `.errors()`, `.warnings()`, `.has_errors()`, `.by_component()`, `.by_kind()`, `.by_severity()`, `.explain()`.
 Use `sd.diagnostics_at(revision)` for a historical snapshot.
 
+**What this validates, and what it does not.** `client.validate_scoring_formula(...)`/`validate_scoring_condition(...)` and `sd.diagnostics` only check the scoring design in isolation — formula syntax, referenced ids resolving to *something*, constraint/objective shape.
+They do not know about any concrete trial. A formula can pass every check here and still fail once the advanced output set is bound to a trial (e.g. it references a measure that exists on this model but not on the trial's simple output set, or a unit/time-window mismatch with the trial's protocol).
+Passing standalone validation is necessary, not sufficient, for trial compatibility — never report an advanced output set as "trial-ready" based on this skill's checks alone. Use `jk-trial`'s trial-sanity step (`trial.sanity()`) once the output set is attached to a concrete trial.
+
 ## Attaching to Trials/Calibrations
 
-This skill only creates, inspects, and edits output sets — it does not attach them or run anything.
-For trials, use `jk-trial`: `model.create_trial(simple_output_set=..., scoring=..., ...)`.
-The lower-level `client.create_trial(...)` uses `advanced_output_set=` instead of `scoring=` for the same argument — both exist, pick the one matching your call site.
-For calibrations, use `jk-task-cmaes`: `model.create_calibration(simple_output_set=..., scoring=..., ...)`.
+This skill only creates, inspects, and edits output sets — it does not attach them or run anything, and it cannot confirm trial compatibility (see above).
+For trials, use `jk-trial`: `model.create_trial(simple_output_set=..., advanced_output_set=..., ...)`, then run `trial.sanity()` before launch — see `jk-trial`'s pre-launch check.
+For calibrations, use `jk-calibration-cmaes` for the SDK call (`model.create_calibration(simple_output_set=..., advanced_output_set=..., ...)`) and `jk-task-cmaes` for the calibration workflow and defaults.
 A calibration needs at least one fitness-function source: a data table with `validForFitnessFunction: True` (see `jk-data-table`) and/or an advanced output set with objectives.
 
 ## Bundled Scripts
@@ -118,13 +122,14 @@ A calibration needs at least one fitness-function source: a data table with `val
 ```bash
 python skills/jk-output-set/scripts/create_simple_output_set.py --model-sid cm-... --output-id Drug
 python skills/jk-output-set/scripts/create_simple_output_set.py --model-sid cm-... --output-id Drug --folder 2026-07-07-output-sets --create-folder --apply
-python skills/jk-output-set/scripts/create_advanced_output_set.py --constraint "adults:age >= 18" --scalar "auc:AUC_drug" --name "PK scoring"
+python skills/jk-output-set/scripts/create_advanced_output_set.py --constraint "adults:age >= 18" --scalar "auc:auc(Drug)" --name "PK scoring"
 python skills/jk-output-set/scripts/create_advanced_output_set.py --from-json skills/jk-output-set/assets/advanced_output_set_example.json --apply
 python skills/jk-output-set/scripts/inspect_output_set.py --kind advanced --sid sc-... --diagnostics
-python skills/jk-output-set/scripts/edit_advanced_output_set.py --sid sc-... --add-objective "obj_auc:AUC_target:8:12:5:15:1.0" --show-diagnostics --apply
+python skills/jk-output-set/scripts/edit_advanced_output_set.py --sid sc-... --add-objective "obj_auc:auc(Drug):8:12:5:15:1.0" --show-diagnostics --apply
 ```
 
 ## Reference Routing
 
 - Read `references/simple-output-set.md` for measure dict shapes and editing methods.
 - Read `references/advanced-output-set.md` for constraint/scalar/objective shapes, validation, diagnostics, and tags.
+- Read `references/formula-language.md` for the constraint/scalar/objective formula grammar (functions, time indexing, arm references) and its pitfalls.

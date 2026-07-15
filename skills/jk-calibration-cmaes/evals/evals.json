@@ -1,0 +1,30 @@
+{
+  "skill_name": "jk-calibration-cmaes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a CMA-ES calibration from model cm-123 and data table dt-456, calibrating parameter k_elim (mean -1.0, std 0.5, log-transformed, bounds -3 to 1), seed 42, 100 iterations, population size 12, then run it and wait for completion.",
+      "expected_output": "Creates the calibration via model.create_calibration(...) with the given parameters and calib_* kwargs, checks validForFitnessFunction on the data table, uses --apply/--run gates, calls calibration.run() and wait_until_completed(timeout=...)."
+    },
+    {
+      "id": 2,
+      "prompt": "My calibration ca-789 finished — show me its performance, results summary, and objective weights.",
+      "expected_output": "Calls calibration.performance(), .results_summary(), .objective_weights() and presents them as raw/unparsed dicts, noting these are not typed/parsed today."
+    },
+    {
+      "id": 3,
+      "prompt": "I need to design an advanced output set with objectives for my upcoming calibration — can you set that up?",
+      "expected_output": "Declines to author the advanced output set itself and routes to jk-output-set; may reference jk-calibration-cmaes only for how to attach the resulting scoring design via scoringDesignId/advanced_output_set."
+    },
+    {
+      "id": 4,
+      "prompt": "Upload this CSV of patient observations as a calibration-ready data table.",
+      "expected_output": "Declines data-table creation and routes to jk-data-table for upload and validForFitnessFunction metadata."
+    },
+    {
+      "id": 5,
+      "prompt": "What iteration count and population size should I use for calibrating 6 parameters, and how do I know if the calibration is stagnating?",
+      "expected_output": "Declines to supply numeric defaults or diagnostic heuristics and routes to jk-task-cmaes for those business rules; may still describe the StoppingReason values factually."
+    }
+  ]
+}

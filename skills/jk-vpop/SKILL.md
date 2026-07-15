@@ -17,8 +17,10 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 ## Core Rules
 
 - Use `client.create_vpop_from_csv()` or `client.create_vpop_from_dataframe()` for direct vpop upload.
-- Use `client.create_vpop_generator_from_design()` for marginal-distribution vpop designs.
-- Use `vpop_generator.generate_vpop_by_design()` to generate an immutable Vpop from a design.
+- Use `client.create_vpop_design_from_design()` for marginal-distribution vpop designs.
+- Use `design.generate_vpop()` to generate an immutable Vpop from a `VpopDesign`.
+- Check `design.diagnostics` (or `design.get_sanity()`) before generating, and fix reported errors first.
+- Edit an existing design's descriptors/correlations with `design.descriptors` (`create*`/`set_distribution*`) and `design.correlations`, not by replacing the raw payload.
 - Treat Vpop project items as generated/uploaded artifacts that are not edited in place.
 - Edit vpop designs, not generated vpops, then regenerate a new vpop.
 - Require explicit confirmation or script `--apply` before creating or updating project items.
@@ -27,7 +29,7 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 ## Project Folder Hygiene
 
 - Prefer creating vpops and vpop designs inside a dedicated Jinkō folder instead of the project root. At the start of a workflow, ask for or propose a folder name, for example `YYYY-MM-DD-<experiment-name>`.
-- Reuse an existing exact-match folder when possible: `client.folders.get_by_name(name, exact_match_only=True)`.
+- Reuse an existing exact-match folder when possible: `client.get_folder_by_name(name, exact_match_only=True)`.
 - If the folder does not exist, create it only after user confirmation or when a script is run with `--apply`.
 - Resolve one folder object or folder id, then pass `folder=folder` to SDK creation calls that support it.
 
@@ -42,9 +44,9 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 Use scripts rather than embedding long Python examples in chat.
 
 - `scripts/create_vpop_from_csv.py`: uploads a CSV directly, or via pandas DataFrame with `--method dataframe`.
-- `scripts/create_vpop_generator_from_design.py`: creates a vpop design from a list of `{ "id": ..., "distribution": ... }` entries and can optionally generate a vpop.
+- `scripts/create_vpop_design_from_design.py`: creates a vpop design from a list of `{ "id": ..., "distribution": ... }` entries and can optionally generate a vpop.
 - `scripts/inspect_vpop.py`: inspects content, description, or statistics for an existing vpop.
-- `scripts/edit_vpop_generator_design.py`: replaces the marginal distribution list in an existing vpop design.
+- `scripts/edit_vpop_design.py`: updates or adds descriptors in an existing vpop design via the `descriptors` mutator service.
 
 Examples:
 
@@ -52,8 +54,9 @@ Examples:
 python skills/jk-vpop/scripts/create_vpop_from_csv.py --csv skills/jk-vpop/assets/toy_vpop.csv
 python skills/jk-vpop/scripts/create_vpop_from_csv.py --csv skills/jk-vpop/assets/toy_vpop.csv --apply
 python skills/jk-vpop/scripts/create_vpop_from_csv.py --csv skills/jk-vpop/assets/toy_vpop.csv --folder 2026-06-15-vpop-study --create-folder --apply
-python skills/jk-vpop/scripts/create_vpop_generator_from_design.py --design skills/jk-vpop/assets/toy_marginals.json --model-sid cm-... --apply --generate
+python skills/jk-vpop/scripts/create_vpop_design_from_design.py --design skills/jk-vpop/assets/toy_marginals.json --model-sid cm-... --apply --generate
 python skills/jk-vpop/scripts/inspect_vpop.py --vpop-sid vp-... --statistics --correlations
+python skills/jk-vpop/scripts/edit_vpop_design.py --vpop-design-sid vd-... --design skills/jk-vpop/assets/toy_marginals.json --apply
 ```
 
 ## CSV Upload Pattern
@@ -79,7 +82,7 @@ Use a list of marginal entries in skill assets and scripts:
 ]
 ```
 
-The script converts this list to the SDK mapping expected by `create_vpop_generator_from_design(marginal_distributions=...)`.
+The script converts this list to the SDK mapping expected by `create_vpop_design_from_design(marginal_distributions=...)`.
 
 ## Reference Routing
 

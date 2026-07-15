@@ -29,7 +29,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError, ValidationError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
@@ -40,11 +40,11 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
     if folder_ref is None:
         return None
 
-    folder = client.folders.get_by_id(folder_ref)
+    folder = client.get_folder(folder_ref)
     if folder is not None:
         return folder
 
-    folder = client.folders.get_by_name(folder_ref, exact_match_only=True)
+    folder = client.get_folder_by_name(folder_ref, exact_match_only=True)
     if folder is not None:
         return folder
 
@@ -53,7 +53,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
             f"Folder {folder_ref!r} was not found. Pass --create-folder to create it."
         )
 
-    return client.folders.create(folder_ref)
+    return client.create_folder(folder_ref)
 
 
 def parse_id_colon_value(
@@ -100,7 +100,7 @@ def main() -> int:
         "--scalar",
         action="append",
         dest="scalars",
-        help="Shorthand 'id:formula' scalar, e.g. 'auc:AUC_drug'. Repeatable.",
+        help="Shorthand 'id:formula' scalar, e.g. 'auc:auc(Drug)'. Repeatable.",
     )
     parser.add_argument("--name", default="sdk-advanced-output-set")
     parser.add_argument(
@@ -195,7 +195,7 @@ def main() -> int:
 
         print(f"Created advanced output set {scoring_design.sid}")
         if folder is not None:
-            print(f"Folder: {client.folders.get_path(folder)}")
+            print(f"Folder: {folder.path}")
         if getattr(scoring_design, "url", None):
             print(scoring_design.url)
 

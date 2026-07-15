@@ -2,6 +2,11 @@
 """Replace scenario arms on an existing Jinkō protocol design.
 
 Dry-run by default. Pass --apply to update the ProtocolDesign project item.
+
+Uses the design's ``arms`` mutator service (``set_control``/``set_active``/
+``set_weight``/``set_override`` for existing arms, ``create`` for new ones)
+rather than replacing the raw design payload, so each change is validated
+individually by the API.
 """
 
 from __future__ import annotations
@@ -26,14 +31,14 @@ def load_env() -> None:
 def load_sdk():
     try:
         from jinko import JinkoClient
-        from jinko.exceptions import JinkoError
+        from jinko.exceptions import JinkoError, NotFoundError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
-    return JinkoClient, JinkoError
+    return JinkoClient, JinkoError, NotFoundError
 
 
 def load_arms(path: Path) -> list[dict[str, Any]]:
@@ -46,12 +51,6 @@ def load_arms(path: Path) -> list[dict[str, Any]]:
         if "armName" not in arm or "armOverrides" not in arm:
             raise ValueError(f"arm {index} must contain armName and armOverrides")
     return data
-
-
-def protocol_payload_without_metadata(content: Any) -> dict[str, Any]:
-    payload = content.model_dump(mode="json", exclude_none=True)
-    payload.pop("metadata", None)
-    return payload
 
 
 def print_arm_summary(arms: list[dict[str, Any]]) -> None:
@@ -67,7 +66,7 @@ def print_arm_summary(arms: list[dict[str, Any]]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Replace arms in an existing protocol design."
+        description="Create or update arms in an existing protocol design."
     )
     parser.add_argument(
         "--protocol-design-sid",
@@ -77,7 +76,7 @@ def main() -> int:
     parser.add_argument(
         "--arms", required=True, help="JSON file containing scenario arm list."
     )
-    parser.add_argument("--version-name", default="replace protocol arms")
+    parser.add_argument("--version", default="update protocol arms")
     parser.add_argument(
         "--apply", action="store_true", help="Actually update the protocol design."
     )
@@ -89,7 +88,7 @@ def main() -> int:
         print(f"Invalid arms JSON: {exc}", file=sys.stderr)
         return 1
 
-    print(f"Replacement arms: {len(arms)}")
+    print(f"Arms to apply: {len(arms)}")
     print_arm_summary(arms)
 
     if not args.apply:
@@ -101,17 +100,37 @@ def main() -> int:
     sdk = load_sdk()
     if sdk is None:
         return 1
-    JinkoClient, JinkoError = sdk
+    JinkoClient, JinkoError, NotFoundError = sdk
 
     try:
         client = JinkoClient()
         protocol = client.get_protocol_design(args.protocol_design_sid)
-        payload = protocol_payload_without_metadata(protocol.content())
-        payload["scenarioArms"] = arms
-        updated = protocol.update_raw(payload, version_name=args.version_name)
-        print(f"Updated protocol design {updated.sid}")
-        if getattr(updated, "url", None):
-            print(updated.url)
+
+        for arm in arms:
+            overrides = {
+                override["key"]: override["formula"]
+                for override in arm.get("armOverrides", [])
+            }
+            try:
+                handle = protocol.arms.get(arm["armName"])
+                handle.set_control(arm.get("armControl"), version=args.version)
+                handle.set_active(arm.get("armIsActive"), version=args.version)
+                handle.set_weight(arm.get("armWeight"), version=args.version)
+                for key, formula in overrides.items():
+                    handle.set_override(key, formula, version=args.version)
+                print(f"Updated arm {arm['armName']!r}")
+            except NotFoundError:
+                protocol.arms.create(
+                    arm["armName"],
+                    control=arm.get("armControl"),
+                    overrides=overrides,
+                    weight=arm.get("armWeight"),
+                    active=arm.get("armIsActive"),
+                    version=args.version,
+                )
+                print(f"Created arm {arm['armName']!r}")
+
+        print(f"Updated protocol design {protocol.sid}")
         return 0
     except JinkoError as exc:
         print(f"Protocol design update failed: {exc}", file=sys.stderr)

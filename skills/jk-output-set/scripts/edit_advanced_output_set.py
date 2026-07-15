@@ -30,7 +30,7 @@ def load_sdk():
         from jinko.exceptions import JinkoError, ValidationError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
@@ -117,7 +117,7 @@ def main() -> int:
         action="append",
         dest="add_scalars",
         default=[],
-        help="Shorthand 'id:formula[:unit]', e.g. 'auc:AUC_drug:mg/L*h'. Repeatable.",
+        help="Shorthand 'id:formula[:unit]', e.g. 'auc:auc(Drug):mg/L*s'. Repeatable.",
     )
     parser.add_argument(
         "--add-objective",
@@ -126,8 +126,12 @@ def main() -> int:
         default=[],
         help=(
             "Shorthand "
-            "'id:target:narrow_low:narrow_high:wide_low:wide_high:weight', "
-            "e.g. 'obj_auc:auc:8:12:5:15:1.0'. Repeatable."
+            "'id:target:narrow_low:narrow_high:wide_low:wide_high:weight'. "
+            "'target' should be a formula, not a sibling scalar's id (a "
+            "sibling-id target can pass standalone validation here yet fail "
+            "trial.sanity() later — see jk-output-set's "
+            "references/advanced-output-set.md pitfalls), "
+            "e.g. 'obj_auc:auc(Drug):8:12:5:15:1.0'. Repeatable."
         ),
     )
     parser.add_argument(

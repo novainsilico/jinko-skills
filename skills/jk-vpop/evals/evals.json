@@ -9,7 +9,7 @@
     {
       "id": 2,
       "prompt": "Create a vpop design from marginal distributions for Dose and k_elim and generate 10 patients from it.",
-      "expected_output": "Uses create_vpop_generator_from_design with marginal_distributions from a list of id/distribution entries, checks distrib.json, and uses generate_vpop_by_design."
+      "expected_output": "Uses create_vpop_design_from_design with marginal_distributions from a list of id/distribution entries, checks distrib.json, and uses design.generate_vpop()."
     },
     {
       "id": 3,

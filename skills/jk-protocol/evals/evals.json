@@ -14,7 +14,7 @@
     {
       "id": 3,
       "prompt": "I need to replace the arms in protocol design pd-123 from a JSON file. Show the SDK-safe approach.",
-      "expected_output": "Uses get_protocol_design, content, update_raw with scenarioArms replacement, and recommends the dry-run/--apply script."
+      "expected_output": "Uses get_protocol_design, then protocol.arms.get/set_override (or protocol.arms.create for new arms) instead of a raw payload replacement, and recommends the dry-run/--apply script."
     }
   ]
 }

@@ -2,6 +2,10 @@
 """Replace marginal distributions in an existing Jinkō Vpop design.
 
 Dry-run by default. Pass --apply to update the VpopDesign project item.
+
+Uses the design's ``descriptors`` mutator service (``set_distribution`` for
+existing descriptors, ``create`` for new ones) rather than replacing the raw
+design payload, so each change is validated individually by the API.
 """
 
 from __future__ import annotations
@@ -26,14 +30,14 @@ def load_env() -> None:
 def load_sdk():
     try:
         from jinko import JinkoClient
-        from jinko.exceptions import JinkoError
+        from jinko.exceptions import JinkoError, NotFoundError
     except ImportError:
         print(
-            "Cannot import jinko. Install the SDK: pip install jinko python-dotenv",
+            "Cannot import jinko. Install the SDK: pip install jinko-sdk",
             file=sys.stderr,
         )
         return None
-    return JinkoClient, JinkoError
+    return JinkoClient, JinkoError, NotFoundError
 
 
 def load_marginal_list(path: Path) -> list[dict[str, Any]]:
@@ -50,34 +54,20 @@ def load_marginal_list(path: Path) -> list[dict[str, Any]]:
     return data
 
 
-def replace_marginals(
-    payload: dict[str, Any], entries: list[dict[str, Any]]
-) -> dict[str, Any]:
-    updated = json.loads(json.dumps(payload))
-    if updated.get("tag") != "VpopGeneratorFromDesign":
-        raise ValueError(
-            "Only VpopGeneratorFromDesign payloads are supported by this script"
-        )
-    contents = updated.setdefault("contents", {})
-    contents["marginalDistributions"] = [
-        {"id": entry["id"], "distribution": entry["distribution"]} for entry in entries
-    ]
-    return updated
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Edit marginal distributions in a Vpop design."
     )
     parser.add_argument(
-        "--vpop-generator-sid", required=True, help="VpopDesign SID, for example vd-..."
+        "--vpop-design-sid", required=True, help="VpopDesign SID, for example vd-..."
     )
     parser.add_argument(
         "--design",
         required=True,
-        help="Replacement JSON list of {id, distribution} entries.",
+        help="Replacement JSON list of {id, distribution} entries. Existing "
+        "descriptors are updated in place; unseen ids are created.",
     )
-    parser.add_argument("--version-name", default="update vpop design marginals")
+    parser.add_argument("--version", default="update vpop design marginals")
     parser.add_argument(
         "--apply", action="store_true", help="Actually update the Vpop design."
     )
@@ -93,7 +83,7 @@ def main() -> int:
         f"Replacement marginal descriptors: {', '.join(entry['id'] for entry in entries)}"
     )
     if not args.apply:
-        print(f"Would update Vpop design {args.vpop_generator_sid}.")
+        print(f"Would update Vpop design {args.vpop_design_sid}.")
         print("Run again with --apply to update the design.")
         return 0
 
@@ -101,14 +91,29 @@ def main() -> int:
     sdk = load_sdk()
     if sdk is None:
         return 1
-    JinkoClient, JinkoError = sdk
+    JinkoClient, JinkoError, NotFoundError = sdk
 
     try:
         client = JinkoClient()
-        generator = client.get_vpop_generator(args.vpop_generator_sid)
-        payload = replace_marginals(generator.content(), entries)
-        updated_item = generator.update_raw(payload, version_name=args.version_name)
-        print(f"Updated Vpop design {updated_item.sid}")
+        design = client.get_vpop_design(args.vpop_design_sid)
+
+        diagnostics = design.diagnostics
+        if diagnostics.has_errors():
+            print("Design has pre-existing sanity errors:", file=sys.stderr)
+            print(diagnostics.errors().explain(), file=sys.stderr)
+
+        for entry in entries:
+            try:
+                descriptor = design.descriptors.get(entry["id"])
+                descriptor.set_distribution(entry["distribution"], version=args.version)
+                print(f"Updated descriptor {entry['id']!r}")
+            except NotFoundError:
+                design.descriptors.create(
+                    entry["id"], entry["distribution"], version=args.version
+                )
+                print(f"Created descriptor {entry['id']!r}")
+
+        print(f"Updated Vpop design {design.sid}")
         return 0
     except (ValueError, JinkoError) as exc:
         print(f"Vpop design update failed: {exc}", file=sys.stderr)

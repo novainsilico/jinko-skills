@@ -1,22 +1,22 @@
 {
   "constraints": [
     {
-      "id": "adults",
-      "constraint": "age >= 18"
+      "id": "eligible_baseline",
+      "constraint": "Weight >= 40"
     }
   ],
   "scalars": [
     {
       "id": "auc",
-      "formula": "AUC_drug",
-      "unit": "mg/L*h"
+      "formula": "auc(Drug)",
+      "unit": "mg/L*s"
     }
   ],
   "objectives": [
     {
       "id": "obj_auc",
       "formula": {
-        "target": "auc",
+        "target": "auc(Drug)",
         "range": {
           "narrowRangeLowBound": 8.0,
           "narrowRangeHighBound": 12.0,

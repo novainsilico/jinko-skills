@@ -26,7 +26,7 @@ Use this skill for technical model construction and editing through the SDK. Kee
 ## Project Folder Hygiene
 
 - Prefer creating models inside a dedicated Jinkō folder instead of the project root. At the start of a workflow, ask for or propose a folder name, for example `YYYY-MM-DD-<experiment-name>`.
-- Reuse an existing exact-match folder when possible: `client.folders.get_by_name(name, exact_match_only=True)`.
+- Reuse an existing exact-match folder when possible: `client.get_folder_by_name(name, exact_match_only=True)`.
 - If the folder does not exist, create it only after user confirmation or when a script is run with `--apply`.
 - Resolve one folder object or folder id, then pass `folder=folder` to SDK creation calls that support it.
 
