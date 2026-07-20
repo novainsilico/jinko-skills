@@ -1,7 +1,7 @@
 ---
 name: jk-sdk-setup
 description: Authenticate and configure access to a Jinkō project via the jinko-sdk. Use this skill whenever the user wants to connect to Jinkō, install the SDK, set up credentials or a .env file, verify API access, fail-fast check that a JINKO_API_KEY and JINKO_PROJECT_ID work, or debug ConfigurationError, AuthenticationError, or AuthorizationError from the SDK. Do not use this skill for creating models, vpops, protocols, output sets, or trials.
-compatibility: Requires Python 3.12+, the jinko Python SDK, JINKO_API_KEY, and JINKO_PROJECT_ID. Optional python-dotenv is recommended for local .env loading.
+compatibility: Requires Python 3.11+, the jinko Python SDK, JINKO_API_KEY, and JINKO_PROJECT_ID. Optional python-dotenv is recommended for local .env loading.
 metadata:
   author: Nova In Silico
   requires_sdk: ">=1.2,<2.0"
