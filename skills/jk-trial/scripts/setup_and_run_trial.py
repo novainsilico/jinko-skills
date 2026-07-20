@@ -153,17 +153,31 @@ def collect_sanity_errors(value: Any) -> list[str]:
     def walk(item: Any, path: str) -> None:
         if isinstance(item, dict):
             severity = str(item.get("severity") or item.get("level") or "").lower()
-            code = item.get("code") or item.get("message") or item.get("warning")
-            if severity in {"error", "critical", "alert", "emergency"} and code:
-                errors.append(f"{path}: {code}")
+            detail = item.get("code") or item.get("message")
+            if severity in {"error", "critical", "alert", "emergency"} and detail:
+                errors.append(f"{path}: {detail}")
             for key, child in item.items():
+                child_path = f"{path}.{key}" if path else key
+                if key.lower() == "errors" and isinstance(child, list):
+                    for index, error in enumerate(child):
+                        error_path = f"{child_path}[{index}]"
+                        if isinstance(error, dict):
+                            detail = (
+                                error.get("code")
+                                or error.get("reason")
+                                or error.get("message")
+                            )
+                        else:
+                            detail = str(error)
+                        if detail:
+                            errors.append(f"{error_path}: {detail}")
+                    continue
                 if key.lower() in {
                     "sanity",
                     "sanitychecks",
                     "diagnostics",
-                    "errors",
                 } or isinstance(child, (dict, list)):
-                    walk(child, f"{path}.{key}" if path else key)
+                    walk(child, child_path)
         elif isinstance(item, list):
             for index, child in enumerate(item):
                 walk(child, f"{path}[{index}]")
@@ -173,8 +187,7 @@ def collect_sanity_errors(value: Any) -> list[str]:
 
 
 def ensure_trial_sane(trial: Any) -> None:
-    status = trial.status()
-    errors = collect_sanity_errors(status)
+    errors = collect_sanity_errors(trial.sanity())
     if errors:
         raise RuntimeError(
             "Trial sanity errors:\n" + "\n".join(f"- {error}" for error in errors)

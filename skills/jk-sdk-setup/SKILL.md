@@ -16,7 +16,7 @@ BE CAREFUL: the right package is `jinko-sdk` that export a `jinko` module. `jink
 
 ## Workflow
 
-1. Confirm the user has Python 3.12+.
+1. Confirm the user has Python 3.11+.
 2. Install the Jinko SDK: `jinko-sdk`. 
 3. Install  dotenv support when needed.
 4. Ask the user to create an API key using `https://doc.jinko.ai/docs/api/` if they do not already have one.
@@ -62,7 +62,7 @@ Use a minimal example like:
 from jinko import JinkoClient
 
 client = JinkoClient()
-client.search(limit=20, table_columns="compact")
+client.search(limit=20, columns="compact")
 ```
 
 Use `search()` when the user wants to:
@@ -81,4 +81,3 @@ Keep the setup script focused on authentication and access checks. Use `search()
 - For `AuthorizationError`, assume the API key is valid but does not have access to the requested project.
 - For other SDK request failures, check that `JINKO_PROJECT_ID` is copied exactly and that the network can reach Jink
 - If the user uses `direnv`, ask them to ensure `.envrc` loads `.env`, then run `direnv allow`.
-
