@@ -1,0 +1,30 @@
+{
+  "skill_name": "jinko-output-set",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create an advanced output set with a scalar 'auc' from the model output Drug and an objective 'obj_auc' targeting its AUC between 8 and 12 (wide range 5-15), weight 1.0.",
+      "expected_output": "Uses lowercase auc(Drug), not an AUC_drug pseudo-identifier; creates the objective with the given bounds and weight; and mentions automatic validation and the need for trial/calibration-context sanity before claiming the design is runnable."
+    },
+    {
+      "id": 2,
+      "prompt": "Add a constraint restricting eligible patients to age >= 18 to my existing advanced output set sc-abc123 and show me if there are any diagnostic errors.",
+      "expected_output": "Calls scoring_design.components.add_constraint('adults', constraint='age >= 18'), then reads scoring_design.diagnostics.errors() (or .explain()) to report issues, without inventing model output ids."
+    },
+    {
+      "id": 3,
+      "prompt": "I have model cm-abc123 and want a simple output set with the Drug output's AUC over the full simulation plus its end value.",
+      "expected_output": "Uses model.time_dependent_ids() only if ids are unspecified, and otherwise builds two measure dicts for Drug: one with function AcrossTime/Auc/FromStartUntilEnd and one with PointAtTime TEnd, via client.create_simple_output_set or model.create_simple_output_set. Does not invent an output id not present on the model."
+    },
+    {
+      "id": 4,
+      "prompt": "Now attach that simple output set to a trial on the same model and run it.",
+      "expected_output": "Declines to perform trial creation/run in this skill and routes the user to jinko-trial, e.g. model.create_trial(simple_output_set=..., ...) then trial.run(), instead of implementing trial creation here."
+    },
+    {
+      "id": 5,
+      "prompt": "Add an objective filter so it only scores after 47 hours.",
+      "expected_output": "Does not use time > PT47H, time > 169200, or u(...). Explains that bare constants inherit time's unit, asks/uses a unit-bearing model helper parameter such as analysisStartTime via jinko-model, then uses time > analysisStartTime and validates the condition."
+    }
+  ]
+}

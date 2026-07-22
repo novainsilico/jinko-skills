@@ -1,0 +1,25 @@
+{
+  "skill_name": "jinko-sdk-setup",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I am new to the Jinkō Python SDK. Help me install it, configure my .env, and run a minimal check that my API key and project ID work without exposing secrets.",
+      "expected_output": "Guides the user to install jinko-sdk, use the .env.example template, avoid pasting secrets, and run scripts/check_jinko_connection.py."
+    },
+    {
+      "id": 2,
+      "prompt": "My JinkoClient() call raises ConfigurationError about missing variables. What should I check?",
+      "expected_output": "Focuses on JINKO_API_KEY and JINKO_PROJECT_ID, points to .env loading, direnv if relevant, and links to the API key docs when the key is missing."
+    },
+    {
+      "id": 3,
+      "prompt": "The SDK says AuthenticationError or AuthorizationError when I try to list models. Help me debug just the setup, not model creation.",
+      "expected_output": "Distinguishes invalid API key from missing project access and recommends the bundled fail-fast script with minimal redacted diagnostics."
+    },
+    {
+      "id": 4,
+      "prompt": "My Jinkō SDK connection check passes. Now I want a quick way to browse what's in the project before deciding whether I need model, protocol, or trial help.",
+      "expected_output": "Confirms setup is complete, keeps the validation script separate from exploration, and recommends JinkoClient.search(...) with a small read-only example such as client.search(limit=20, table_columns=\"compact\")."
+    }
+  ]
+}

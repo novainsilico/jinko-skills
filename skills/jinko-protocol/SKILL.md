@@ -1,0 +1,91 @@
+---
+name: jinko-protocol
+description: >-
+  Design or edit multi-arm Jinkō protocol designs via the jinko-sdk. Use this skill whenever the user wants to compare doses, schedules, administration routes, treatment activation flags, or combinations of treatments by overriding model component values per arm. Protocol designs assign values to model-defined inputs; dosing functions, schedule parameterization, treatment activation logic, and administration-mode logic belong in the model. Use jinko-model when those functions or inputs do not exist yet. Use jinko-trial for running trials.
+compatibility: >-
+  Check set-up with the `jinko-sdk-setup` skill. Creating or editing protocol designs requires write access to the Jinkō project.
+metadata:
+  author: Nova In Silico
+  requires_sdk: ">=1.2,<2.0"
+license: MIT
+---
+
+# Jinkō Protocol SDK Workflows
+
+Use this skill for protocol-design mechanics through the SDK. Keep the separation of concerns explicit: the model defines treatment-regimen functions and inputs; the protocol instantiates those inputs per arm.
+
+> **PREREQUISITE:** Before using this skill, make sure the Jinkō connection is
+> initialized as described in `../jinko-sdk-setup/SKILL.md`. If that skill is not
+> found, check the available skills for `jinko-sdk-setup`, or tell the user
+> to install it from `novainsilico/jinko-skills` before proceeding.
+
+## Separation Of Concerns
+
+- Protocol designs only override component values, with different override values per arm.
+- Dosing functionality is defined at the model level: schedule parameterization, dose parameterization, treatment activation/deactivation through categorical parameters, route or administration mode through categorical parameters, and any formulas that interpret those inputs.
+- In the model, define the treatment-regimen function and its input components.
+- In the protocol, assign values to those inputs, as if instantiating that function for each arm.
+- If a needed override key does not exist as a model input, switch to `jinko-model` first and add the model component or dosing logic there.
+
+## Core Rules
+
+- Prefer `client.create_protocol_design(arms, model=model)` when a model is available.
+- Use `client.create_protocol_design_from_csv(csv_file_path=...)` when arms come from a spreadsheet. The CSV is posted as-is; the platform parses and validates it against its own protocol design CSV schema. This path does not accept a `model` argument; link a model with `client.create_protocol_design(...)` instead if that's required. See `assets/toy_protocol_arms.csv` for an example file and `references/protocol-design.md` for the SDK call.
+- Link protocol designs to a model when possible so the protocol design carries the model snapshot reference.
+- The override `key` must target a protocol-runnable model input, such as `Dose` or `route` in the toy model.
+- Use formulas as strings, for example `"1.0"`, `"iv"`, or `"PT24H"` depending on the target component.
+- Include control relationships when comparing arms; use `armControl` to identify the comparator arm.
+- Edit individual arms on an existing design with `protocol.arms` (`get`, `create`, `set_control`, `set_active`, `set_weight`, `set_override`, `delete`, `compare_overrides`), not by replacing the raw design payload.
+- Require explicit confirmation or script `--apply` before creating or updating project items.
+
+## Project Folder Hygiene
+
+- Prefer creating protocol designs inside a dedicated Jinkō folder instead of the project root. At the start of a workflow, ask for or propose a folder name, for example `YYYY-MM-DD-<experiment-name>`.
+- Reuse an existing exact-match folder when possible: `client.get_folder_by_name(name, exact_match_only=True)`.
+- If the folder does not exist, create it only after user confirmation or when a script is run with `--apply`.
+- Resolve one folder object or folder id, then pass `folder=folder` to SDK creation calls that support it.
+
+## Bundled Assets
+
+- `assets/toy_protocol_arms.json`: three arms with two routes and three doses. The `iv` route repeats across two arms.
+- `assets/toy_protocol_arms.csv`: the same three arms in CSV form, one row per arm, for use with `create_protocol_design_from_csv`.
+- `assets/protocol.json`: subset of the OpenAPI schema for protocol arm shape.
+
+## Bundled Scripts
+
+- `scripts/create_protocol_design.py`: creates a three-arm protocol design, optionally linked to a model.
+- `scripts/create_protocol_design_from_csv.py`: creates a protocol design from a CSV file of arms.
+- `scripts/edit_protocol_design_arms.py`: creates or updates arms on an existing protocol design via the `arms` mutator service.
+- `scripts/inspect_protocol_design.py`: prints protocol content or a concise arm summary.
+
+Examples:
+
+```bash
+python skills/jinko-protocol/scripts/create_protocol_design.py --model-sid cm-...
+python skills/jinko-protocol/scripts/create_protocol_design.py --model-sid cm-... --apply
+python skills/jinko-protocol/scripts/create_protocol_design.py --model-sid cm-... --folder 2026-06-15-regimens --create-folder --apply
+python skills/jinko-protocol/scripts/create_protocol_design_from_csv.py --csv skills/jinko-protocol/assets/toy_protocol_arms.csv --apply
+python skills/jinko-protocol/scripts/edit_protocol_design_arms.py --protocol-design-sid pd-... --arms skills/jinko-protocol/assets/toy_protocol_arms.json --apply
+python skills/jinko-protocol/scripts/inspect_protocol_design.py --protocol-design-sid pd-... --summary
+```
+
+## Arm Shape
+
+Each arm should include:
+
+- `armName`: stable arm identifier.
+- `armOverrides`: list of `{ "key": "<model-input-id>", "formula": "<arm-specific-value>" }` entries.
+- `armIsActive`: usually `true` for active arms.
+- `armWeight`: usually `1` unless weighted simulations are intentional (for calibration).
+- `armControl`: `null` for the comparator arm, or another arm name for arms compared against a control.
+
+Default toy arms:
+
+- `iv_low_dose`: `Dose=1.0`, `route=iv`, no control arm.
+- `po_mid_dose`: `Dose=2.0`, `route=po`, controlled by `iv_low_dose`.
+- `iv_high_dose`: `Dose=3.0`, `route=iv`, controlled by `iv_low_dose`.
+
+## Reference Routing
+
+- Read `references/protocol-design.md` for separation of concerns and SDK patterns.
+- Read `assets/protocol.json` when validating arm payload shape.

@@ -1,0 +1,22 @@
+[
+  {"query": "I want to build a QSP model of tumor growth under anti-VEGF therapy and eventually run some in-silico trials to compare dosing schedules. Where do I start?", "should_trigger": true},
+  {"query": "help me set up a whole modeling project in jinko for a viral kinetics model, from the literature review all the way to a report", "should_trigger": true},
+  {"query": "I need to calibrate my PK model parameters against the phase 1 clinical data I have, and get credible intervals on the clearance and volume", "should_trigger": true},
+  {"query": "can you generate a virtual population to capture inter-subject variability in my receptor occupancy model?", "should_trigger": true},
+  {"query": "predict the minimum effective dose for this compound by simulating a few dose scenarios", "should_trigger": true},
+  {"query": "we have a cellular kinetics ODE model already in jinko, now I want to run a trial with a protocol comparing QD vs BID and visualize the time courses", "should_trigger": true},
+  {"query": "do a sensitivity analysis to find which parameters most influence the tumor volume readout", "should_trigger": true},
+  {"query": "starting a new exposure-response modeling effort, resume where we left off last week", "should_trigger": true},
+  {"query": "extract the observed PD data from this paper's figure 3 and get it ready to fit the model", "should_trigger": true},
+  {"query": "I'd like to fit a system of differential equations describing IL-6 signaling to my preclinical mouse data and then write up the results", "should_trigger": true},
+  {"query": "what's the best way to organize an end-to-end jinko project for a new oncology indication?", "should_trigger": true},
+  {"query": "just fix the unit-check error on the 'Drug' compartment in this jinko model, nothing else", "should_trigger": false},
+  {"query": "write me a python function to solve a Lotka-Volterra ODE system with scipy and plot it", "should_trigger": false},
+  {"query": "how do I get a jinko API key and set JINKO_API_KEY in my .env?", "should_trigger": false},
+  {"query": "explain what a snapshot is versus a project item in jinko terminology", "should_trigger": false},
+  {"query": "search pubmed for recent papers on CAR-T cytokine release syndrome mechanisms", "should_trigger": false},
+  {"query": "find NCT records for ongoing phase 2 trials of semaglutide in NASH", "should_trigger": false},
+  {"query": "convert this CSV of observed concentrations into a jinko data table", "should_trigger": false},
+  {"query": "review my computational model's tags and naming against our CM conventions", "should_trigger": false},
+  {"query": "reformat this markdown scientific report and check the figures before I send it to the client", "should_trigger": false}
+]

@@ -1,0 +1,33 @@
+{
+  "name": "jinko-skills",
+  "description": "Use Jink\u014d for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+  "author": {
+    "name": "Nova In Silico",
+    "url": "https://www.novainsilico.ai/"
+  },
+  "homepage": "https://www.jinko.ai/",
+  "repository": "https://github.com/novainsilico/jinko-skills",
+  "license": "MIT",
+  "keywords": [
+    "jinko"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Jinko",
+    "shortDescription": "Run In-Silico clinical trials",
+    "longDescription": "Use Jink\u014d for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+    "composerIcon": "./assets/icon.jpg",
+    "logo": "./assets/icon.jpg",
+    "developerName": "Nova In Silico",
+    "category": "Healthcare",
+    "websiteURL": "https://www.jinko.ai/",
+    "privacyPolicyURL": "https://www.novainsilico.ai/data-policy/",
+    "termsOfServiceURL": "https://www.novainsilico.ai/legal-notice/",
+    "defaultPrompt": [
+      "Set up Jinko SDK access for my project.",
+      "Help me inspect and improve a Jinko model.",
+      "Design and run an in silico trial in Jinko."
+    ]
+  },
+  "version": "1.0.0"
+}

@@ -37,6 +37,46 @@ results.
 
 Jinkō comes in two flavors: multi-tenant SaaS (managed by Nova) or **on-premise**, deployed as a dedicated instance within your own private cloud environment, such as instances on AWS, Azure or Google Cloud Platform.
 
+## Installation
+
+### Claude Code
+
+In Claude Code, to add the Jinkō marketplace (this repo) and install its plugin:
+
+```
+/plugin marketplace add novainsilico/jinko-skills
+/plugin install jinko-skills@jinko
+```
+
+### Codex
+
+Add the Jinkō marketplace using either method:
+
+- **Codex interface:** Open Codex, run `/plugins`, select `Add Marketplace`,
+  and enter `novainsilico/jinko-skills`.
+- **Terminal:**
+
+```bash
+codex plugin marketplace add novainsilico/jinko-skills
+```
+
+Then open `/plugins`, select the Jinkō marketplace, search for **Jinko**, and
+install the plugin. Start a new Codex session after installation.
+
+### Other agents and custom installations
+
+Jinkō Skills work with most agents that support the
+[Agent Skills specification](https://agentskills.io). Use the
+[skills CLI](https://skills.sh) to install every skill in this repository; the
+installer will guide you through the agent-specific setup:
+
+```bash
+npx skills add novainsilico/jinko-skills
+```
+
+You can also copy the `skills` directory to your agent's skills location and
+manage updates manually.
+
 ## Why Jinkō is powerful for agents
 
 Jinkō is engineered around guarantees that make autonomous and semi-autonomous
@@ -70,29 +110,21 @@ trials and analyzing results.
 
 | Skill | Purpose |
 | --- | --- |
-| [`jk-context`](./skills/jk-context/SKILL.md) | Core Jinkō concepts, navigation, and domain terminology. |
-| [`jk-data-table`](./skills/jk-data-table/SKILL.md) | Create or inspect data tables for overlays and calibration. |
-| [`jk-document`](./skills/jk-document/SKILL.md) | Create or update Jinkō documents from markdown through the SDK. |
-| [`jk-task-literature-search`](./skills/jk-task-literature-search/SKILL.md) | Find and shortlist citation-grounded biomedical publications. |
-| [`jk-mistral-ocr`](./skills/jk-mistral-ocr/SKILL.md) | Run one PDF through Mistral OCR with annotations and image crops. |
-| [`jk-model`](./skills/jk-model/SKILL.md) | Build, edit, sanity-check, and debug Jinkō computational models. |
-| [`jk-protocol`](./skills/jk-protocol/SKILL.md) | Design or edit multi-arm protocol designs. |
-| [`jk-sdk-setup`](./skills/jk-sdk-setup/SKILL.md) | Authenticate and configure access to a Jinkō project. |
-| [`jk-solution-and-product-guide`](./skills/jk-solution-and-product-guide/SKILL.md) | Guidance on Jinkō solutions and product features. |
-| [`jk-trial`](./skills/jk-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |
-| [`jk-trial-data-scoping`](./skills/jk-trial-data-scoping/SKILL.md) | Scope public ClinicalTrials.gov records and results availability. |
-| [`jk-trial-viz`](./skills/jk-trial-viz/SKILL.md) | Create, inspect, sanity-check, and retrieve Jinkō trial visualizations. |
-| [`jk-vpop`](./skills/jk-vpop/SKILL.md) | Create, generate, and inspect virtual populations. |
+| [`jinko`](./skills/jinko/SKILL.md) | Orchestrate end-to-end Jinkō modeling workflows across the published skill set. |
+| [`jinko-calibration-cmaes`](./skills/jinko-calibration-cmaes/SKILL.md) | Create, run, poll, and inspect CMA-ES calibrations through the SDK. |
+| [`jinko-context`](./skills/jinko-context/SKILL.md) | Core Jinkō concepts, navigation, and domain terminology. |
+| [`jinko-data-table`](./skills/jinko-data-table/SKILL.md) | Create or inspect data tables for overlays and calibration. |
+| [`jinko-document`](./skills/jinko-document/SKILL.md) | Create or update Jinkō documents from markdown through the SDK. |
+| [`jinko-model`](./skills/jinko-model/SKILL.md) | Build, edit, sanity-check, and debug Jinkō computational models. |
+| [`jinko-output-set`](./skills/jinko-output-set/SKILL.md) | Create, inspect, validate, and edit simple and advanced output sets through the SDK. |
+| [`jinko-protocol`](./skills/jinko-protocol/SKILL.md) | Design or edit multi-arm protocol designs. |
+| [`jinko-sdk-setup`](./skills/jinko-sdk-setup/SKILL.md) | Authenticate and configure access to a Jinkō project. |
+| [`jinko-solution-and-product-guide`](./skills/jinko-solution-and-product-guide/SKILL.md) | Guidance on Jinkō solutions and product features. |
+| [`jinko-trial`](./skills/jinko-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |
+| [`jinko-trial-viz`](./skills/jinko-trial-viz/SKILL.md) | Create, inspect, sanity-check, and retrieve Jinkō trial visualizations. |
+| [`jinko-vpop`](./skills/jinko-vpop/SKILL.md) | Create, generate, and inspect virtual populations. |
 
 Need a Jinkō account? [Request a demo](https://www.jinko.ai/#Form) to get started.
-
-## Installation
-
-Install a skill with the [skills CLI](https://skills.sh):
-
-```bash
-npx skills add novainsilico/jinko-skills@jk-sdk-setup
-```
 
 ## SDK compatibility
 
@@ -104,7 +136,7 @@ Skills that use the Jinkō SDK declare a compatible SDK version range in their
 pip install "jinko-sdk>=1.2,<2.0"
 ```
 
-Start with `jk-sdk-setup` to verify your credentials and SDK installation before
+Start with `jinko-sdk-setup` to verify your credentials and SDK installation before
 using the workflow skills.
 
 ## License
