@@ -39,6 +39,8 @@ Jinkō comes in two flavors: multi-tenant SaaS (managed by Nova) or **on-premise
 
 ## Installation
 
+The skills in this repository are inter-dependant, and not meant to be picked individually; we strongly recommend you install all the Jinkō skills at once, and use an update method that can reliably get new ones.
+
 ### Claude Code
 
 In Claude Code, to add the Jinkō marketplace (this repo) and install its plugin:
@@ -46,7 +48,12 @@ In Claude Code, to add the Jinkō marketplace (this repo) and install its plugin
 ```
 /plugin marketplace add novainsilico/jinko-skills
 /plugin install jinko-skills@jinko
+/reload-plugins # Or restart claude code
 ```
+
+### Claude Science
+
+In Claude Science's settings, go to Skills > Add skill > Import from GitHub > type "novainsilico/jinko-skills" > Preview > Import skills.
 
 ### Codex
 
@@ -71,7 +78,7 @@ Jinkō Skills work with most agents that support the
 installer will guide you through the agent-specific setup:
 
 ```bash
-npx skills add novainsilico/jinko-skills
+npx skills add novainsilico/jinko-skills --skill '*'
 ```
 
 You can also copy the `skills` directory to your agent's skills location and

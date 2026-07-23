@@ -1,0 +1,904 @@
+{
+  "dimensions": [
+    "",
+    "current",
+    "length",
+    "luminosity",
+    "mass",
+    "substance",
+    "temperature",
+    "time"
+  ],
+  "prefixes": {
+    "": 1,
+    "E": 1000000000000000000,
+    "Ei": 1152921504606847000,
+    "G": 1000000000,
+    "Gi": 1073741824,
+    "Ki": 1024,
+    "M": 1000000,
+    "Mi": 1048576,
+    "P": 1000000000000000,
+    "Pi": 1125899906842624,
+    "T": 1000000000000,
+    "Ti": 1099511627776,
+    "Y": 1000000000000000000000000,
+    "Yi": 1208925819614629200000000,
+    "Z": 1000000000000000000000,
+    "Zi": 1180591620717411300000,
+    "a": 1e-18,
+    "atto": 1e-18,
+    "c": 0.01,
+    "centi": 0.01,
+    "d": 0.1,
+    "da": 10,
+    "deca": 10,
+    "deci": 0.1,
+    "exa": 1000000000000000000,
+    "exbi": 1152921504606847000,
+    "f": 1e-15,
+    "femto": 1e-15,
+    "gibi": 1073741824,
+    "giga": 1000000000,
+    "h": 100,
+    "hecto": 100,
+    "k": 1000,
+    "kibi": 1024,
+    "kilo": 1000,
+    "m": 0.001,
+    "mebi": 1048576,
+    "mega": 1000000,
+    "micro": 1e-06,
+    "milli": 0.001,
+    "n": 1e-09,
+    "nano": 1e-09,
+    "p": 1e-12,
+    "pebi": 1125899906842624,
+    "peta": 1000000000000000,
+    "pico": 1e-12,
+    "tebi": 1099511627776,
+    "tera": 1000000000000,
+    "u": 1e-06,
+    "y": 1e-24,
+    "yobi": 1208925819614629200000000,
+    "yocto": 1e-24,
+    "yotta": 1000000000000000000000000,
+    "z": 1e-21,
+    "zebi": 1180591620717411300000,
+    "zepto": 1e-21,
+    "zetta": 1000000000000000000000,
+    "\u00b5": 1e-06
+  },
+  "units": {
+    "Bq": {
+      "time": "-1"
+    },
+    "E_h": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "Gy": {
+      "length": "2",
+      "time": "-2"
+    },
+    "H2O": {
+      "length": "-2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "Hg": {
+      "length": "-2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "US_survey_acre": {
+      "length": "2"
+    },
+    "US_survey_foot": {
+      "length": "1"
+    },
+    "US_survey_mile": {
+      "length": "1"
+    },
+    "US_survey_yard": {
+      "length": "1"
+    },
+    "US_therm": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "acre": {
+      "length": "2"
+    },
+    "acre_foot": {
+      "length": "3"
+    },
+    "ampere": {
+      "current": "1"
+    },
+    "ampere_turn": {
+      "current": "1"
+    },
+    "angstrom": {
+      "length": "1"
+    },
+    "arcminute": {},
+    "arcsecond": {},
+    "are": {
+      "length": "2"
+    },
+    "arpentlin": {
+      "length": "1"
+    },
+    "astronomical_unit": {
+      "length": "1"
+    },
+    "atmosphere": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "atomic_mass_unit": {
+      "mass": "1"
+    },
+    "avogadro": {},
+    "bag": {
+      "mass": "1"
+    },
+    "bar": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "barleycorn": {
+      "length": "1"
+    },
+    "barn": {
+      "length": "2"
+    },
+    "barrel": {
+      "length": "3"
+    },
+    "barye": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "baud": {
+      "time": "-1"
+    },
+    "bit": {},
+    "board_foot": {
+      "length": "3"
+    },
+    "boiler_horsepower": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "btu": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "bushel": {
+      "length": "3"
+    },
+    "byte": {},
+    "cal": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "candela": {
+      "luminosity": "1"
+    },
+    "carat": {
+      "mass": "1"
+    },
+    "cc": {
+      "length": "3"
+    },
+    "chain": {
+      "length": "1"
+    },
+    "chemical_faraday": {
+      "current": "1",
+      "time": "1"
+    },
+    "cmH2O": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "cmHg": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "cmil": {
+      "length": "2"
+    },
+    "common_year": {
+      "time": "1"
+    },
+    "coulomb": {
+      "current": "1",
+      "time": "1"
+    },
+    "count": {},
+    "counts_per_second": {
+      "time": "-1"
+    },
+    "cup": {
+      "length": "3"
+    },
+    "curie": {
+      "time": "-1"
+    },
+    "darcy": {
+      "length": "2"
+    },
+    "day": {
+      "time": "1"
+    },
+    "degree": {},
+    "denier": {
+      "length": "-1",
+      "mass": "1"
+    },
+    "dimensionless": {},
+    "drachm": {
+      "mass": "1"
+    },
+    "dram": {
+      "mass": "1"
+    },
+    "dry_gallon": {
+      "length": "3"
+    },
+    "dry_pint": {
+      "length": "3"
+    },
+    "dry_quart": {
+      "length": "3"
+    },
+    "dtex": {
+      "length": "-1",
+      "mass": "1"
+    },
+    "dyne": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "eV": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "electric_horsepower": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "elementary_charge": {
+      "current": "1",
+      "time": "1"
+    },
+    "eon": {
+      "time": "1"
+    },
+    "erg": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "esu": {
+      "length": {
+        "denominator": 2,
+        "numerator": 3
+      },
+      "mass": {
+        "denominator": 2,
+        "numerator": 1
+      },
+      "time": "-1"
+    },
+    "esu_per_second": {
+      "length": {
+        "denominator": 2,
+        "numerator": 3
+      },
+      "mass": {
+        "denominator": 2,
+        "numerator": 1
+      },
+      "time": "-2"
+    },
+    "farad": {
+      "current": "2",
+      "length": "-2",
+      "mass": "-1",
+      "time": "4"
+    },
+    "faraday": {
+      "current": "1",
+      "time": "1"
+    },
+    "fathom": {
+      "length": "1"
+    },
+    "firkin": {
+      "length": "3"
+    },
+    "floz": {
+      "length": "3"
+    },
+    "fluid_dram": {
+      "length": "3"
+    },
+    "foot": {
+      "length": "1"
+    },
+    "footH2O": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "foot_H2O": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "force_gram": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "force_kilogram": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "force_ounce": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "force_pound": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "force_ton": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "fortnight": {
+      "time": "1"
+    },
+    "furlong": {
+      "length": "1"
+    },
+    "gallon": {
+      "length": "3"
+    },
+    "gamma": {
+      "current": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "gauss": {
+      "current": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "gilbert": {
+      "current": "1"
+    },
+    "gill": {
+      "length": "3"
+    },
+    "grain": {
+      "mass": "1"
+    },
+    "gram": {
+      "mass": "1"
+    },
+    "gregorian_year": {
+      "time": "1"
+    },
+    "gross_register_ton": {
+      "length": "3"
+    },
+    "gstandard_gravity": {
+      "length": "1",
+      "time": "-2"
+    },
+    "henry": {
+      "current": "-2",
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "hertz": {
+      "time": "-1"
+    },
+    "horsepower": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "hour": {
+      "time": "1"
+    },
+    "hydraulic_horsepower": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "imperial_bushel": {
+      "length": "3"
+    },
+    "imperial_cup": {
+      "length": "3"
+    },
+    "imperial_floz": {
+      "length": "3"
+    },
+    "imperial_gallon": {
+      "length": "3"
+    },
+    "imperial_gill": {
+      "length": "3"
+    },
+    "imperial_pint": {
+      "length": "3"
+    },
+    "imperial_quart": {
+      "length": "3"
+    },
+    "inHg": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "inch": {
+      "length": "1"
+    },
+    "inch_H2O_39F": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "inch_H2O_60F": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "inch_Hg_60F": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "international_steam_table_calorie": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "item": {
+      "substance": "1"
+    },
+    "joule": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "julian_year": {
+      "time": "1"
+    },
+    "katal": {
+      "substance": "1",
+      "time": "-1"
+    },
+    "kayser": {
+      "length": "-1"
+    },
+    "kelvin": {
+      "temperature": "1"
+    },
+    "kip": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "knot": {
+      "length": "1",
+      "time": "-1"
+    },
+    "kph": {
+      "length": "1",
+      "time": "-1"
+    },
+    "ksi": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "leap_year": {
+      "time": "1"
+    },
+    "light_year": {
+      "length": "1"
+    },
+    "liter": {
+      "length": "3"
+    },
+    "long_hundredweight": {
+      "mass": "1"
+    },
+    "lumen": {
+      "luminosity": "1"
+    },
+    "lux": {
+      "length": "-2",
+      "luminosity": "1"
+    },
+    "maxwell": {
+      "current": "-1",
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "mercury_60F": {
+      "length": "-2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "meter": {
+      "length": "1"
+    },
+    "metric_horsepower": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "metric_ton": {
+      "mass": "1"
+    },
+    "mil": {
+      "length": "1"
+    },
+    "mile": {
+      "length": "1"
+    },
+    "millenium": {
+      "time": "1"
+    },
+    "minute": {
+      "time": "1"
+    },
+    "mmHg": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "molar": {
+      "length": "-3",
+      "substance": "1"
+    },
+    "mole": {
+      "substance": "1"
+    },
+    "month": {
+      "time": "1"
+    },
+    "mph": {
+      "length": "1",
+      "time": "-1"
+    },
+    "nautical_mile": {
+      "length": "1"
+    },
+    "newton": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "oersted": {
+      "current": "1",
+      "length": "-1"
+    },
+    "ohm": {
+      "current": "-2",
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "ounce": {
+      "mass": "1"
+    },
+    "parsec": {
+      "length": "1"
+    },
+    "pascal": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "peck": {
+      "length": "3"
+    },
+    "pennyweight": {
+      "mass": "1"
+    },
+    "physical_faraday": {
+      "current": "1",
+      "time": "1"
+    },
+    "pi": {},
+    "pint": {
+      "length": "3"
+    },
+    "poise": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-1"
+    },
+    "pound": {
+      "mass": "1"
+    },
+    "poundal": {
+      "length": "1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "printers_pica": {
+      "length": "1"
+    },
+    "printers_point": {
+      "length": "1"
+    },
+    "psi": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "quart": {
+      "length": "3"
+    },
+    "radian": {},
+    "rads": {
+      "length": "2",
+      "time": "-2"
+    },
+    "refrigeration_ton": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "rem": {
+      "length": "2",
+      "time": "-2"
+    },
+    "revolutions_per_minute": {
+      "time": "-1"
+    },
+    "rhe": {
+      "length": "1",
+      "mass": "-1",
+      "time": "1"
+    },
+    "rod": {
+      "length": "1"
+    },
+    "roentgen": {
+      "current": "1",
+      "mass": "-1",
+      "time": "1"
+    },
+    "rutherford": {
+      "time": "-1"
+    },
+    "scruple": {
+      "mass": "1"
+    },
+    "second": {
+      "time": "1"
+    },
+    "shake": {
+      "time": "1"
+    },
+    "short_hundredweight": {
+      "mass": "1"
+    },
+    "sidereal_day": {
+      "time": "1"
+    },
+    "sidereal_hour": {
+      "time": "1"
+    },
+    "sidereal_minute": {
+      "time": "1"
+    },
+    "sidereal_month": {
+      "time": "1"
+    },
+    "sidereal_second": {
+      "time": "1"
+    },
+    "sidereal_year": {
+      "time": "1"
+    },
+    "siemens": {
+      "current": "2",
+      "length": "-2",
+      "mass": "-1",
+      "time": "3"
+    },
+    "slug": {
+      "mass": "1"
+    },
+    "speed_of_light": {
+      "length": "1",
+      "time": "-1"
+    },
+    "standard_liter_per_minute": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "statfarad": {
+      "current": "2",
+      "length": "-2",
+      "mass": "-1",
+      "time": "4"
+    },
+    "stathenry": {
+      "current": "-2",
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "statmho": {
+      "current": "2",
+      "length": "-2",
+      "mass": "-1",
+      "time": "3"
+    },
+    "statohm": {
+      "current": "-2",
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "statvolt": {
+      "current": "-1",
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "steradian": {},
+    "stere": {
+      "length": "3"
+    },
+    "stokes": {
+      "length": "2",
+      "time": "-1"
+    },
+    "stone": {
+      "mass": "1"
+    },
+    "substance_count": {
+      "substance": "1"
+    },
+    "synodic_month": {
+      "time": "1"
+    },
+    "tablespoon": {
+      "length": "3"
+    },
+    "teaspoon": {
+      "length": "3"
+    },
+    "technical_atmosphere": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "tesla": {
+      "current": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "tex": {
+      "length": "-1",
+      "mass": "1"
+    },
+    "thm": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "ton": {
+      "mass": "1"
+    },
+    "ton_TNT": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "torr": {
+      "length": "-1",
+      "mass": "1",
+      "time": "-2"
+    },
+    "tropical_month": {
+      "time": "1"
+    },
+    "troy_ounce": {
+      "mass": "1"
+    },
+    "troy_pound": {
+      "mass": "1"
+    },
+    "turn": {},
+    "unit_pole": {
+      "current": "-1",
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "volt": {
+      "current": "-1",
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "water_4C": {
+      "length": "-2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "water_60F": {
+      "length": "-2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "watt": {
+      "length": "2",
+      "mass": "1",
+      "time": "-3"
+    },
+    "watt_hour": {
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "weber": {
+      "current": "-1",
+      "length": "2",
+      "mass": "1",
+      "time": "-2"
+    },
+    "week": {
+      "time": "1"
+    },
+    "work_month": {
+      "time": "1"
+    },
+    "work_year": {
+      "time": "1"
+    },
+    "yard": {
+      "length": "1"
+    },
+    "year": {
+      "time": "1"
+    }
+  }
+}

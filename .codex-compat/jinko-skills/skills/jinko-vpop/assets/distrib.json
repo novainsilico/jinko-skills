@@ -1,0 +1,383 @@
+{
+  "Distrib": {
+    "example": {
+      "highBound": 10,
+      "lowBound": 0,
+      "tag": "Uniform"
+    },
+    "oneOf": [
+      {
+        "properties": {
+          "highBound": {
+            "format": "double",
+            "type": "number"
+          },
+          "lowBound": {
+            "format": "double",
+            "type": "number"
+          },
+          "tag": {
+            "enum": [
+              "Uniform"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "lowBound",
+          "highBound",
+          "tag"
+        ],
+        "title": "Uniform",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "highBound": {
+            "format": "double",
+            "type": "number"
+          },
+          "lowBound": {
+            "format": "double",
+            "type": "number"
+          },
+          "tag": {
+            "enum": [
+              "LogUniform"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "lowBound",
+          "highBound",
+          "base",
+          "tag"
+        ],
+        "title": "LogUniform",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "mean": {
+            "format": "double",
+            "type": "number"
+          },
+          "stdev": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "tag": {
+            "enum": [
+              "Normal"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "mean",
+          "stdev",
+          "tag"
+        ],
+        "title": "Normal",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "highBound": {
+            "format": "double",
+            "type": "number"
+          },
+          "lowBound": {
+            "format": "double",
+            "type": "number"
+          },
+          "mean": {
+            "format": "double",
+            "type": "number"
+          },
+          "stdev": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "tag": {
+            "enum": [
+              "NormalTruncated"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "mean",
+          "stdev",
+          "lowBound",
+          "highBound",
+          "tag"
+        ],
+        "title": "NormalTruncated",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "mean": {
+            "format": "double",
+            "type": "number"
+          },
+          "stdev": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "tag": {
+            "enum": [
+              "LogNormal"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "mean",
+          "stdev",
+          "base",
+          "tag"
+        ],
+        "title": "LogNormal",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "mean": {
+            "format": "double",
+            "type": "number"
+          },
+          "posHighBound": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "posLowBound": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "stdev": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "tag": {
+            "enum": [
+              "LogNormalTruncated"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "mean",
+          "stdev",
+          "posLowBound",
+          "posHighBound",
+          "base",
+          "tag"
+        ],
+        "title": "LogNormalTruncated",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "biNum": {
+            "maximum": 9223372036854776000,
+            "minimum": -9223372036854776000,
+            "type": "integer"
+          },
+          "biProb": {
+            "$ref": "#/components/schemas/Probability"
+          },
+          "tag": {
+            "enum": [
+              "Binomial"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "biNum",
+          "biProb",
+          "tag"
+        ],
+        "title": "BiNomial",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "bernProb": {
+            "$ref": "#/components/schemas/Probability"
+          },
+          "tag": {
+            "enum": [
+              "Bernoulli"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "bernProb",
+          "tag"
+        ],
+        "title": "Bernoulli",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "catMapping": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NonNegativeDouble"
+            },
+            "type": "object"
+          },
+          "tag": {
+            "enum": [
+              "Categorical"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "catMapping",
+          "tag"
+        ],
+        "title": "Categorical",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "poiLambda": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "tag": {
+            "enum": [
+              "Poisson"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "poiLambda",
+          "tag"
+        ],
+        "title": "Poisson",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "randDistrib": {
+            "items": {
+              "format": "double",
+              "type": "number"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "tag": {
+            "enum": [
+              "RandDistrib"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "randDistrib",
+          "tag"
+        ],
+        "title": "RandDistrib",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "mixture": {
+            "items": {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/NonNegativeDouble"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Distrib"
+                  }
+                ]
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "tag": {
+            "enum": [
+              "Mixture"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "mixture",
+          "tag"
+        ],
+        "title": "Mixture",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "location": {
+            "format": "double",
+            "type": "number"
+          },
+          "scale": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "shape": {
+            "format": "double",
+            "type": "number"
+          },
+          "tag": {
+            "enum": [
+              "SkewNormal"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "scale",
+          "shape",
+          "tag"
+        ],
+        "title": "SkewNormal",
+        "type": "object"
+      },
+      {
+        "properties": {
+          "k": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "lambda": {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          "tag": {
+            "enum": [
+              "Weibull"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "lambda",
+          "k",
+          "tag"
+        ],
+        "title": "Weibull",
+        "type": "object"
+      }
+    ],
+    "title": "Distrib"
+  }
+}

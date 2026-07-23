@@ -1,0 +1,50 @@
+[
+  {
+    "armControl": null,
+    "armIsActive": true,
+    "armName": "iv_low_dose",
+    "armOverrides": [
+      {
+        "key": "Dose",
+        "formula": "1.0"
+      },
+      {
+        "key": "route",
+        "formula": "iv"
+      }
+    ],
+    "armWeight": 1
+  },
+  {
+    "armControl": "iv_low_dose",
+    "armIsActive": true,
+    "armName": "po_mid_dose",
+    "armOverrides": [
+      {
+        "key": "Dose",
+        "formula": "2.0"
+      },
+      {
+        "key": "route",
+        "formula": "po"
+      }
+    ],
+    "armWeight": 1
+  },
+  {
+    "armControl": "iv_low_dose",
+    "armIsActive": true,
+    "armName": "iv_high_dose",
+    "armOverrides": [
+      {
+        "key": "Dose",
+        "formula": "3.0"
+      },
+      {
+        "key": "route",
+        "formula": "iv"
+      }
+    ],
+    "armWeight": 1
+  }
+]

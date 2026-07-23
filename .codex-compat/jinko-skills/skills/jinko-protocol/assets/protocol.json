@@ -1,0 +1,106 @@
+{
+  "Arm": {
+    "example": {
+      "armControl": null,
+      "armIsActive": true,
+      "armName": "control-arm",
+      "armOverrides": [
+        {
+          "formula": "DefaultComp.CO_2 / 2",
+          "key": "DefaultComp.CO_2"
+        },
+        {
+          "formula": "5 * u \"mole\" / vol \"Skin\"",
+          "key": "Skin.Oxygen"
+        },
+        {
+          "formula": "0.6",
+          "key": "kCO_2"
+        },
+        {
+          "formula": "k_reac3 * 2",
+          "key": "k_reac3"
+        },
+        {
+          "formula": "PT1000S",
+          "key": "tMax"
+        },
+        {
+          "formula": "PT2S",
+          "key": "tStep"
+        }
+      ],
+      "armWeight": 1,
+      "controlImmutableId": "00000000-0000-0000-0000-000000000001",
+      "immutableId": "00000000-0000-0000-0000-000000000000"
+    },
+    "properties": {
+      "armControl": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ArmId"
+          },
+          {
+            "nullable": true,
+            "type": "object"
+          }
+        ]
+      },
+      "armIsActive": {
+        "nullable": true,
+        "type": "boolean"
+      },
+      "armName": {
+        "$ref": "#/components/schemas/ArmId"
+      },
+      "armOverrides": {
+        "$ref": "#/components/schemas/TextOverrides"
+      },
+      "armWeight": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/PositiveDouble"
+          },
+          {
+            "nullable": true,
+            "type": "object"
+          }
+        ]
+      },
+      "controlImmutableId": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ImmutableId"
+          },
+          {
+            "nullable": true,
+            "type": "object"
+          }
+        ]
+      },
+      "immutableId": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ImmutableId"
+          },
+          {
+            "nullable": true,
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "required": [
+      "armName",
+      "armOverrides"
+    ],
+    "type": "object",
+    "title": "Arm"
+  },
+  "ArmId": {
+    "description": "A valid arm Id as per SBML specs <https://co.mbine.org/specifications/sbml.level-3.version-2.core.release-2.pdf#subsubsection.3.1.6 SBML Specs lvl3v2 Section 3.1.6>",
+    "example": "control",
+    "type": "string",
+    "title": "ArmId"
+  }
+}

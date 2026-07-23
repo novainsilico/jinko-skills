@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "jinko",
+  "owner": {
+    "name": "Nova In Silico",
+    "email": "oss@novainsilico.ai"
+  },
+  "description": "Use Jinkō for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+  "plugins": [
+    {
+      "name": "jinko-skills",
+      "displayName": "Jinko",
+      "license": "MIT",
+      "source": "./",
+      "description": "Use Jinkō for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+      "keywords": [
+        "jinko"
+      ],
+      "homepage": "https://www.jinko.ai/",
+      "relevance": {
+        "topic": "QSP modeling in Jinko",
+        "signals": {
+          "cwd": [
+            "**/*jinko*"
+          ],
+          "hosts": [
+            "jinko.ai"
+          ]
+        }
+      },
+      "strict": false,
+      "version": "1.0.1",
+      "skills": [
+        "./skills/jinko",
+        "./skills/jinko-calibration-cmaes",
+        "./skills/jinko-context",
+        "./skills/jinko-data-table",
+        "./skills/jinko-document",
+        "./skills/jinko-model",
+        "./skills/jinko-output-set",
+        "./skills/jinko-protocol",
+        "./skills/jinko-sdk-setup",
+        "./skills/jinko-solution-and-product-guide",
+        "./skills/jinko-trial-viz",
+        "./skills/jinko-trial",
+        "./skills/jinko-vpop"
+      ]
+    }
+  ],
+  "version": "1.0.1"
+}

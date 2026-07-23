@@ -8,7 +8,7 @@
       "name": "jinko-skills",
       "source": {
         "source": "local",
-        "path": "./"
+        "path": "./.codex-compat/jinko-skills"
       },
       "policy": {
         "installation": "AVAILABLE",

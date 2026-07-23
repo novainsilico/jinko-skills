@@ -1,0 +1,3 @@
+obsId,time,narrowRangeLowBound,narrowRangeHighBound,unit,armScope,wideRangeLowBound,wideRangeHighBound,weight,experimentRef
+Drug,PT0S,0.05,0.1,mol,iv_low_dose,0,0.2,1,toy-calibration
+Drug,PT6H,0.4,0.7,mol,iv_low_dose,0,2,1,toy-calibration
