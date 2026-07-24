@@ -29,10 +29,11 @@
         }
       },
       "strict": false,
-      "version": "1.0.1",
+      "version": "1.0.2",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
+        "./skills/jinko-calibration-subsampling",
         "./skills/jinko-context",
         "./skills/jinko-data-table",
         "./skills/jinko-document",
@@ -47,5 +48,5 @@
       ]
     }
   ],
-  "version": "1.0.1"
+  "version": "1.0.2"
 }

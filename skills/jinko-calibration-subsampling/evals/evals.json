@@ -1,0 +1,20 @@
+{
+  "skill_name": "jinko-calibration-subsampling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My completed trial tr-123 has treated-arm scalar descriptors age and endpoint. Create a subsampling design that keeps adults (age >= 18), targets endpoint as Normal(12, 2.5), checks it, then generate 100 matched patients with the SDK.",
+      "expected_output": "Discovers descriptors from the Trial, uses their typed builders in trial.create_subsampling_design, blocks generation on design.diagnostics.errors(), and calls design.generate_vpop with all six annealing options. It does not choose scientific defaults beyond the explicitly supplied target."
+    },
+    {
+      "id": 2,
+      "prompt": "Reuse my subsampling design sd-456 with a new trial and change one of its target distributions. How do I do that safely?",
+      "expected_output": "Uses design.set_trial(new_trial) only after explaining descriptor/arm compatibility, modifies the target through design.marginals typed handles, and rechecks diagnostics. It notes that an already-used design may need duplication."
+    },
+    {
+      "id": 3,
+      "prompt": "My subsampling generation fails because the target refers to a descriptor that is not in the trial. Diagnose it and tell me whether I should make the original Vpop bigger.",
+      "expected_output": "Uses design.diagnostics.errors().explain() to diagnose the SDK/item reference issue. It distinguishes that from population-coverage and scientific sizing advice, which belongs to a workflow/domain expert."
+    }
+  ]
+}
