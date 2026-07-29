@@ -1,9 +1,9 @@
 {
   "name": "jinko",
-  "description": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+  "description": "Skills for quantitative systems pharmacology using Jinkō platform. Support the full modeling workflow: gathering evidence and observed data, building and calibrating models, estimating uncertainty, running sensitivity analyses, creating virtual populations, simulating clinical  trials, visualizing results, and producing analysis.",
   "author": {
     "name": "Nova In Silico",
-    "email": "contact@novainsilico.ai",
+    "email": "oss@novainsilico.ai",
     "url": "https://www.novainsilico.ai/"
   },
   "homepage": "https://www.novainsilico.ai",
@@ -22,8 +22,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Jinkō",
-    "shortDescription": "Run In-Silico clinical trials",
-    "longDescription": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+    "shortDescription": "Run in-silico clinical trials",
+    "longDescription": "Skills for quantitative systems pharmacology using Jinkō platform. Support the full modeling workflow: gathering evidence and observed data, building and calibrating models, estimating uncertainty, running sensitivity analyses, creating virtual populations, simulating clinical  trials, visualizing results, and producing analysis.",
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",
     "composerIconDark": "./assets/dark-icon.png",
@@ -35,10 +35,10 @@
     "privacyPolicyURL": "https://www.novainsilico.ai/data-policy/",
     "termsOfServiceURL": "https://www.novainsilico.ai/legal-notice/",
     "defaultPrompt": [
-      "Set up Jinko SDK access for my project.",
-      "Help me inspect and improve a Jinko model.",
-      "Design and run an in silico trial in Jinko."
+      "Simulate hepatitis B treatments and predict time to viral suppression.",
+      "Generate an atopic dermatitis virtual population that reproduces observed EASI responses.",
+      "Reproduce the results from this paper in Jinko"
     ]
   },
-  "version": "1.1.0"
+  "version": "1.1.1"
 }

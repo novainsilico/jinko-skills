@@ -3,9 +3,9 @@
   "name": "jinko",
   "owner": {
     "name": "Nova In Silico",
-    "email": "contact@novainsilico.ai"
+    "email": "oss@novainsilico.ai"
   },
-  "description": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+  "description": "Skills for quantitative systems pharmacology using Jinkō platform. Support the full modeling workflow: gathering evidence and observed data, building and calibrating models, estimating uncertainty, running sensitivity analyses, creating virtual populations, simulating clinical  trials, visualizing results, and producing analysis.",
   "renames": {
     "jinko-skills": "jinko"
   },
@@ -15,10 +15,10 @@
       "displayName": "Jinkō",
       "license": "MIT",
       "source": "./",
-      "description": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+      "description": "Skills for quantitative systems pharmacology using Jinkō platform. Support the full modeling workflow: gathering evidence and observed data, building and calibrating models, estimating uncertainty, running sensitivity analyses, creating virtual populations, simulating clinical  trials, visualizing results, and producing analysis.",
       "author": {
         "name": "Nova In Silico",
-        "email": "contact@novainsilico.ai",
+        "email": "oss@novainsilico.ai",
         "url": "https://www.novainsilico.ai/"
       },
       "keywords": [
@@ -55,7 +55,7 @@
         }
       },
       "strict": false,
-      "version": "1.1.0",
+      "version": "1.1.1",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
@@ -74,5 +74,5 @@
       ]
     }
   ],
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
