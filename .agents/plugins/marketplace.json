@@ -1,14 +1,14 @@
 {
   "name": "jinko",
   "interface": {
-    "displayName": "Jinko"
+    "displayName": "Jinkō"
   },
   "plugins": [
     {
-      "name": "jinko-skills",
+      "name": "jinko",
       "source": {
         "source": "local",
-        "path": "./.codex-compat/jinko-skills"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

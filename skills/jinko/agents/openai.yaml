@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Modeling"
+  short_description: "Coordinate QSP modeling workflows"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko to organize my Jinkō computational modeling workflow."
+policy:
+  allow_implicit_invocation: true

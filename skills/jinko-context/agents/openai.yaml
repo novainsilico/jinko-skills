@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Context"
+  short_description: "Understand Jinkō projects and terminology"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-context to explain the Jinkō project structure and terminology."
+policy:
+  allow_implicit_invocation: true

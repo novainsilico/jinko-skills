@@ -3,20 +3,46 @@
   "name": "jinko",
   "owner": {
     "name": "Nova In Silico",
-    "email": "oss@novainsilico.ai"
+    "email": "contact@novainsilico.ai"
   },
-  "description": "Use Jinkō for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+  "description": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+  "renames": {
+    "jinko-skills": "jinko"
+  },
   "plugins": [
     {
-      "name": "jinko-skills",
-      "displayName": "Jinko",
+      "name": "jinko",
+      "displayName": "Jinkō",
       "license": "MIT",
       "source": "./",
-      "description": "Use Jinkō for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+      "description": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+      "author": {
+        "name": "Nova In Silico",
+        "email": "contact@novainsilico.ai",
+        "url": "https://www.novainsilico.ai/"
+      },
       "keywords": [
-        "jinko"
+        "jinko",
+        "AI-assisted modeling",
+        "trial simulation and optimization",
+        "virtual patients",
+        "digital twins",
+        "QSP",
+        "MIDD",
+        "in-silico trials"
       ],
-      "homepage": "https://www.jinko.ai/",
+      "homepage": "https://www.novainsilico.ai",
+      "repository": "https://github.com/novainsilico/jinko-skills",
+      "category": "Healthcare",
+      "tags": [
+        "ai-assisted-modeling",
+        "trial-simulation-optimization",
+        "virtual-patients",
+        "digital-twins",
+        "qsp",
+        "midd",
+        "in-silico-trials"
+      ],
       "relevance": {
         "topic": "QSP modeling in Jinko",
         "signals": {
@@ -29,7 +55,7 @@
         }
       },
       "strict": false,
-      "version": "1.0.2",
+      "version": "1.1.0",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
@@ -48,5 +74,5 @@
       ]
     }
   ],
-  "version": "1.0.2"
+  "version": "1.1.0"
 }

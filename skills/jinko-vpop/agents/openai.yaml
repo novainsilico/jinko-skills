@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Virtual Populations"
+  short_description: "Create and inspect virtual populations"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-vpop to create or inspect a virtual population."
+policy:
+  allow_implicit_invocation: true

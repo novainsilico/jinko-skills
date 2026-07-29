@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō SDK Setup"
+  short_description: "Configure and verify Jinkō SDK access"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-sdk-setup to configure and verify my Jinkō project access."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Data Tables"
+  short_description: "Create and inspect Jinkō data tables"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-data-table to upload and validate observed trial data."
+policy:
+  allow_implicit_invocation: true

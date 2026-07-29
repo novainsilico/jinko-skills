@@ -80,11 +80,34 @@ contains the expected value before and after the trigger.
 - Set `record=True` when users need to inspect the discontinuity in `simple_solve` or trial output. This records the state immediately before and after the event.
 - After adding or changing an event, request the affected component in `simple_solve`, inspect its values around the trigger, and report whether the expected update occurred.
 
-## Model Tags
+## Component Tags and Links
 
 Model tags are writable through `model.create_tag("pk", description=..., color=...)`.
 Use the returned handle to update metadata with `tag.set_description(...)` or
-`tag.set_color(...)`; pass the tag or its id when assigning it to components.
+`tag.set_color(...)`.
+
+Every component returned by `model.components.get_*`, `list_*`, `create_*`, or
+`batch.edit_*` supports tags and traceability links. Create helpers also accept
+`tags=[...]` and `links=[...]` when the metadata is already known.
+
+```python
+pk_tag = model.create_tag("pk", color="#2e86de")
+parameter = model.components.get_parameter("k_clearance")
+
+parameter.add_tag(pk_tag)  # tag handle or tag id
+parameter.add_link("https://example.org/source")
+
+# A project item can be passed directly; its Jinkō URL is stored as the link.
+parameter.add_link(client.get_document("do-..."))
+```
+
+Use `component.tags` and `component.links` to inspect the current metadata;
+`has_tag(...)` and `has_link(...)` check for a specific entry. The mutations
+`remove_tag`, `set_tags`, `remove_link`, `set_links`, and `clear_links` are
+also available. Immediate component-handle mutations create a model edit;
+when several related component changes belong in one version, call the same
+methods on the object returned by `batch.edit_*` or `batch.create_*` inside a
+`model.components.batch(version=...)` block.
 
 ## Formula Syntax
 

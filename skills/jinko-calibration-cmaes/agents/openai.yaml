@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō CMA-ES Calibration"
+  short_description: "Run and inspect CMA-ES calibrations"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-calibration-cmaes to set up and run a CMA-ES calibration."
+policy:
+  allow_implicit_invocation: true

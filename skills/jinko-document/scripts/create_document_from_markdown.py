@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Create a Jinko document from markdown, with optional image and reference prep."""
+"""Create a Jinko document from markdown, with optional image and reference prep.
+
+Dry-run by default. Pass --apply to upload files and create the document.
+"""
 
 from __future__ import annotations
 
@@ -13,6 +16,7 @@ from jinko import JinkoClient
 
 REFERENCE_PLACEHOLDER = "<!-- jinko:references -->"
 LOCAL_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
+IMAGE_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"})
 
 
 def parse_args() -> argparse.Namespace:
@@ -45,6 +49,25 @@ def parse_args() -> argparse.Namespace:
         "--reference-manifest",
         help="Optional JSON manifest describing references to create or reuse",
     )
+    parser.add_argument(
+        "--asset-root",
+        help=(
+            "Optional allowed root for local Markdown images. Paths still resolve "
+            "relative to the Markdown file."
+        ),
+    )
+    parser.add_argument(
+        "--reference-root",
+        help=(
+            "Optional allowed root for manifest PDF paths. Paths still resolve "
+            "relative to the manifest."
+        ),
+    )
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Upload local files and create the Jinko document",
+    )
     return parser.parse_args()
 
 
@@ -67,11 +90,119 @@ def is_special_markdown_target(target: str) -> bool:
     return target.startswith(("data:", "#"))
 
 
+def resolve_local_file(
+    raw_path: str,
+    *,
+    base_dir: Path,
+    allowed_root: Path | None = None,
+    label: str,
+) -> Path:
+    """Resolve a local upload path without allowing it to escape its input directory."""
+    resolved_root = (allowed_root or base_dir).resolve()
+    # Resolve before checking containment so ../ paths and symlink escapes are rejected.
+    resolved_path = (base_dir / raw_path).resolve()
+    try:
+        resolved_path.relative_to(resolved_root)
+    except ValueError as error:
+        raise ValueError(
+            f"Referenced {label} is outside its allowed directory: "
+            f"{raw_path} -> {resolved_path} (allowed: {resolved_root})"
+        ) from error
+
+    if not resolved_path.is_file():
+        raise FileNotFoundError(
+            f"Referenced {label} does not exist: {raw_path} -> {resolved_path}"
+        )
+    return resolved_path
+
+
+def resolve_allowed_root(raw_path: str | None, *, default: Path, label: str) -> Path:
+    """Resolve and validate an explicitly authorized local upload root."""
+    root = Path(raw_path).resolve() if raw_path else default.resolve()
+    if not root.is_dir():
+        raise NotADirectoryError(
+            f"{label} does not exist or is not a directory: {root}"
+        )
+    if root == Path(root.anchor) or root == Path.home().resolve():
+        raise ValueError(
+            f"{label} must be narrower than a filesystem or home directory"
+        )
+    return root
+
+
+def validate_image_file(path: Path) -> None:
+    """Require a supported image extension and matching file signature."""
+    suffix = path.suffix.lower()
+    if suffix not in IMAGE_SUFFIXES:
+        accepted = ", ".join(sorted(IMAGE_SUFFIXES))
+        raise ValueError(
+            f"Unsupported local image type for {path}; accepted extensions: {accepted}"
+        )
+
+    with path.open("rb") as image_file:
+        header = image_file.read(4096)
+    valid = {
+        ".gif": header.startswith((b"GIF87a", b"GIF89a")),
+        ".jpeg": header.startswith(b"\xff\xd8\xff"),
+        ".jpg": header.startswith(b"\xff\xd8\xff"),
+        ".png": header.startswith(b"\x89PNG\r\n\x1a\n"),
+        ".webp": (
+            len(header) >= 12 and header.startswith(b"RIFF") and header[8:12] == b"WEBP"
+        ),
+        ".svg": b"<svg" in header.lstrip(b"\xef\xbb\xbf \t\r\n").lower(),
+    }[suffix]
+    if not valid:
+        raise ValueError(f"Local image content does not match its extension: {path}")
+
+
+def validate_pdf_file(path: Path) -> None:
+    """Require a .pdf extension and PDF header before upload."""
+    if path.suffix.lower() != ".pdf":
+        raise ValueError(f"Reference file must use the .pdf extension: {path}")
+    with path.open("rb") as pdf_file:
+        header = pdf_file.read(5)
+    if header != b"%PDF-":
+        raise ValueError(f"Reference file does not start with a PDF header: {path}")
+
+
+def resolve_image_file(
+    raw_path: str,
+    *,
+    base_dir: Path,
+    allowed_root: Path,
+) -> Path:
+    path = resolve_local_file(
+        raw_path,
+        base_dir=base_dir,
+        allowed_root=allowed_root,
+        label="image",
+    )
+    validate_image_file(path)
+    return path
+
+
+def resolve_pdf_file(
+    raw_path: str,
+    *,
+    base_dir: Path,
+    allowed_root: Path,
+) -> Path:
+    path = resolve_local_file(
+        raw_path,
+        base_dir=base_dir,
+        allowed_root=allowed_root,
+        label="PDF",
+    )
+    validate_pdf_file(path)
+    return path
+
+
 def upload_local_images(
     client: JinkoClient,
     markdown: str,
     *,
     markdown_dir: Path,
+    asset_root: Path,
 ) -> tuple[str, list[tuple[str, str]]]:
     uploaded: dict[str, str] = {}
     replacements: list[tuple[str, str]] = []
@@ -84,11 +215,11 @@ def upload_local_images(
             return match.group(0)
 
         if raw_target not in uploaded:
-            image_path = (markdown_dir / raw_target).resolve()
-            if not image_path.is_file():
-                raise FileNotFoundError(
-                    f"Referenced image does not exist: {raw_target} -> {image_path}"
-                )
+            image_path = resolve_image_file(
+                raw_target,
+                base_dir=markdown_dir,
+                allowed_root=asset_root,
+            )
             image = client.upload_image(image_file_path=image_path)
             uploaded[raw_target] = image.url
             replacements.append((raw_target, image.url))
@@ -120,6 +251,7 @@ def resolve_reference(
     entry: dict[str, Any],
     *,
     base_dir: Path,
+    reference_root: Path,
     folder: str | None,
 ):
     sid = entry.get("sid")
@@ -134,11 +266,11 @@ def resolve_reference(
     if not isinstance(pdf_path_value, str) or not pdf_path_value:
         raise ValueError("Reference entries must provide one of: sid, url, or pdf_path")
 
-    pdf_path = (base_dir / pdf_path_value).resolve()
-    if not pdf_path.is_file():
-        raise FileNotFoundError(
-            f"Reference PDF does not exist: {pdf_path_value} -> {pdf_path}"
-        )
+    pdf_path = resolve_pdf_file(
+        pdf_path_value,
+        base_dir=base_dir,
+        allowed_root=reference_root,
+    )
 
     item_name = entry.get("title") or pdf_path.stem
     candidates = client.list_references(name=item_name, folder=folder, limit=10)
@@ -158,6 +290,7 @@ def build_references_block(
     client: JinkoClient,
     manifest_path: Path,
     *,
+    reference_root: Path,
     folder: str | None,
 ) -> tuple[str, list[str]]:
     entries = load_reference_entries(manifest_path)
@@ -169,6 +302,7 @@ def build_references_block(
             client,
             entry,
             base_dir=manifest_path.parent,
+            reference_root=reference_root,
             folder=folder,
         )
         citation = entry.get("citation") or f"[{index}]"
@@ -189,6 +323,65 @@ def build_references_block(
     return "\n".join(lines), actions
 
 
+def build_dry_run_actions(
+    markdown: str,
+    *,
+    markdown_dir: Path,
+    asset_root: Path,
+    manifest_path: Path | None,
+    reference_root: Path | None,
+) -> list[str]:
+    actions: list[str] = []
+    uploaded_images: set[str] = set()
+
+    for match in LOCAL_IMAGE_RE.finditer(markdown):
+        raw_target = match.group(2).strip()
+        if (
+            raw_target in uploaded_images
+            or is_remote_url(raw_target)
+            or is_special_markdown_target(raw_target)
+        ):
+            continue
+        image_path = resolve_image_file(
+            raw_target,
+            base_dir=markdown_dir,
+            allowed_root=asset_root,
+        )
+        uploaded_images.add(raw_target)
+        actions.append(f"Would upload image: {image_path}")
+
+    if manifest_path is None:
+        return actions
+    if reference_root is None:
+        raise ValueError("reference_root is required with a reference manifest")
+
+    for index, entry in enumerate(load_reference_entries(manifest_path), start=1):
+        citation = entry.get("citation") or f"[{index}]"
+        sid = entry.get("sid")
+        if isinstance(sid, str) and sid:
+            actions.append(f"Would reuse reference: {citation} -> {sid}")
+            continue
+
+        url = entry.get("url")
+        if isinstance(url, str) and url:
+            actions.append(f"Would reuse URL: {citation} -> {url}")
+            continue
+
+        pdf_path_value = entry.get("pdf_path")
+        if not isinstance(pdf_path_value, str) or not pdf_path_value:
+            raise ValueError(
+                "Reference entries must provide one of: sid, url, or pdf_path"
+            )
+        pdf_path = resolve_pdf_file(
+            pdf_path_value,
+            base_dir=manifest_path.parent,
+            allowed_root=reference_root,
+        )
+        actions.append(f"Would create or reuse reference: {citation} -> {pdf_path}")
+
+    return actions
+
+
 def inject_references(markdown: str, references_block: str) -> str:
     if REFERENCE_PLACEHOLDER in markdown:
         return markdown.replace(REFERENCE_PLACEHOLDER, references_block)
@@ -200,21 +393,63 @@ def main() -> None:
     args = parse_args()
     markdown_path = Path(args.markdown_file).resolve()
     markdown_dir = markdown_path.parent
+    markdown = markdown_path.read_text(encoding="utf-8")
+    asset_root = resolve_allowed_root(
+        args.asset_root,
+        default=markdown_dir,
+        label="Asset root",
+    )
+
+    manifest_path = (
+        Path(args.reference_manifest).resolve() if args.reference_manifest else None
+    )
+    if args.reference_root and manifest_path is None:
+        raise ValueError("--reference-root requires --reference-manifest")
+    reference_root = (
+        resolve_allowed_root(
+            args.reference_root,
+            default=manifest_path.parent,
+            label="Reference root",
+        )
+        if manifest_path
+        else None
+    )
+    dry_run_actions = build_dry_run_actions(
+        markdown,
+        markdown_dir=markdown_dir,
+        asset_root=asset_root,
+        manifest_path=manifest_path,
+        reference_root=reference_root,
+    )
+    if not args.apply:
+        print("Dry run: no Jinko API calls will be made.")
+        print(f"Would create document: {args.name}")
+        print(f"Markdown source: {markdown_path}")
+        print(f"Allowed image root: {asset_root}")
+        if reference_root:
+            print(f"Allowed reference root: {reference_root}")
+        for action in dry_run_actions:
+            print(action)
+        print("Run again with --apply to upload files and create the document.")
+        return
 
     client = JinkoClient()
-    markdown = markdown_path.read_text(encoding="utf-8")
 
     markdown, image_replacements = upload_local_images(
         client,
         markdown,
         markdown_dir=markdown_dir,
+        asset_root=asset_root,
     )
 
     reference_actions: list[str] = []
-    if args.reference_manifest:
+    if manifest_path:
+        if reference_root is None:
+            raise ValueError("reference_root is required with a reference manifest")
         references_block, reference_actions = build_references_block(
             client,
-            Path(args.reference_manifest).resolve(),
+            manifest_path,
+            reference_root=reference_root,
             folder=args.folder,
         )
         markdown = inject_references(markdown, references_block)

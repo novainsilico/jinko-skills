@@ -1,37 +1,44 @@
 {
-  "name": "jinko-skills",
-  "description": "Use Jinkō for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
+  "name": "jinko",
+  "description": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
   "author": {
     "name": "Nova In Silico",
+    "email": "contact@novainsilico.ai",
     "url": "https://www.novainsilico.ai/"
   },
-  "homepage": "https://www.jinko.ai/",
+  "homepage": "https://www.novainsilico.ai",
   "repository": "https://github.com/novainsilico/jinko-skills",
   "license": "MIT",
   "keywords": [
-    "jinko"
+    "jinko",
+    "AI-assisted modeling",
+    "trial simulation and optimization",
+    "virtual patients",
+    "digital twins",
+    "QSP",
+    "MIDD",
+    "in-silico trials"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Jinko",
+    "displayName": "Jinkō",
     "shortDescription": "Run In-Silico clinical trials",
-    "longDescription": "Use Jinkō for biology-grounded modeling, virtual populations, and In-Silico trial simulation.",
-    "composerIcon": "./assets/icon.jpg",
-    "logo": "./assets/icon.jpg",
+    "longDescription": "Use Jinkō for biology-grounded AI modeling, virtual populations, and In-Silico trial simulation.",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png",
+    "composerIconDark": "./assets/dark-icon.png",
+    "logoDark": "./assets/dark-icon.png",
     "developerName": "Nova In Silico",
+    "brandColor": "#232349",
     "category": "Healthcare",
-    "websiteURL": "https://www.jinko.ai/",
+    "websiteURL": "https://www.novainsilico.ai",
     "privacyPolicyURL": "https://www.novainsilico.ai/data-policy/",
     "termsOfServiceURL": "https://www.novainsilico.ai/legal-notice/",
-    "capabilities": [
-      "Interactive",
-      "Write"
-    ],
     "defaultPrompt": [
       "Set up Jinko SDK access for my project.",
       "Help me inspect and improve a Jinko model.",
       "Design and run an in silico trial in Jinko."
     ]
   },
-  "version": "1.0.2"
+  "version": "1.1.0"
 }

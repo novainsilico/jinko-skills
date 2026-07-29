@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Protocols"
+  short_description: "Configure inputs across simulation arms"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-protocol to edit a multi-arm Jinkō protocol design."
+policy:
+  allow_implicit_invocation: true

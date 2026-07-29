@@ -41,19 +41,27 @@ Jinkō comes in two flavors: multi-tenant SaaS (managed by Nova) or **on-premise
 
 The skills in this repository are inter-dependant, and not meant to be picked individually; we strongly recommend you install all the Jinkō skills at once, and use an update method that can reliably get new ones.
 
-### Claude Code
+### Claude Web
+
+In the settings, go to Plugins > Add > Add marketplace > type "novainsilico/jinko-skills" > Sync > hit the "+" button on the Jinkō plugin.
+
+### Claude Science
+
+In the settings, go to Skills > Add skill > Import from GitHub > type "novainsilico/jinko-skills" > Preview > Import skills.
+
+### Claude Code CLI or IDE extension
 
 In Claude Code, to add the Jinkō marketplace (this repo) and install its plugin:
 
 ```
 /plugin marketplace add novainsilico/jinko-skills
-/plugin install jinko-skills@jinko
+/plugin install jinko@jinko
 /reload-plugins # Or restart claude code
 ```
 
-### Claude Science
+### ChatGPT Web
 
-In Claude Science's settings, go to Skills > Add skill > Import from GitHub > type "novainsilico/jinko-skills" > Preview > Import skills.
+Download this repository as a zip file. Go to chatGPT's plugins page from the sidebar (or Settings > Plugins > Browse plugins), go to the Skills tab, hit the "+" button, and "Upload from your computer". Drop the zip file there.
 
 ### Codex
 
@@ -72,7 +80,7 @@ install the plugin. Start a new Codex session after installation.
 
 ### Other agents and custom installations
 
-Jinkō Skills work with most agents that support the
+Jinkō skills work with most agents that support the
 [Agent Skills specification](https://agentskills.io). Use the
 [skills CLI](https://skills.sh) to install every skill in this repository; the
 installer will guide you through the agent-specific setup:

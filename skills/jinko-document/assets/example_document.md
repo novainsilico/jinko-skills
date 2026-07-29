@@ -21,9 +21,13 @@ https://jinko.ai/so-EXAMPLE-1234
 
 ## Equation
 
-The user may provide equations directly in markdown, for example:
+Use single dollar signs for an inline mathematical expression: $C(t) = \frac{\mathrm{Dose}}{V} e^{-\frac{CL}{V}t}$.
 
-`C(t) = Dose / V * exp(-CL / V * t)`
+Use a `mathBlock` fenced code block for a display mathematical expression:
+
+```mathBlock
+\frac{dC}{dt} = k_{\mathrm{in}} - k_{\mathrm{out}} C
+```
 
 ## Images
 

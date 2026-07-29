@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Trials"
+  short_description: "Run and inspect in-silico trials"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-trial to set up and run an in-silico trial."
+policy:
+  allow_implicit_invocation: true

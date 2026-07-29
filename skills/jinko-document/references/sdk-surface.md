@@ -10,7 +10,9 @@ Prefer these typed methods:
 - Update an existing document:
   - `document.update_markdown(markdown_text)`
   - `document.update_markdown_from_file(path)`
-- Export a document as a LaTeX ZIP, which is the only supported way for now to pull a Jinkō document:
+- Pull a Jinkō document back out as markdown, the preferred way to fetch a document's content:
+  - `document.content()`
+- Export a document as a LaTeX ZIP, for when a LaTeX archive is specifically wanted instead of markdown:
   - `document.download_latex_zip()`
 - Upload an image for document embedding:
   - `client.upload_image(image_file_path=...)`

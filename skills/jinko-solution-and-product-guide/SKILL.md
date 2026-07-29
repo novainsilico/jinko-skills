@@ -27,7 +27,8 @@ Trigger this skill when the user asks to:
 - Capture scope, modality, disease area, time horizon, and constraints.
 
 2. Identify model options
-- Start with the local model inventory in `assets/ModelList.csv` when available.
+- Retrieve the current model library from `https://doc.jinko.ai/model-library.json`.
+- The endpoint returns a JSON array of model records. Use `projectName`, `type`, `groupName`, `description`, `contextOfUse`, `inputs`, `outputs`, and `Access` to assess fit.
 - Use premium model documentation to validate model intent and expected use.
 - Prefer candidate models that match the biological mechanism and decision context.
 
@@ -64,7 +65,7 @@ Use these sources in priority order when relevant to the question.
 - Scientific credibility (publications and posters): `https://www.novainsilico.ai/resources/publications-posters/`
 
 ### Model sources
-- Local model inventory: `assets/ModelList.csv`
+- Current model library: `https://doc.jinko.ai/model-library.json`
 - Premium model docs: `https://doc.jinko.ai/docs/category/model-library`
 
 ### Product feature sources

@@ -25,6 +25,11 @@
       "id": 5,
       "prompt": "My model uses a 0.06 per minute absorption rate. How should I add it safely and check it is not interpreted per second?",
       "expected_output": "Selects intentional unit checking, uses an inverse-time unit, and requires diagnostics plus a representative numerical solve rather than trusting the unit label."
+    },
+    {
+      "id": 6,
+      "prompt": "I need to label an existing model parameter as PK and link it to a Jinkō document, while keeping this with other edits in one model version.",
+      "expected_output": "Creates or resolves a model tag, uses batch.edit_parameter(...).add_tag(...) and add_link(...) with a document project item or URL, and explains that the batch commits one version."
     }
   ]
 }

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Trial Visualizations"
+  short_description: "Create and edit trial result plots"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-trial-viz to create visualizations for my Jinkō trial."
+policy:
+  allow_implicit_invocation: true

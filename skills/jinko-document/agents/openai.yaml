@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Documents"
+  short_description: "Create Jinkō documents from Markdown"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-document to turn my Markdown into a Jinkō document."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Vpop Subsampling"
+  short_description: "Match virtual populations to targets"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-calibration-subsampling to create a matched virtual population."
+policy:
+  allow_implicit_invocation: true
