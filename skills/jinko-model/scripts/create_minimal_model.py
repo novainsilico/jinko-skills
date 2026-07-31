@@ -156,22 +156,33 @@ def main() -> int:
             folder=folder,
             description="Minimal SDK-created model with intentional unit checking.",
         )
-        model = model.edit_solving_options(
-            {
-                "unitCheck": PREFERRED_UNIT_CHECK,
-                "extentUnits": "mol",
-            },
+        model = model.set_unit_check(
+            PREFERRED_UNIT_CHECK,
             version="set unit policy",
         )
+        model = model.edit_solving_options({"extentUnits": "mol"})
 
         with model.components.batch(version="minimal model components") as batch:
             batch.create_compartment(id="central", volume=1.0, unit="L", constant=True)
-            batch.create_parameter(id="Dose", formula=1.0, unit="mol", constant=True)
-            batch.create_parameter(id="k_elim", formula=0.1, unit="1/h", constant=True)
+            batch.create_parameter(
+                id="Dose",
+                formula=1.0,
+                unit="mol",
+                constant=True,
+                tags=["i::protocol", "s::arbitrary"],
+            )
+            batch.create_parameter(
+                id="k_elim",
+                formula=0.1,
+                unit="1/h",
+                constant=True,
+                tags=["i::vpop", "s::arbitrary"],
+            )
             batch.create_categorical_parameter(
                 id="route",
                 level="iv",
                 available_levels=["iv", "po"],
+                tags=["i::protocol"],
             )
             batch.create_parameter(
                 id="bioavailability",
@@ -184,6 +195,7 @@ def main() -> int:
                 compartment="central",
                 initial_condition=0.0,
                 unit="mol",
+                tags=["output"],
             )
             batch.create_event(
                 id="dose_start",

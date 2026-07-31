@@ -8,8 +8,8 @@
     },
     {
       "id": 2,
-      "prompt": "Create a tiny new SDK model with a dose event, ODE, unit checking, and a solvability check. I do not want biological guidance.",
-      "expected_output": "Routes to create_empty_model, sets unitCheck intentionally, creates components in a batch, defines dosing as a model event, then checks diagnostics and simple_solve."
+      "prompt": "Create a tiny new SDK model with a dose event, ODE, patient-varying elimination, unit checking, and a solvability check. Tag the protocol input, the patient input, their value sources, and the output. I do not want biological guidance.",
+      "expected_output": "Routes to create_empty_model, uses UnitCheckAndConvertAllSpeciesToExtentUnits, gives numeric component values units, attaches the built-in i::protocol, i::vpop, s::arbitrary, and output tags without recreating them, creates components in a batch, then checks diagnostics and simple_solve."
     },
     {
       "id": 3,
@@ -28,8 +28,13 @@
     },
     {
       "id": 6,
-      "prompt": "I need to label an existing model parameter as PK and link it to a Jinkō document, while keeping this with other edits in one model version.",
-      "expected_output": "Creates or resolves a model tag, uses batch.edit_parameter(...).add_tag(...) and add_link(...) with a document project item or URL, and explains that the batch commits one version."
+      "prompt": "Tag Dose as i::protocol and s::knowledge, CL as i::vpop and s::to-calibrate, and Drug as output in cm-123. Preserve unrelated tags and do not create a separate edit per component.",
+      "expected_output": "Reuses the built-in standard model tags, uses one component batch to replace conflicting scoped tags while preserving unrelated tags, and does not recreate platform tag declarations."
+    },
+    {
+      "id": 7,
+      "prompt": "Turn off unit checking for my new model because I have not decided units yet.",
+      "expected_output": "Does not silently select NoUnitCheck. Explains the default UnitCheckAndConvertAllSpeciesToExtentUnits policy and waits for an explicit human decision before choosing another mode."
     }
   ]
 }

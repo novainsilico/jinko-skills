@@ -16,6 +16,9 @@ except ImportError:  # pragma: no cover - depends on local environment
     load_dotenv = None
 
 
+PREFERRED_UNIT_CHECK = "UnitCheckAndConvertAllSpeciesToExtentUnits"
+
+
 def load_env() -> None:
     if load_dotenv is not None:
         load_dotenv()
@@ -46,7 +49,7 @@ def parse_update(values: list[str]) -> dict[str, Any]:
 
 def print_plan(args: argparse.Namespace, updates: dict[str, Any]) -> None:
     print(f"Would edit model: {args.model_sid}")
-    print(f"Would set solving unitCheck: {args.unit_check}")
+    print(f"Would set solving unitCheck: {PREFERRED_UNIT_CHECK}")
     print(f"Would edit parameter {args.parameter_id}: {args.parameter_formula}")
     print(
         f"Would create parameter {args.new_parameter_id}: {args.new_parameter_formula} [{args.new_parameter_unit}]"
@@ -69,9 +72,6 @@ def main() -> int:
     )
     parser.add_argument("--apply", action="store_true", help="Actually edit the model.")
     parser.add_argument("--version-name", default="sdk batch model edits")
-    parser.add_argument(
-        "--unit-check", default="UnitCheckAndConvertAllSpeciesToExtentUnits"
-    )
     parser.add_argument("--parameter-id", default="k_clearance")
     parser.add_argument("--parameter-formula", default="CL2 / V")
     parser.add_argument("--new-parameter-id", default="k_new")
@@ -115,8 +115,8 @@ def main() -> int:
     try:
         client = JinkoClient()
         model = client.get_model(args.model_sid)
-        model = model.edit_solving_options(
-            {"unitCheck": args.unit_check},
+        model = model.set_unit_check(
+            PREFERRED_UNIT_CHECK,
             version=f"{args.version_name}: solving options",
         )
 

@@ -31,6 +31,72 @@ def load_sdk():
 
 
 SIMPLE_SOLVE_TIMESERIES_LIMIT = 10
+PREFERRED_UNIT_CHECK = "UnitCheckAndConvertAllSpeciesToExtentUnits"
+
+
+def required_unit_missing(component) -> bool:
+    """Return whether a directly declared numeric component value lacks a unit."""
+    if component.kind == "Parameter":
+        return isinstance(component.formula, (int, float)) and not component.unit
+    if component.kind == "Compartment":
+        return isinstance(component.volume, (int, float)) and not component.unit
+    if component.kind == "Species":
+        return (
+            isinstance(component.initial_condition, (int, float)) and not component.unit
+        )
+    return False
+
+
+def report_unit_policy(model, *, allow_nondefault: bool) -> bool:
+    unit_check = model.get_unit_check()
+    failed = False
+    if unit_check != PREFERRED_UNIT_CHECK and not allow_nondefault:
+        print(
+            f"Expected unitCheck {PREFERRED_UNIT_CHECK}, found {unit_check}",
+            file=sys.stderr,
+        )
+        failed = True
+
+    missing_units = [
+        component.id
+        for component in model.components.list()
+        if required_unit_missing(component)
+    ]
+    if missing_units:
+        print(
+            "Numeric component values without units: " + ", ".join(missing_units),
+            file=sys.stderr,
+        )
+        failed = True
+    return failed
+
+
+def report_required_tags(model, requirements: list[str]) -> bool:
+    failed = False
+    components = {component.id: component for component in model.components.list()}
+    for requirement in requirements:
+        if "=" not in requirement:
+            print(
+                f"Invalid --require-tag {requirement!r}; expected COMPONENT=TAG",
+                file=sys.stderr,
+            )
+            failed = True
+            continue
+        component_id, tag_id = requirement.split("=", 1)
+        component = components.get(component_id)
+        if component is None:
+            print(
+                f"Required tagged component was not found: {component_id}",
+                file=sys.stderr,
+            )
+            failed = True
+        elif not component.has_tag(tag_id):
+            print(
+                f"Component {component_id} is missing required tag {tag_id}",
+                file=sys.stderr,
+            )
+            failed = True
+    return failed
 
 
 def select_timeseries_ids(timeseries_ids: list[str]) -> list[str]:
@@ -139,6 +205,20 @@ def main() -> int:
             "May be repeated; each id must also be selected with --timeseries-id."
         ),
     )
+    parser.add_argument(
+        "--require-tag",
+        action="append",
+        default=[],
+        help="Required component tag as COMPONENT=TAG. May be repeated.",
+    )
+    parser.add_argument(
+        "--allow-nondefault-unit-check",
+        action="store_true",
+        help=(
+            "Accept a non-default unit mode after explicit human authorization; "
+            "this option does not modify the model."
+        ),
+    )
     args = parser.parse_args()
 
     load_env()
@@ -151,7 +231,9 @@ def main() -> int:
         client = JinkoClient()
         model = client.get_model(args.model_sid)
         diagnostics = model.diagnostics.errors()
-        has_error = False
+        has_error = report_unit_policy(
+            model, allow_nondefault=args.allow_nondefault_unit_check
+        ) or report_required_tags(model, args.require_tag)
 
         if diagnostics:
             has_error = True

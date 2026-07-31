@@ -82,19 +82,25 @@ contains the expected value before and after the trigger.
 
 ## Component Tags and Links
 
-Model tags are writable through `model.create_tag("pk", description=..., color=...)`.
-Use the returned handle to update metadata with `tag.set_description(...)` or
-`tag.set_color(...)`.
+The platform already provides `i::vpop`, `i::protocol`, `s::knowledge`,
+`s::arbitrary`, `s::to-calibrate`, `s::calibrated`, and `output`; attach them by
+id and do not recreate them. Use `i::vpop` for patient-varying inputs,
+`i::protocol` for arm/scenario inputs, one justified `s::*` source tag for
+applicable value-bearing inputs, and `output` for important time-series
+outputs. Do not assign `s::calibrated` until an accepted calibration produced
+the value.
+
+For other, custom tags, use `model.create_tag(...)`. The returned handle can
+update custom metadata with `tag.set_description(...)` or `tag.set_color(...)`.
 
 Every component returned by `model.components.get_*`, `list_*`, `create_*`, or
 `batch.edit_*` supports tags and traceability links. Create helpers also accept
 `tags=[...]` and `links=[...]` when the metadata is already known.
 
 ```python
-pk_tag = model.create_tag("pk", color="#2e86de")
 parameter = model.components.get_parameter("k_clearance")
 
-parameter.add_tag(pk_tag)  # tag handle or tag id
+parameter.add_tag("i::vpop")
 parameter.add_link("https://example.org/source")
 
 # A project item can be passed directly; its Jinkō URL is stored as the link.

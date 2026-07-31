@@ -6,7 +6,7 @@ title: "Unit usage"
 
 Units are defined for input components of a computational model, namely Parameters, Compartments and Species.
 
-There are 4 distinct behaviors when it comes to dealing with units in a model. Those 4 behaviors are controlled by the `unitCheck` option in the options of your model.
+There are 4 distinct behaviors when it comes to dealing with units in a model. Set the mode with `model.set_unit_check("...")`; it controls the `unitCheck` option in the model's solving options. Use `model.get_unit_check()` to inspect the current mode.
 
 1.  `unitCheck = NoUnitCheck`  
     Units are not used, and no dimension checking is performed. This is the default behavior upon uploading an SBML model.

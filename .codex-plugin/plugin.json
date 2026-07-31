@@ -31,14 +31,23 @@
     "developerName": "Nova In Silico",
     "brandColor": "#232349",
     "category": "Healthcare",
+    "capabilities": [
+      "Modeling",
+      "Analytics",
+      "Pharmacology",
+      "In-Silico",
+      "Clinical Trial",
+      "Simulation",
+      "Digital Twins"
+    ],
     "websiteURL": "https://www.novainsilico.ai",
     "privacyPolicyURL": "https://www.novainsilico.ai/data-policy/",
-    "termsOfServiceURL": "https://www.novainsilico.ai/legal-notice/",
+    "termsOfServiceURL": "https://jinko.ai/terms-of-use",
     "defaultPrompt": [
       "Simulate hepatitis B treatments and predict time to viral suppression.",
       "Generate an atopic dermatitis virtual population that reproduces observed EASI responses.",
-      "Reproduce the results from this paper in Jinko"
+      "Reproduce the results from this paper in Jinko."
     ]
   },
-  "version": "1.1.1"
+  "version": "1.6.1"
 }
