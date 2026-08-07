@@ -10,7 +10,7 @@ Prefer these typed methods:
 - Update an existing document:
   - `document.update_markdown(markdown_text)`
   - `document.update_markdown_from_file(path)`
-- Pull a Jinkō document back out as markdown, the preferred way to fetch a document's content:
+- Inspect a Jinkō document's exported markdown (not guaranteed to be a lossless authoring round trip):
   - `document.content()`
 - Export a document as a LaTeX ZIP, for when a LaTeX archive is specifically wanted instead of markdown:
   - `document.download_latex_zip()`
@@ -24,3 +24,12 @@ Useful item URLs:
 - `document.url` gives the Jinkō app URL for the document.
 - `reference.url` gives the Jinkō app URL for the uploaded paper/reference.
 - `image.url` gives the Jinkō file-manager URL that can be used inside markdown image syntax.
+
+## Round-trip warning
+
+Do not use `document.content()` output as the canonical source for a later
+`update_markdown(...)` call or as a repository mirror without a semantic diff.
+Preserve the exact input payload used for creation/update as the durable mirror.
+When retrieving a historical revision, verify that the SDK/API actually returns
+revision-specific content before relying on it; do not assume that passing
+`revision=n` makes the content response historical.

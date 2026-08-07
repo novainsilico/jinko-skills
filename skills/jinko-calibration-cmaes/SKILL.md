@@ -42,21 +42,37 @@ This skill is pure SDK mechanics: no defaults, no diagnostics, no when-to-calibr
 - At least one fitness-function source (required): `dataTableDesigns` (data table must report `metadata.public.validForFitnessFunction: True`, see `jinko-data-table`) and/or an advanced output set with objectives (see `jinko-output-set`). This skill creates neither input.
 - `CalibrationOptions`: `seed` + `thresholdWeightedScore` (schema-required), `populationSize` + `numberOfIterations` (functionally required).
 
+Two encoding rules are mandatory before creation:
+
+- With `log_transform=True`, `mean` and `std` are in `log10(x)` coordinates, but `min_bound` and `max_bound` remain in the original physical coordinates of `x`. If planned bounds are written in log10 coordinates, exponentiate them first: `physical_bound = 10**log10_bound`. A calibration sanity warning such as `MAX_BOUND_LOWER_THAN_MEAN_LOG` indicates this mapping is inconsistent.
+- For every attached fitness data table, set `options.log_transform_wide_bounds` to every distinct `obsId` in that table unless the user explicitly requests linear bound scaling for a named observable. This is the SDK field behind the UI's **Scale bounds** option.
+
 ## Create
 
 ```python
 model = client.get_model("cm-...")
 data_table = client.get_data_table("dt-...")
 calibration = model.create_calibration(
-    data_tables=[data_table],
     parameters=[
         {
             "id": "k_elim",
             "mean": -1.0,
             "std": 0.5,
             "log_transform": True,
-            "min_bound": -3.0,
-            "max_bound": 1.0,
+            "min_bound": 0.001,
+            "max_bound": 10.0,
+        }
+    ],
+    data_tables=[
+        {
+            "data_table": data_table,
+            "include": True,
+            "options": {
+                "weight": 1.0,
+                "log_transform_wide_bounds": sorted({
+                    row["obsId"] for row in data_table.export()
+                }),
+            },
         }
     ],
     calib_seed=42,
@@ -101,7 +117,7 @@ Same as `jinko-trial`/`jinko-data-table`: propose a `YYYY-MM-DD-<experiment>` fo
 - `scripts/inspect_calibration.py`: prints/writes raw performance/results_summary/objective_weights/sorted_patients JSON.
 
 ```bash
-python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:-3.0:1.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12
+python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12
 python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:-3.0:1.0" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
 python skills/jinko-calibration-cmaes/scripts/run_calibration.py --calibration-sid ca-... --apply --timeout 3600
 python skills/jinko-calibration-cmaes/scripts/inspect_calibration.py --calibration-sid ca-... --performance --results-summary --objective-weights --output-dir calib-results

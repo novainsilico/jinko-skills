@@ -50,6 +50,10 @@ Scalars serialize under the raw JSON key `components.measures` — do not confus
 Never invent output ids.
 Call `model.time_dependent_ids()` to discover the model's valid output ids before creating a simple output set, same as `jinko-trial` does.
 Advanced-output-set formulas reference output ids or other scalar ids by name.
+Numeric time indices in advanced-output formulas use the model time component's
+unit, which defaults to seconds. They do not inherit units from ISO-8601 solving
+times or data-table durations. Confirm the model time unit and convert scientific
+times explicitly before writing expressions such as `X[7200]` for 2 hours.
 If unsure whether a piece of formula syntax is still supported, validate it with `client.validate_scoring_formula(...)` rather than assuming old examples still apply.
 Read `references/formula-language.md` before writing any non-trivial constraint/scalar/objective formula or component filter. It gives the actual grammar (time reduction functions, time indexing, arm references) and documents validation messages.
 

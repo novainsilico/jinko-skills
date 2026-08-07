@@ -53,6 +53,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 
 - Create simple output set: `client.create_simple_output_set(model, model.time_dependent_ids())` unless explicit output ids were requested. See `jinko-output-set` for measure shapes and advanced output sets (constraints/scalars/objectives).
 - Create trial: `client.create_trial(model, vpop=..., protocol=..., simple_output_set=..., advanced_output_set=...)`.
+- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options()` to inspect them. For sampling periods, prefer `trial.get_solving_times()` / `trial.set_solving_times(base_period, additional_periods=...)`.
 - Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
 - Poll: `trial.wait_until_completed(timeout=1800)`.

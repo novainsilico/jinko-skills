@@ -29,12 +29,16 @@ Preserve the mathematical content exactly when creating or updating a document; 
 
 ## Fetching a document back out
 
-Use `document.content()` to pull an existing Jinkō document back out as markdown; it round-trips through the same format used to create and update the document. Use `document.download_latex_zip()` only when a LaTeX archive is specifically wanted instead of markdown.
+Use `document.content()` for inspection only. The returned markdown can normalize rich document structures and is not a safe lossless round trip. Observed normalizations include blank or changed table headers, altered multiline rows, changed equation syntax, and code-styled link labels becoming code-wrapped markdown links.
+
+Never overwrite a canonical local markdown file with `document.content()` output. Never feed that output back into `update_markdown()` without comparing headings, tables, equations, links, and expected result/history sections against the approved source. The durable mirror is the exact markdown payload that was sent to Jinkō.
 
 ## Jinkō rendering rules
 
 - A Jinkō project-item URL such as `cm-...`, `so-...`, `as-...`, or `do-...` renders best when it is the only content in its paragraph.
 - A markdown link with custom text is still a normal link, not a project-item card.
+- A bare URL prefixed by a bullet is not alone in its paragraph and must not be assumed to render as a card.
+- A revision-specific reference must be a normal link containing `?revision=n`; do not render it as a card.
 - A Jinkō image URL can be inserted with standard markdown image syntax: `![alt](https://.../file-manager/<uuid>)`.
 - A public external image URL can also be used directly if Jinkō can reach it.
 
@@ -53,6 +57,18 @@ remain in that directory by default, including after resolving symlinks. Use
 `--asset-root` or `--reference-root` to authorize a deliberately shared
 directory; paths keep their original resolution base and must remain inside the
 corresponding root. Filesystem and home directories are rejected as too broad.
+
+## Safe production updates
+
+Before a complex or bulk update:
+
+1. retain the last approved markdown payload
+2. verify that candidate heading, table, table-row, equation, and append-only-history counts do not unexpectedly decrease
+3. reject code-wrapped links such as `` `[label](https://jinko.ai/...)` ``
+4. resolve every Jinkō SID and verify every requested revision exists
+5. publish a disposable canary containing representative tables, equations, links, cards, and revision links
+6. inspect the rendered canary and delete it before updating production documents
+7. update production from the validated local payload and retain that exact payload as the mirror
 
 ## Local images
 

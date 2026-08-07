@@ -43,6 +43,13 @@ scale centre is `10**m`. Do not use natural-log (`ln`) values: the platform
 uses `log10`. Avoid calling `mean` the arithmetic mean on the original scale;
 it is the normal-distribution mu in the coordinate stated above.
 
+If prior bounds are supplied in log10 coordinates, convert each bound back to
+physical coordinates before creation. For example, a prior with log10 bounds
+`[-3, 1]` must be sent as `min_bound=10**-3` and `max_bound=10**1`, not as
+`min_bound=-3` and `max_bound=1`. Before launch, verify that `10**mean` lies
+between the physical bounds and that calibration sanity has no
+`MIN_BOUND_GREATER_THAN_MEAN_LOG` or `MAX_BOUND_LOWER_THAN_MEAN_LOG` warning.
+
 ## `dataTableDesigns[]` (`DataTableDesign`)
 
 | Field | Notes |
@@ -53,6 +60,27 @@ it is the normal-distribution mu in the coordinate stated above.
 | `options.weight` | default 1, ≥0 |
 | `options.logTransformWideBounds` | observable id list |
 | `options.timeTolerance` | date/duration string |
+
+`logTransformWideBounds` is the API field behind the UI's **Scale bounds**
+option. For a fitness data table, populate it with every distinct `obsId` in
+the table by default. In typed SDK calls, use the Pythonic key
+`log_transform_wide_bounds`:
+
+```python
+observed_ids = sorted({row["obsId"] for row in data_table.export()})
+data_table_design = {
+    "data_table": data_table,
+    "include": True,
+    "options": {
+        "weight": 1.0,
+        "log_transform_wide_bounds": observed_ids,
+    },
+}
+```
+
+After creation, read `calibration.content()["dataTableDesigns"]` and verify the
+stored `options.logTransformWideBounds` contains the complete set. Omit an
+observable only when the user explicitly requests linear bound scaling for it.
 
 ## `CalibrationOptions`
 
@@ -76,17 +104,17 @@ Flattened onto `create()`/`create_calibration()`: `solving_allow_varying_stoichi
 **Typed, model-scoped:**
 ```python
 calibration = model.create_calibration(
-    data_tables=[data_table],
     parameters=[
         {
             "id": "k_elim",
             "mean": -1.0,
             "std": 0.5,
             "log_transform": True,
-            "min_bound": -3.0,
-            "max_bound": 1.0,
+            "min_bound": 0.001,
+            "max_bound": 10.0,
         }
     ],
+    data_tables=[data_table_design],
     protocol=protocol,
     advanced_output_set=scoring_design,
     calib_seed=42,
@@ -100,7 +128,7 @@ calibration = model.create_calibration(
 ```python
 calibration = client.create_calibration(
     model=model,
-    data_tables=[data_table],
+    data_tables=[data_table_design],
     parameters=[...],
     advanced_output_set=scoring_design,
     calib_seed=42,
@@ -112,7 +140,14 @@ calibration = client.create_calibration(
 ```python
 payload = {
     "parameters": [
-        {"id": "k_elim", "mean": -1.0, "std": 0.5, "minBound": -3.0, "maxBound": 1.0}
+        {
+            "id": "k_elim",
+            "mean": -1.0,
+            "std": 0.5,
+            "logTransform": True,
+            "minBound": 0.001,
+            "maxBound": 10.0,
+        }
     ],
     "dataTableDesigns": [
         {
@@ -121,7 +156,7 @@ payload = {
                 "snapshotId": data_table.snapshot_id,
             },
             "include": True,
-            "options": {"weight": 1},
+            "options": {"weight": 1, "logTransformWideBounds": ["Drug", "Metabolite"]},
         }
     ],
     "computationalModelId": {

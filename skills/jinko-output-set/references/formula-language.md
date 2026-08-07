@@ -58,6 +58,21 @@ meaningful threshold.
 - `descriptorID[t]` — value at a single time point, e.g. `T[10]`.
 - `descriptorID[a,b]` — slice the time series between `t=a` and `t=b`, e.g. `T[0,50]`.
 
+The numeric coordinates use the unit of the model's time component. Jinkō models
+default to seconds unless that time unit was explicitly changed. Solving options
+such as `tMax: P7D` and `tStep: PT1H`, and Data Table durations such as `PT6H`, do
+not change the formula coordinate unit. For a default-seconds model, write
+`X[7200]`, `X[21600]`, and `X[86400]` for 2 hours, 6 hours, and 24 hours. Do not
+write `X[0.0833]`, `X[0.25]`, or `X[1]` merely because those values represent
+fractions of a day in the scientific protocol.
+
+Before authoring an indexed formula:
+
+1. Inspect or otherwise establish the model time component's unit.
+2. Convert every scientific time into that unit.
+3. Confirm the requested coordinate is covered by the solving interval and output grid.
+4. Validate syntax, then run bound Trial or Calibration sanity; formula validation cannot detect a scientifically wrong but syntactically valid coordinate.
+
 ### Time reduction functions (time series → scalar)
 
 A formula that is meant to be a scalar (any bare scalar, any objective target) must end up reduced to a single number — wrap the raw descriptor in one of these, don't reference it bare:

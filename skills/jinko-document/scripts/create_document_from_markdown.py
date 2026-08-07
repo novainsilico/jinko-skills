@@ -7,6 +7,7 @@ Dry-run by default. Pass --apply to upload files and create the document.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -68,6 +69,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Upload local files and create the Jinko document",
     )
+    parser.add_argument(
+        "--confirm-sha256",
+        metavar="SHA256",
+        help="SHA-256 shown by the dry run; required with --apply",
+    )
     return parser.parse_args()
 
 
@@ -80,6 +86,10 @@ def build_version_payload(args: argparse.Namespace) -> str | dict[str, str] | No
     if args.version_name:
         return args.version_name
     return None
+
+
+def markdown_sha256(markdown: str) -> str:
+    return hashlib.sha256(markdown.encode("utf-8")).hexdigest()
 
 
 def is_remote_url(target: str) -> bool:
@@ -394,6 +404,7 @@ def main() -> None:
     markdown_path = Path(args.markdown_file).resolve()
     markdown_dir = markdown_path.parent
     markdown = markdown_path.read_text(encoding="utf-8")
+    markdown_digest = markdown_sha256(markdown)
     asset_root = resolve_allowed_root(
         args.asset_root,
         default=markdown_dir,
@@ -425,13 +436,26 @@ def main() -> None:
         print("Dry run: no Jinko API calls will be made.")
         print(f"Would create document: {args.name}")
         print(f"Markdown source: {markdown_path}")
+        print(f"Markdown SHA-256: {markdown_digest}")
+        print(f"Destination folder: {args.folder or 'project root'}")
         print(f"Allowed image root: {asset_root}")
         if reference_root:
             print(f"Allowed reference root: {reference_root}")
         for action in dry_run_actions:
             print(action)
-        print("Run again with --apply to upload files and create the document.")
+        print(
+            "After approving this exact source and destination, run again with "
+            f"--apply --confirm-sha256 {markdown_digest}."
+        )
         return
+
+    if not args.confirm_sha256:
+        raise ValueError("--apply requires --confirm-sha256 from a dry run")
+    if args.confirm_sha256.lower() != markdown_digest:
+        raise ValueError(
+            "Markdown does not match the approved SHA-256; run a dry run and "
+            "approve the current source."
+        )
 
     client = JinkoClient()
 

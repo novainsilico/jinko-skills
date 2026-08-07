@@ -3,8 +3,8 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Create a CMA-ES calibration from model cm-123 and data table dt-456, calibrating parameter k_elim (mean -1.0, std 0.5, log-transformed, bounds -3 to 1), seed 42, 100 iterations, population size 12, then run it and wait for completion.",
-      "expected_output": "Creates the calibration via model.create_calibration(...) with the given parameters and calib_* kwargs, checks validForFitnessFunction on the data table, uses --apply/--run gates, calls calibration.run() and wait_until_completed(timeout=...)."
+      "prompt": "Create a CMA-ES calibration from model cm-123 and data table dt-456, calibrating parameter k_elim (log10 mean -1.0, log10 std 0.5, physical bounds 0.001 to 10), seed 42, 100 iterations, population size 12, then run it and wait for completion.",
+      "expected_output": "Creates the calibration via model.create_calibration(...) with mean/std in log10 coordinates and physical min/max bounds, checks validForFitnessFunction, sets data-table log_transform_wide_bounds to every exported obsId, uses --apply/--run gates, checks sanity for log-bound warnings, then calls calibration.run() and wait_until_completed(timeout=...)."
     },
     {
       "id": 2,
@@ -25,6 +25,11 @@
       "id": 5,
       "prompt": "What iteration count and population size should I use for calibrating 6 parameters, and how do I know if the calibration is stagnating?",
       "expected_output": "Declines to supply numeric defaults or diagnostic heuristics; may still describe the StoppingReason values factually."
+    },
+    {
+      "id": 6,
+      "prompt": "Create a log-transformed prior with mean -1 and bounds -3 to 1, and attach my fitness data table without any extra options.",
+      "expected_output": "Rejects the nonpositive/log-coordinate bounds, explains that mean/std use log10 coordinates while bounds remain physical (0.001 to 10 here), and enables Scale bounds by listing every data-table obsId in log_transform_wide_bounds unless the user explicitly opts out."
     }
   ]
 }
