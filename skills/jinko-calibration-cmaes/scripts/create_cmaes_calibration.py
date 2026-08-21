@@ -68,7 +68,7 @@ def ensure_data_tables_can_attach(data_tables: list[Any]) -> None:
     invalid = [
         dt.sid
         for dt in data_tables
-        if valid_for_fitness_from_content(dt.content()) is False
+        if valid_for_fitness_from_content(dt.content()) is not True
     ]
     if invalid:
         raise RuntimeError(
@@ -183,6 +183,11 @@ def verify_created_calibration(
             "Calibration has inconsistent log-prior bounds: "
             + json.dumps(log_bound_warnings)
         )
+    if warnings:
+        print(
+            "Calibration sanity warnings: " + json.dumps(warnings),
+            file=sys.stderr,
+        )
     if not scale_bounds:
         return
 
@@ -200,6 +205,14 @@ def verify_created_calibration(
                 f"Data table {core_id} Scale bounds mismatch: "
                 f"stored={stored}, expected={expected}"
             )
+
+
+def ensure_scoring_has_objective(scoring: Any) -> None:
+    if not scoring.components.list_objectives():
+        raise RuntimeError(
+            f"Advanced output set {scoring.sid} has no objectives and cannot serve "
+            "as a calibration fitness source"
+        )
 
 
 def main() -> int:
@@ -223,10 +236,10 @@ def main() -> int:
     parser.add_argument(
         "--simple-output-set-sid", help="Simple output set (MeasureDesign) SID."
     )
-    parser.add_argument("--seed", type=int)
-    parser.add_argument("--threshold-weighted-score", type=float)
-    parser.add_argument("--iterations", type=int)
-    parser.add_argument("--population-size", type=int)
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--threshold-weighted-score", type=float, default=1.0)
+    parser.add_argument("--iterations", type=int, required=True)
+    parser.add_argument("--population-size", type=int, required=True)
     parser.add_argument("--name", default="sdk-calibration")
     parser.add_argument(
         "--description", default="Calibration created with the Jinkō SDK."
@@ -249,6 +262,21 @@ def main() -> int:
     if args.create_folder and not args.folder:
         print("--create-folder requires --folder", file=sys.stderr)
         return 1
+    if not args.data_table_sid and not args.scoring_sid:
+        print(
+            "At least one fitness source is required: pass --data-table-sid and/or --scoring-sid.",
+            file=sys.stderr,
+        )
+        return 1
+    if not 0 <= args.seed <= 4_294_967_295:
+        print("--seed must be between 0 and 4294967295", file=sys.stderr)
+        return 1
+    if not 1 <= args.iterations <= 100_000:
+        print("--iterations must be between 1 and 100000", file=sys.stderr)
+        return 1
+    if not 2 <= args.population_size <= 100:
+        print("--population-size must be between 2 and 100", file=sys.stderr)
+        return 1
 
     try:
         parameters = [parse_parameter(spec) for spec in args.parameter]
@@ -266,8 +294,7 @@ def main() -> int:
     print(
         "CalibrationOptions: "
         f"seed={args.seed}, thresholdWeightedScore={args.threshold_weighted_score}, "
-        f"numberOfIterations={args.iterations}, populationSize={args.population_size} "
-        "(unset values fall through to the SDK/API default)"
+        f"numberOfIterations={args.iterations}, populationSize={args.population_size}"
     )
     print(f"Folder: {args.folder or '<none>'}")
 
@@ -284,7 +311,6 @@ def main() -> int:
 
     try:
         client = JinkoClient()
-        folder = resolve_folder(client, args.folder, create=args.create_folder)
         model = client.get_model(args.model_sid)
         data_tables = [client.get_data_table(sid) for sid in args.data_table_sid]
         ensure_data_tables_can_attach(data_tables)
@@ -307,11 +333,14 @@ def main() -> int:
             if args.scoring_sid
             else None
         )
+        if scoring is not None:
+            ensure_scoring_has_objective(scoring)
         simple_output_set = (
             client.get_simple_output_set(args.simple_output_set_sid)
             if args.simple_output_set_sid
             else None
         )
+        folder = resolve_folder(client, args.folder, create=args.create_folder)
 
         calibration = model.create_calibration(
             data_tables=attached_data_tables,

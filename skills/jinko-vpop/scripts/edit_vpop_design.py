@@ -44,6 +44,7 @@ def load_marginal_list(path: Path) -> list[dict[str, Any]]:
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError("Design JSON must be a list of marginal entries")
+    seen_ids: set[str] = set()
     for index, entry in enumerate(data):
         if (
             not isinstance(entry, dict)
@@ -51,6 +52,10 @@ def load_marginal_list(path: Path) -> list[dict[str, Any]]:
             or "distribution" not in entry
         ):
             raise ValueError(f"Marginal entry {index} must contain id and distribution")
+        marginal_id = entry["id"]
+        if marginal_id in seen_ids:
+            raise ValueError(f"Duplicate marginal id {marginal_id!r}")
+        seen_ids.add(marginal_id)
     return data
 
 
@@ -73,6 +78,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    applied_ids: list[str] = []
     try:
         entries = load_marginal_list(Path(args.design))
     except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -106,18 +112,41 @@ def main() -> int:
             try:
                 descriptor = design.descriptors.get(entry["id"])
                 descriptor.set_distribution(entry["distribution"], version=args.version)
+                applied_ids.append(entry["id"])
                 print(f"Updated descriptor {entry['id']!r}")
             except NotFoundError:
                 design.descriptors.create(
                     entry["id"], entry["distribution"], version=args.version
                 )
+                applied_ids.append(entry["id"])
                 print(f"Created descriptor {entry['id']!r}")
 
+        diagnostics = design.diagnostics
+        print("Post-edit Vpop design diagnostics:")
+        print(diagnostics.explain())
+        if diagnostics.has_errors():
+            print(
+                "Vpop design update left diagnostic errors; applied descriptor IDs: "
+                + (", ".join(applied_ids) or "<none>"),
+                file=sys.stderr,
+            )
+            return 3
         print(f"Updated Vpop design {design.sid}")
         return 0
     except (ValueError, JinkoError) as exc:
         print(f"Vpop design update failed: {exc}", file=sys.stderr)
+        print(
+            "Already-applied descriptor IDs: " + (", ".join(applied_ids) or "<none>"),
+            file=sys.stderr,
+        )
         return 2
+    except Exception as exc:  # noqa: BLE001 - preserve partial-edit diagnostics
+        print(f"Vpop design update failed unexpectedly: {exc}", file=sys.stderr)
+        print(
+            "Already-applied descriptor IDs: " + (", ".join(applied_ids) or "<none>"),
+            file=sys.stderr,
+        )
+        return 4
 
 
 if __name__ == "__main__":

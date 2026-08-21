@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "My completed trial tr-123 has treated-arm scalar descriptors age and endpoint. Create a subsampling design that keeps adults (age >= 18), targets endpoint as Normal(12, 2.5), checks it, then generate 100 matched patients with the SDK.",
-      "expected_output": "Discovers descriptors from the Trial, uses their typed builders in trial.create_subsampling_design, blocks generation on design.diagnostics.errors(), and calls design.generate_vpop with all six annealing options. It does not choose scientific defaults beyond the explicitly supplied target."
+      "expected_output": "Requires trial.status()['status'] == 'completed' before creation, discovers descriptors from the Trial, uses their typed builders in trial.create_subsampling_design, blocks generation on design.diagnostics.errors(), and calls design.generate_vpop with all six annealing options. It retains the schema range for num_iterations but asks the user to choose rather than recommending ~80k."
     },
     {
       "id": 2,
@@ -15,6 +15,16 @@
       "id": 3,
       "prompt": "My subsampling generation fails because the target refers to a descriptor that is not in the trial. Diagnose it and tell me whether I should make the original Vpop bigger.",
       "expected_output": "Uses design.diagnostics.errors().explain() to diagnose the SDK/item reference issue. It distinguishes that from population-coverage and scientific sizing advice, which belongs to a workflow/domain expert."
+    },
+    {
+      "id": 4,
+      "prompt": "Create a subsampling design from trial tr-running, which is still running.",
+      "expected_output": "Fetches the trial status and rejects creation unless the exact status is completed; it does not proceed to descriptor lookup or design creation for a running trial."
+    },
+    {
+      "id": 5,
+      "prompt": "How many simulated-annealing iterations should I use for this subsampling design? Is 80,000 the recommended value?",
+      "expected_output": "States that the contract minimum is 1 and asks the user to choose based on their workflow or domain guidance. It does not invent a practical upper bound or recommend approximately 80,000 as a supported default or target."
     }
   ]
 }

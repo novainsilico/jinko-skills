@@ -2,7 +2,7 @@
 """Fail-fast Jinkō SDK connection check.
 
 This script validates that local environment variables are present, can build a
-JinkoClient, and have enough project access to list models.
+JinkoClient, authenticate, and perform a minimal read-only project-item search.
 """
 
 from __future__ import annotations
@@ -109,6 +109,11 @@ def main() -> int:
     try:
         client = JinkoClient()
         client.auth_check()
+        client.search(
+            limit=1,
+            show_table=False,
+            show_table_hint=False,
+        )
     except ConfigurationError as exc:
         print(f"Missing or invalid config; check .env: {exc}", file=sys.stderr)
         return 2
@@ -131,7 +136,7 @@ def main() -> int:
         )
         return 5
 
-    print("jinkō connection OK")
+    print("jinkō connection and project read access OK")
     return 0
 
 

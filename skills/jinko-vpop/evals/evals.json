@@ -9,12 +9,22 @@
     {
       "id": 2,
       "prompt": "Create a vpop design from marginal distributions for Dose and k_elim and generate 10 patients from it.",
-      "expected_output": "Uses create_vpop_design_from_design with marginal_distributions from a list of id/distribution entries, checks distrib.json, and uses design.generate_vpop()."
+      "expected_output": "Uses create_vpop_design_from_design with unique marginal IDs, checks distrib.json, prints design diagnostics, blocks on diagnostic errors, and only then uses design.generate_vpop()."
     },
     {
       "id": 3,
       "prompt": "Can I edit a generated vpop? I need to change the marginal distribution for k_elim.",
       "expected_output": "Explains that generated/uploaded Vpop items are not edited in place; edit the Vpop design and regenerate a new Vpop."
+    },
+    {
+      "id": 4,
+      "prompt": "Apply three marginal edits to vd-123. The second update fails after the first succeeds; tell me exactly what happened and do not claim the design is valid without checking it.",
+      "expected_output": "Uses sequential descriptor mutators, reports the ID applied before the failure, and returns failure. On a fully applied sequence it always prints fresh post-edit diagnostics and only reports success when there are no errors."
+    },
+    {
+      "id": 5,
+      "prompt": "Create a Vpop design from a marginal list that contains Dose twice with different distributions.",
+      "expected_output": "Rejects the duplicate Dose marginal ID before creating any project item rather than silently keeping the last distribution."
     }
   ]
 }

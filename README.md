@@ -127,14 +127,21 @@ trials and analyzing results.
 | --- | --- |
 | [`jinko`](./skills/jinko/SKILL.md) | Orchestrate end-to-end Jinkō modeling workflows across the published skill set. |
 | [`jinko-calibration-cmaes`](./skills/jinko-calibration-cmaes/SKILL.md) | Create, run, poll, and inspect CMA-ES calibrations through the SDK. |
+| [`jinko-calibration-subsampling`](./skills/jinko-calibration-subsampling/SKILL.md) | Create, run, and inspect subsampling virtual-population generation. |
 | [`jinko-context`](./skills/jinko-context/SKILL.md) | Core Jinkō concepts, navigation, and domain terminology. |
 | [`jinko-data-table`](./skills/jinko-data-table/SKILL.md) | Create or inspect data tables for overlays and calibration. |
 | [`jinko-document`](./skills/jinko-document/SKILL.md) | Create or update Jinkō documents from markdown through the SDK. |
 | [`jinko-model`](./skills/jinko-model/SKILL.md) | Build, edit, sanity-check, and debug Jinkō computational models. |
 | [`jinko-output-set`](./skills/jinko-output-set/SKILL.md) | Create, inspect, validate, and edit simple and advanced output sets through the SDK. |
 | [`jinko-protocol`](./skills/jinko-protocol/SKILL.md) | Design or edit multi-arm protocol designs. |
+| [`jinko-reference`](./skills/jinko-reference/SKILL.md) | Create, inspect, download, and extract evidence from reference PDFs. |
 | [`jinko-sdk-setup`](./skills/jinko-sdk-setup/SKILL.md) | Authenticate and configure access to a Jinkō project. |
 | [`jinko-solution-and-product-guide`](./skills/jinko-solution-and-product-guide/SKILL.md) | Guidance on Jinkō solutions and product features. |
+| [`jinko-task-cmaes`](./skills/jinko-task-cmaes/SKILL.md) | Execute a confirmed CMA-ES calibration from prepared Jinkō inputs. |
+| [`jinko-task-define-param-to-calibrate`](./skills/jinko-task-define-param-to-calibrate/SKILL.md) | Classify model inputs and assign them to calibration steps. |
+| [`jinko-task-extract-data-table`](./skills/jinko-task-extract-data-table/SKILL.md) | Extract traceable evidence into readable or Jinkō-ready tables. |
+| [`jinko-task-literature-search`](./skills/jinko-task-literature-search/SKILL.md) | Discover and prioritize biomedical publications from PubMed. |
+| [`jinko-task-trial-data-scoping`](./skills/jinko-task-trial-data-scoping/SKILL.md) | Discover and prioritize ClinicalTrials.gov registry records. |
 | [`jinko-trial`](./skills/jinko-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |
 | [`jinko-trial-viz`](./skills/jinko-trial-viz/SKILL.md) | Create, inspect, sanity-check, and retrieve Jinkō trial visualizations. |
 | [`jinko-vpop`](./skills/jinko-vpop/SKILL.md) | Create, generate, and inspect virtual populations. |

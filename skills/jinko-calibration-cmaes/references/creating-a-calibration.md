@@ -86,14 +86,20 @@ observable only when the user explicitly requests linear bound scaling for it.
 
 | Field | Bounds | Default | Required in schema |
 | --- | --- | --- | --- |
-| `seed` | 0–4294967295 | — (required, no default) | yes |
-| `thresholdWeightedScore` | any | — (required, no default) | yes |
+| `seed` | 0–4294967295 | `0` | yes |
+| `thresholdWeightedScore` | any | `1` | yes |
 | `populationSize` | 2–100 | — | no (functionally required) |
 | `numberOfIterations` | 1–100000 | — | no (functionally required) |
 | `stagnationAbsoluteTolerance` | ≥0 | 0.001 | no |
 | `stagnationBurnInPeriod` | 1–100000 | 100 | no |
 | `stagnationIterationWindowSize` | 1–100 | 25 | no |
 | `stagnationRelativeTolerance` | ≥0 | 0.001 | no |
+
+The OpenAPI contract marks `seed` and `thresholdWeightedScore` as required while
+also declaring defaults. The typed SDK therefore requires values when constructing
+`CalibrationOptions`; callers should pass them explicitly rather than assume the
+server will fill them. `populationSize` and `numberOfIterations` have no declared
+defaults.
 
 ## `solving_*` kwargs
 

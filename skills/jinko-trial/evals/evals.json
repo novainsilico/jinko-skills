@@ -25,6 +25,11 @@
       "id": 5,
       "prompt": "The output set on my current trial is wrong. Fix this same run without leaving a trail of trial_v2 and output_set_v2 assets.",
       "expected_output": "Inspects and repairs the existing assets where possible, re-runs trial.sanity(), and only creates replacements if an independent scenario or preservation requirement makes reuse unsafe."
+    },
+    {
+      "id": 6,
+      "prompt": "Attach data table dt-123 to a new trial, but only if it is confirmed valid for fitness.",
+      "expected_output": "Requires metadata.public.validForFitnessFunction to be exactly True, rejects false or missing values, and passes the DataTable through client.create_trial(..., data_tables=[table]) rather than constructing raw project-item references."
     }
   ]
 }

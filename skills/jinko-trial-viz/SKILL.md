@@ -24,7 +24,7 @@ Keep trial execution and result downloads in `jinko-trial`. Use this skill after
 ## Core Workflow
 
 1. Resolve the trial: `trial = client.get_trial(trial_sid)`.
-2. Create an empty visualization bound to the trial: `viz = trial.create_empty_trial_visualization(folder=..., name=..., description=...)`.
+2. After explicit user confirmation, create an empty visualization bound to the trial: `viz = trial.create_empty_trial_visualization(folder=..., name=..., description=...)`.
 3. Decide the plot sections needed and configure each through its typed subservice:
    - `viz.timeseries` for time-course outputs.
    - `viz.scalars` for scalar result distributions and central-location plots.
@@ -34,7 +34,7 @@ Keep trial execution and result downloads in `jinko-trial`. Use this skill after
    - `viz.data_overlay` / `viz.patients_overlay` when observed data or patient-level data should appear.
    - `viz.filters` / `viz.groups` for scoping and grouping.
    - `viz.set_selected_arms(...)`, `viz.set_equate_baseline(...)`, `viz.set_time_unit(...)` for top-level options.
-4. Run `viz.sanity` after configuring sections, especially when plot ids, arm ids, data tables, or selectors were inferred.
+4. Run and print `viz.sanity` after every create or update. Return failure and fix the visualization when it reports errors.
 5. Reconfigure a section at any time by calling its setter again (e.g. `viz.timeseries.set_selectors([...])`) — each call patches only that section.
 
 ## SDK Surface
@@ -53,8 +53,9 @@ Use the script for repeatable create, update, get, list, and sanity operations t
 ```bash
 python skills/jinko-trial-viz/scripts/trial_viz.py list --limit 20
 python skills/jinko-trial-viz/scripts/trial_viz.py create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC
+python skills/jinko-trial-viz/scripts/trial_viz.py create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC --apply
 python skills/jinko-trial-viz/scripts/trial_viz.py get --trial-viz-sid tv-... --output-file viz.content.json
-python skills/jinko-trial-viz/scripts/trial_viz.py update --trial-viz-sid tv-... --scatter-xvsy "AUC,Cmax,control,treated"
+python skills/jinko-trial-viz/scripts/trial_viz.py update --trial-viz-sid tv-... --scatter-xvsy "AUC,Cmax,control,treated" --apply
 python skills/jinko-trial-viz/scripts/trial_viz.py sanity --trial-viz-sid tv-... --only timeseries --only scatterPlots
 ```
 
@@ -64,6 +65,7 @@ For scatter, overlay, filter, or grouping configuration beyond the script's flag
 
 - Prefer creating trial visualizations in the same folder as the trial or in a dedicated analysis folder.
 - Pass a folder id or exact folder name through the bundled script's `--folder`, or `folder=folder` on `create_empty_trial_visualization(...)` directly.
+- Treat an explicit folder that cannot be resolved as an error; never silently create the visualization in the project root.
 - Reuse existing trial visualizations when the user wants an additional plot on the same analysis; call the relevant section's setter instead of creating duplicates.
 
 ## Reference Routing

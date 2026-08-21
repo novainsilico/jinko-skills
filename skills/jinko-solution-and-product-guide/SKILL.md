@@ -27,8 +27,8 @@ Trigger this skill when the user asks to:
 - Capture scope, modality, disease area, time horizon, and constraints.
 
 2. Identify model options
-- Retrieve the current model library from `https://doc.jinko.ai/model-library.json`.
-- The endpoint returns a JSON array of model records. Use `projectName`, `type`, `groupName`, `description`, `contextOfUse`, `inputs`, `outputs`, and `Access` to assess fit.
+- Run `scripts/search_model_library.py` with a narrow `--query` and, when known, exact `--type`, `--group`, or `--access` filters. The read-only script fetches only the fixed trusted endpoint, bounds the response and output, validates every required field, and sorts results deterministically. Do not replace it with an arbitrary URL fetch.
+- Use the returned `projectName`, `type`, `groupName`, `description`, `contextOfUse`, `inputs`, `outputs`, and `Access` to assess fit.
 - Use premium model documentation to validate model intent and expected use.
 - Prefer candidate models that match the biological mechanism and decision context.
 
@@ -51,6 +51,19 @@ Trigger this skill when the user asks to:
 - Helpful: adapt depth to user expertise and objective.
 - Balanced: avoid overselling and be explicit about limitations.
 - Justified: motivate choices and conclusions with clear reasoning.
+
+## Model-library command
+
+```bash
+python skills/jinko-solution-and-product-guide/scripts/search_model_library.py \
+  --query "acute myeloid leukemia" \
+  --type PK \
+  --limit 10
+```
+
+Treat the returned records as current catalog metadata, not proof that a model
+is scientifically suitable. Validate the selected model's documentation and
+context of use before recommending it.
 
 ## Output style
 - Use heading levels; do not number sections.

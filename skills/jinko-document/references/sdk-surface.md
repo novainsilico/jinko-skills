@@ -16,13 +16,10 @@ Prefer these typed methods:
   - `document.download_latex_zip()`
 - Upload an image for document embedding:
   - `client.upload_image(image_file_path=...)`
-- Create a Jinkō Reference item from a PDF:
-  - `client.create_reference_from_pdf(pdf_file_path=..., name=..., folder=...)`
 
 Useful item URLs:
 
 - `document.url` gives the Jinkō app URL for the document.
-- `reference.url` gives the Jinkō app URL for the uploaded paper/reference.
 - `image.url` gives the Jinkō file-manager URL that can be used inside markdown image syntax.
 
 ## Round-trip warning
@@ -30,6 +27,8 @@ Useful item URLs:
 Do not use `document.content()` output as the canonical source for a later
 `update_markdown(...)` call or as a repository mirror without a semantic diff.
 Preserve the exact input payload used for creation/update as the durable mirror.
+Write transformed payloads to a new local path and report their SHA-256; do not
+overwrite an earlier approved payload.
 When retrieving a historical revision, verify that the SDK/API actually returns
 revision-specific content before relying on it; do not assume that passing
 `revision=n` makes the content response historical.

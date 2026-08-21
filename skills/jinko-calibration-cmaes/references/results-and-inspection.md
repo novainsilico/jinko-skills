@@ -42,7 +42,7 @@ status plus performance) before attributing causality.
 | `.scalars_per_patient(...)` | `patient_number`, `scalars`, `arms`, `iteration` | |
 
 ```python
-calibration.results.sorted_patients(sort_by="weightedScore desc")
+calibration.results.sorted_patients(sort_by="optimizationWeightedScore desc")
 calibration.results.errors(iteration=5, scalar_id="auc")
 ```
 

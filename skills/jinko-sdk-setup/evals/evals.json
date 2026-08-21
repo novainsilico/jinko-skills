@@ -19,7 +19,7 @@
     {
       "id": 4,
       "prompt": "My Jinkō SDK connection check passes. Now I want a quick way to browse what's in the project before deciding whether I need model, protocol, or trial help.",
-      "expected_output": "Confirms setup is complete, keeps the validation script separate from exploration, and recommends JinkoClient.search(...) with a small read-only example such as client.search(limit=20, table_columns=\"compact\")."
+      "expected_output": "Confirms setup is complete, explains that the validation script already performs a minimal non-rendered read-only search, and recommends JinkoClient.search(...) for broader exploration with a small example such as client.search(limit=20, columns=\"compact\")."
     }
   ]
 }

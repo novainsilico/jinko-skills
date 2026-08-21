@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check whether a Jinkō model is ready: diagnostics plus simple_solve."""
+"""Check model diagnostics, simple_solve, and optionally an explicit tag policy."""
 
 from __future__ import annotations
 
@@ -273,7 +273,12 @@ def main() -> int:
             print("model is not ready")
             return 2
 
-        print("model is ready")
+        if args.require_tag:
+            print("model is ready under the explicitly checked tag policy")
+        else:
+            print(
+                "model passes diagnostics and solve checks; tag policy was not checked"
+            )
         return 0
     except JinkoError as exc:
         print(f"Jinkō SDK request failed: {exc}", file=sys.stderr)

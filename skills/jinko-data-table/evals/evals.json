@@ -15,6 +15,11 @@
       "id": 3,
       "prompt": "Can this skill create output sets too? I need outputs for a trial.",
       "expected_output": "States output sets are out of scope for jinko-data-table and keeps focus on data-table upload/inspection."
+    },
+    {
+      "id": 4,
+      "prompt": "Dry-run a point-value CSV where one row has value 5, wideRangeLowBound 6, and wideRangeHighBound 10.",
+      "expected_output": "Rejects the row before upload because paired wide bounds must be ordered and strictly contain the point value."
     }
   ]
 }

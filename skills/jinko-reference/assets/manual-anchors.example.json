@@ -1,0 +1,9 @@
+{
+  "textual_anchors": [
+    {"page": 2, "x": 72, "y": 180, "width": 430, "height": 18},
+    {"page": 2, "x": 72, "y": 201, "width": 390, "height": 18}
+  ],
+  "rectangular_anchors": [
+    {"page": 5, "x": 60, "y": 120, "width": 480, "height": 300}
+  ]
+}

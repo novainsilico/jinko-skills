@@ -54,13 +54,17 @@ Use ISO-8601 duration strings for `time`, for example `PT0S`, `PT6H`, or `P1D`.
 
 ## Bundled Scripts
 
-- `scripts/create_data_table.py`: dry-run-validates a source file and creates a data table with `--apply`.
-- `scripts/inspect_data_table.py`: inspects existing data tables, summaries, validation results, and fitness-function metadata.
+- `scripts/create_data_table.py`: dry-run-validates every CSV row and creates a
+  data table with `--apply`; use `--allowed-obs-id`, `--require-unit`,
+  `--require-experiment-ref`, and `--require-fitness` for calibration inputs.
+- `scripts/inspect_data_table.py`: inspects existing data tables and can enforce
+  fitness compatibility with `--require-fitness`.
 
 Examples:
 
 ```bash
 python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv
+python skills/jinko-data-table/scripts/create_data_table.py --source extracted.csv --allowed-obs-id Drug --require-unit --require-experiment-ref --require-fitness --apply
 python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --apply
 python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --folder 2026-06-15-fit-data --create-folder --apply
 python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_values.csv --method dataframe --apply

@@ -13,6 +13,9 @@ The skill scripts use this list format:
 ]
 ```
 
+Each `id` must occur exactly once. The scripts reject duplicates instead of
+silently overwriting an earlier marginal while converting the list to a mapping.
+
 The script converts the list to the mapping expected by:
 
 ```python
@@ -49,6 +52,8 @@ if diagnostics.has_errors():
     print(diagnostics.errors().explain())
 ```
 
+Print the diagnostics and do not call `generate_vpop()` while errors remain.
+
 ## Editing an Existing Design
 
 Edit descriptors and correlations through the design's mutator services rather than replacing the whole payload:
@@ -67,6 +72,11 @@ design.correlations.create(
     "Dose", "k_elim", 0.3
 )  # or .set(...) to update an existing pair
 ```
+
+These mutations are sequential API calls, not an atomic batch. If one fails,
+report which descriptor IDs were already applied. Fetch and print fresh design
+diagnostics after the final edit, and only report success when they contain no
+errors.
 
 `design.get_model()`, `design.set_model(model)`, and `design.clear_model()` link or unlink the design's computational model. `design.generated_vpops` lists vpops previously generated from this design.
 

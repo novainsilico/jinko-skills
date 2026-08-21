@@ -12,7 +12,7 @@ Required columns:
 
 Optional columns include `unit`, `armScope`, `wideRangeLowBound`, `wideRangeHighBound`, `weight`, and `experimentRef`.
 
-When wide bounds are present, they must strictly contain the narrow range. In particular, `wideRangeLowBound` must be less than `narrowRangeLowBound`, and `wideRangeHighBound` must be greater than `narrowRangeHighBound`.
+When wide bounds are present, provide both and require `wideRangeLowBound < value < wideRangeHighBound`.
 
 ## Range Rows
 
@@ -45,7 +45,7 @@ valid = content.metadata.public.validForFitnessFunction
 If the SDK returns raw dictionaries in a given environment, use:
 
 ```python
-valid = data_table.get("metadata", {}).get("public", {}).get("validForFitnessFunction")
+valid = content.get("metadata", {}).get("public", {}).get("validForFitnessFunction")
 ```
 
 The bundled scripts support both typed and dictionary-shaped responses.

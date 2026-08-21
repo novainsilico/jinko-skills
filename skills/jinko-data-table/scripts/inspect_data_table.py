@@ -63,6 +63,11 @@ def main() -> int:
     parser.add_argument(
         "--fitness", action="store_true", help="Print validForFitnessFunction metadata."
     )
+    parser.add_argument(
+        "--require-fitness",
+        action="store_true",
+        help="Fail unless validForFitnessFunction is explicitly true.",
+    )
     args = parser.parse_args()
 
     load_env()
@@ -76,13 +81,19 @@ def main() -> int:
         table = client.get_data_table(args.data_table_sid)
         content = None
 
-        if not (args.content or args.summary or args.validate or args.fitness):
+        if not (
+            args.content
+            or args.summary
+            or args.validate
+            or args.fitness
+            or args.require_fitness
+        ):
             print(f"DataTable {table.sid}")
             if getattr(table, "url", None):
                 print(table.url)
             return 0
 
-        if args.content or args.fitness:
+        if args.content or args.fitness or args.require_fitness:
             content = table.content()
         if args.content:
             print(json.dumps(to_jsonable(content), indent=2, sort_keys=True))
@@ -90,12 +101,14 @@ def main() -> int:
             print(json.dumps(to_jsonable(table.summary()), indent=2, sort_keys=True))
         if args.validate:
             print(json.dumps(to_jsonable(table.validate()), indent=2, sort_keys=True))
-        if args.fitness:
+        if args.fitness or args.require_fitness:
             valid = valid_for_fitness_from_content(content)
             if valid is None:
                 print("validForFitnessFunction: <not reported>")
             else:
                 print(f"validForFitnessFunction: {valid}")
+            if args.require_fitness and valid is not True:
+                return 3
         return 0
     except JinkoError as exc:
         print(f"Jinkō SDK request failed: {exc}", file=sys.stderr)

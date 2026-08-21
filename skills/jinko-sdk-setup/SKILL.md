@@ -31,7 +31,13 @@ BE CAREFUL: the right package is `jinko-sdk` that export a `jinko` module. `jink
 - `JINKO_API_KEY`: API key created in the Jinkō web interface.
 - `JINKO_PROJECT_ID`: project identifier used by the SDK.
 
-The SDK also supports `JINKO_BASE_URL`, but do not introduce alternate environments unless the user explicitly needs them.
+For alternate or on-premises environments, the SDK also supports:
+
+- `JINKO_BASE_URL`: API endpoint.
+- `JINKO_URL`: application URL used to construct resource links.
+
+Do not introduce alternate environments unless the user needs them. When they
+do, configure both values so SDK-generated links do not point to the public app.
 
 ## Validation Script
 
@@ -47,7 +53,8 @@ The script:
 - Redacts sensitive values when showing configuration.
 - Requires both `JINKO_API_KEY` and `JINKO_PROJECT_ID`.
 - Constructs `JinkoClient()` from environment variables.
-- Calls `client.auth_check()` to prove authentication and project read access.
+- Calls `client.auth_check()` to prove authentication.
+- Calls `client.search(limit=1, show_table=False, show_table_hint=False)` to prove minimal read-only project-item access.
 - Prints minimal output on success.
 
 Use `--show-config` only when debugging local setup; it prints presence and redacted values, never the full API key.
@@ -71,7 +78,7 @@ Use `search()` when the user wants to:
 - find an item by name or free text
 - orient themselves before choosing a model, protocol, vpop, or trial workflow
 
-Keep the setup script focused on authentication and access checks. Use `search()` only after validation succeeds, not as a replacement for the fail-fast check.
+The setup script uses a one-item, non-rendered `search()` only as its project-read check after authentication. Use a larger interactive `search()` only for exploration after validation succeeds.
 
 ## Troubleshooting
 

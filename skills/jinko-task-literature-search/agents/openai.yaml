@@ -1,0 +1,7 @@
+interface:
+  display_name: "Biomedical Literature Search"
+  short_description: "Find biomedical evidence for modeling"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-literature-search to find evidence for my modeling question."
+policy:
+  allow_implicit_invocation: true

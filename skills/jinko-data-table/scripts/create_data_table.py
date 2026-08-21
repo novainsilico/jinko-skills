@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -20,6 +22,17 @@ except ImportError:  # pragma: no cover - depends on local environment
 
 POINT_REQUIRED = {"obsId", "time", "value"}
 RANGE_REQUIRED = {"obsId", "time", "narrowRangeLowBound", "narrowRangeHighBound"}
+NUMERIC_COLUMNS = {
+    "value",
+    "narrowRangeLowBound",
+    "narrowRangeHighBound",
+    "wideRangeLowBound",
+    "wideRangeHighBound",
+    "weight",
+}
+ISO_DURATION = re.compile(
+    r"^P(?=.+)(?:\d+(?:\.\d+)?[YMWD])*(?:T(?:\d+(?:\.\d+)?[HMS])*)?$"
+)
 
 
 def load_env() -> None:
@@ -40,24 +53,112 @@ def load_sdk():
     return JinkoClient, JinkoError
 
 
-def summarize_csv(path: Path) -> tuple[list[str], int, str]:
+def summarize_csv(
+    path: Path,
+    *,
+    allowed_obs_ids: set[str] | None = None,
+    require_experiment_ref: bool = False,
+    require_unit: bool = False,
+) -> tuple[list[str], int, str, set[str]]:
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         columns = reader.fieldnames or []
-        row_count = sum(1 for _ in reader)
+        rows = list(reader)
+    if len(columns) != len(set(columns)):
+        raise ValueError("CSV column names must be unique")
     column_set = set(columns)
-    if POINT_REQUIRED.issubset(column_set):
+    has_point_shape = POINT_REQUIRED.issubset(column_set)
+    has_range_shape = RANGE_REQUIRED.issubset(column_set)
+    if has_point_shape and has_range_shape:
+        raise ValueError("CSV cannot mix point-value and range columns")
+    if has_point_shape:
         row_type = "point-value"
-    elif RANGE_REQUIRED.issubset(column_set):
+        required = POINT_REQUIRED
+    elif has_range_shape:
         row_type = "range"
+        required = RANGE_REQUIRED
     else:
         raise ValueError(
             "CSV must include either obsId,time,value or "
             "obsId,time,narrowRangeLowBound,narrowRangeHighBound"
         )
-    if row_count == 0:
+    if not rows:
         raise ValueError("CSV must contain at least one data row")
-    return columns, row_count, row_type
+
+    obs_ids = set()
+    for line_number, row in enumerate(rows, start=2):
+        missing = sorted(key for key in required if not str(row.get(key) or "").strip())
+        if missing:
+            raise ValueError(
+                f"CSV line {line_number} is missing required values: "
+                + ", ".join(missing)
+            )
+        obs_id = str(row["obsId"]).strip()
+        obs_ids.add(obs_id)
+        time = str(row["time"]).strip()
+        if not ISO_DURATION.fullmatch(time) or time.endswith("T"):
+            raise ValueError(
+                f"CSV line {line_number} has invalid ISO-8601 time {time!r}"
+            )
+        for column in NUMERIC_COLUMNS.intersection(column_set):
+            raw = str(row.get(column) or "").strip()
+            if not raw:
+                continue
+            try:
+                value = float(raw)
+            except ValueError as exc:
+                raise ValueError(
+                    f"CSV line {line_number} has non-numeric {column}={raw!r}"
+                ) from exc
+            if not math.isfinite(value):
+                raise ValueError(f"CSV line {line_number} requires finite {column}")
+            if column == "weight" and value < 0:
+                raise ValueError(f"CSV line {line_number} has negative weight")
+        if row_type == "range":
+            narrow_low = float(row["narrowRangeLowBound"])
+            narrow_high = float(row["narrowRangeHighBound"])
+            if narrow_low >= narrow_high:
+                raise ValueError(
+                    f"CSV line {line_number} requires narrowRangeLowBound "
+                    "< narrowRangeHighBound"
+                )
+            wide_low = str(row.get("wideRangeLowBound") or "").strip()
+            wide_high = str(row.get("wideRangeHighBound") or "").strip()
+            if bool(wide_low) != bool(wide_high):
+                raise ValueError(
+                    f"CSV line {line_number} must provide both wide range bounds"
+                )
+            if wide_low and not (
+                float(wide_low) < narrow_low < narrow_high < float(wide_high)
+            ):
+                raise ValueError(
+                    f"CSV line {line_number} wide bounds must strictly contain "
+                    "the narrow range"
+                )
+        else:
+            point_value = float(row["value"])
+            wide_low = str(row.get("wideRangeLowBound") or "").strip()
+            wide_high = str(row.get("wideRangeHighBound") or "").strip()
+            if bool(wide_low) != bool(wide_high):
+                raise ValueError(
+                    f"CSV line {line_number} must provide both wide range bounds"
+                )
+            if wide_low and not float(wide_low) < point_value < float(wide_high):
+                raise ValueError(
+                    f"CSV line {line_number} wide bounds must strictly contain value"
+                )
+        if require_experiment_ref and not str(row.get("experimentRef") or "").strip():
+            raise ValueError(f"CSV line {line_number} requires experimentRef")
+        if require_unit and not str(row.get("unit") or "").strip():
+            raise ValueError(f"CSV line {line_number} requires unit")
+
+    if allowed_obs_ids is not None:
+        unexpected = sorted(obs_ids - allowed_obs_ids)
+        if unexpected:
+            raise ValueError(
+                "CSV contains unexpected obsId values: " + ", ".join(unexpected)
+            )
+    return columns, len(rows), row_type, obs_ids
 
 
 def valid_for_fitness_from_content(content: Any) -> bool | None:
@@ -70,18 +171,19 @@ def valid_for_fitness_from_content(content: Any) -> bool | None:
     return getattr(public, "validForFitnessFunction", None)
 
 
-def print_fitness_status(table: Any) -> None:
+def print_fitness_status(table: Any) -> bool | None:
     try:
         content = table.content()
         valid = valid_for_fitness_from_content(content)
     except Exception as exc:  # noqa: BLE001 - diagnostic helper should stay concise
         print(f"Could not read data-table metadata: {exc}", file=sys.stderr)
-        return
+        return None
 
     if valid is None:
         print("validForFitnessFunction: <not reported>")
     else:
         print(f"validForFitnessFunction: {valid}")
+    return valid
 
 
 def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any | None:
@@ -126,6 +228,26 @@ def main() -> int:
         action="store_true",
         help="Create --folder when missing. Treats --folder as a folder name.",
     )
+    parser.add_argument(
+        "--allowed-obs-id",
+        action="append",
+        help="Allowed obsId value. May be repeated; rejects any other obsId.",
+    )
+    parser.add_argument(
+        "--require-experiment-ref",
+        action="store_true",
+        help="Require a non-empty experimentRef on every CSV row.",
+    )
+    parser.add_argument(
+        "--require-unit",
+        action="store_true",
+        help="Require a non-empty unit on every CSV row.",
+    )
+    parser.add_argument(
+        "--require-fitness",
+        action="store_true",
+        help="After creation, fail unless validForFitnessFunction is explicitly true.",
+    )
     args = parser.parse_args()
 
     if args.create_folder and not args.folder:
@@ -137,15 +259,33 @@ def main() -> int:
         print(f"Source file does not exist: {source}", file=sys.stderr)
         return 1
 
+    if args.method == "sqlite" and (
+        args.allowed_obs_id or args.require_experiment_ref or args.require_unit
+    ):
+        print(
+            "--allowed-obs-id, --require-experiment-ref, and --require-unit "
+            "require CSV or dataframe input",
+            file=sys.stderr,
+        )
+        return 1
+
     if args.method in {"csv", "dataframe"}:
         try:
-            columns, row_count, row_type = summarize_csv(source)
+            columns, row_count, row_type, obs_ids = summarize_csv(
+                source,
+                allowed_obs_ids=set(args.allowed_obs_id)
+                if args.allowed_obs_id
+                else None,
+                require_experiment_ref=args.require_experiment_ref,
+                require_unit=args.require_unit,
+            )
         except ValueError as exc:
             print(str(exc), file=sys.stderr)
             return 1
         print(f"CSV rows: {row_count}")
         print(f"CSV row type: {row_type}")
         print(f"CSV columns: {', '.join(columns)}")
+        print(f"CSV obsIds: {', '.join(sorted(obs_ids))}")
     else:
         print(f"SQLite bytes: {source.stat().st_size}")
 
@@ -201,7 +341,13 @@ def main() -> int:
             print(f"Folder: {folder.path}")
         if getattr(table, "url", None):
             print(table.url)
-        print_fitness_status(table)
+        fitness = print_fitness_status(table)
+        if args.require_fitness and fitness is not True:
+            print(
+                "Created DataTable is not confirmed valid for a fitness function",
+                file=sys.stderr,
+            )
+            return 3
         return 0
     except (ValueError, JinkoError) as exc:
         print(f"Jinkō SDK request failed: {exc}", file=sys.stderr)

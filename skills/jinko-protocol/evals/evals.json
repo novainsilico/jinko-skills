@@ -13,8 +13,8 @@
     },
     {
       "id": 3,
-      "prompt": "I need to replace the arms in protocol design pd-123 from a JSON file. Show the SDK-safe approach.",
-      "expected_output": "Uses get_protocol_design, then protocol.arms.get/set_override (or protocol.arms.create for new arms) instead of a raw payload replacement, and recommends the dry-run/--apply script."
+      "prompt": "I need to update or add arms in protocol design pd-123 from a JSON file without deleting anything omitted from that file. Show the SDK-safe approach.",
+      "expected_output": "Describes the operation as upsert-only, uses get_protocol_design then protocol.arms.get/set_override (or protocol.arms.create for new arms), states that omitted arms and overrides are retained, and recommends the dry-run/--apply script."
     }
   ]
 }

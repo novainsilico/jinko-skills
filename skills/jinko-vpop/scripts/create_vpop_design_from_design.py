@@ -40,6 +40,7 @@ def load_marginal_list(path: Path) -> list[dict[str, Any]]:
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError("Design JSON must be a list of marginal entries")
+    seen_ids: set[str] = set()
     for index, entry in enumerate(data):
         if (
             not isinstance(entry, dict)
@@ -47,6 +48,10 @@ def load_marginal_list(path: Path) -> list[dict[str, Any]]:
             or "distribution" not in entry
         ):
             raise ValueError(f"Marginal entry {index} must contain id and distribution")
+        marginal_id = entry["id"]
+        if marginal_id in seen_ids:
+            raise ValueError(f"Duplicate marginal id {marginal_id!r}")
+        seen_ids.add(marginal_id)
     return data
 
 
@@ -166,6 +171,15 @@ def main() -> int:
             print(design.url)
 
         if args.generate:
+            diagnostics = design.diagnostics
+            print("Vpop design diagnostics:")
+            print(diagnostics.explain())
+            if diagnostics.has_errors():
+                print(
+                    "Vpop generation blocked by design diagnostic errors.",
+                    file=sys.stderr,
+                )
+                return 3
             vpop = design.generate_vpop(
                 size=args.size,
                 seed=args.seed,

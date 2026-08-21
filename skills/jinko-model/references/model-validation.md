@@ -22,7 +22,7 @@ if result.error:
     raise RuntimeError(result.error)
 ```
 
-Use `scripts/validate_model_readiness.py` for a reusable check:
+Use `scripts/validate_model_readiness.py` for a reusable check. Pass every mandatory tag as `--require-tag`; without at least one such option, the script reports only that diagnostics and solve checks passed and does not claim full readiness:
 
 ```bash
 python skills/jinko-model/scripts/validate_model_readiness.py --model-sid cm-... --timeseries-id Drug --require-tag Drug=output

@@ -40,7 +40,7 @@ All six algorithm arguments are explicit in the SDK:
 | --- | --- |
 | `num_samples` | Desired number of patients; it must be below the filtered Vpop size. |
 | `seed` | Random-number seed for reproducibility. |
-| `num_iterations` | Total simulated-annealing iterations; default 100, up to ~80k for heavily constrained designs. |
+| `num_iterations` | Total simulated-annealing iterations; minimum 1. Ask the user to choose it for the workflow rather than recommending an unsupported target. |
 | `iters_fixed_temperature` | Iterations at each temperature level; it must not exceed `num_iterations`. |
 | `replacement_rate` | Proportion of samples swapped per iteration, between 0 and 1. |
 | `boltzmann_constant` | The `kT` term in the annealing acceptance probability `p = exp((Ea - Eb) / kT)`; controls how readily an uphill (worse-cost) move is accepted. |

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Define Calibration Parameters"
+  short_description: "Assign parameters to calibration steps"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-define-param-to-calibrate to scope parameters for calibration."
+policy:
+  allow_implicit_invocation: true

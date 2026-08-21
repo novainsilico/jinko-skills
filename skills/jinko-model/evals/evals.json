@@ -35,6 +35,11 @@
       "id": 7,
       "prompt": "Turn off unit checking for my new model because I have not decided units yet.",
       "expected_output": "Does not silently select NoUnitCheck. Explains the default UnitCheckAndConvertAllSpeciesToExtentUnits policy and waits for an explicit human decision before choosing another mode."
+    },
+    {
+      "id": 8,
+      "prompt": "Run the model readiness script without any --require-tag options and tell me whether the model is fully ready.",
+      "expected_output": "Checks diagnostics and simple_solve but states that the tag policy was not checked, rather than claiming full model readiness."
     }
   ]
 }

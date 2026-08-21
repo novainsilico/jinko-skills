@@ -192,13 +192,13 @@ Below is a list of all the units and prefixes that can be used in the platform.
 *   long\_hundredweight = 112 \* lb
 *   short\_hundredweight = 100 \* lb
 *   metric\_ton = 1000 \* kilogram = t = tonne
-*   pennyweight = 24 \* gram = dwt
+*   pennyweight = 24 \* grain = dwt
 *   slug = 14.59390 \* kilogram
-*   troy\_ounce = 480 \* gram = toz = apounce = apothecary\_ounce
+*   troy\_ounce = 480 \* grain = toz = apounce = apothecary\_ounce
 *   troy\_pound = 12 \* toz = tlb = appound = apothecary\_pound
-*   drachm = 60 \* gram = apdram = apothecary\_dram
+*   drachm = 60 \* grain = apdram = apothecary\_dram
 *   atomic\_mass\_unit = 1.660538782e-27 \* kilogram = u = amu = dalton = Da
-*   scruple = 20 \* gram
+*   scruple = 20 \* grain
 *   bag = 94 \* lb
 *   ton = 2000 \* lb = short\_ton
 

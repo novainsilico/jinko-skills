@@ -30,7 +30,7 @@ Scientific choices belong to a workflow or domain expert, not this skill.
 
 ## Canonical Flow
 
-1. Retrieve a **completed** Trial and inspect `trial.descriptors.scalars` and `trial.descriptors.categoricals`; descriptor IDs and arms must be taken from this Trial, not guessed from display labels.
+1. Retrieve the Trial, require `trial.status()["status"] == "completed"`, then inspect `trial.descriptors.scalars` and `trial.descriptors.categoricals`; descriptor IDs and arms must be taken from this Trial, not guessed from display labels.
 2. Build a `SubsamplingDesign` with filters and population targets through `trial.create_subsampling_design(...)`.
 3. Read `design.diagnostics`; do not generate while it has errors.
    Use `design.diagnostics.errors().explain()` to relate an error to its target or filter and its source-Trial descriptor.

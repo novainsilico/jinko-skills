@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Replace scenario arms on an existing Jinkō protocol design.
+"""Upsert scenario arms on an existing Jinkō protocol design.
 
 Dry-run by default. Pass --apply to update the ProtocolDesign project item.
 
 Uses the design's ``arms`` mutator service (``set_control``/``set_active``/
 ``set_weight``/``set_override`` for existing arms, ``create`` for new ones)
 rather than replacing the raw design payload, so each change is validated
-individually by the API.
+individually by the API. Arms and overrides omitted from the input are retained.
 """
 
 from __future__ import annotations
@@ -66,7 +66,7 @@ def print_arm_summary(arms: list[dict[str, Any]]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Create or update arms in an existing protocol design."
+        description="Upsert arms in an existing protocol design."
     )
     parser.add_argument(
         "--protocol-design-sid",
@@ -89,6 +89,7 @@ def main() -> int:
         return 1
 
     print(f"Arms to apply: {len(arms)}")
+    print("Upsert only: omitted arms and overrides will be retained.")
     print_arm_summary(arms)
 
     if not args.apply:

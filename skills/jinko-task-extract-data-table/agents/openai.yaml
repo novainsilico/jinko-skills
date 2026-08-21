@@ -1,0 +1,7 @@
+interface:
+  display_name: "Extract Jinkō Data"
+  short_description: "Convert source data into Jinkō tables"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-extract-data-table to extract a Jinkō-ready data table."
+policy:
+  allow_implicit_invocation: true

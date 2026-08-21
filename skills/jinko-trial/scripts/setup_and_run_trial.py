@@ -38,12 +38,6 @@ def load_sdk():
     return JinkoClient, JinkoError
 
 
-def ref(item: Any) -> dict[str, str]:
-    if not item.core_id or not item.snapshot_id:
-        raise ValueError(f"Project item {item.sid} is missing core_id or snapshot_id")
-    return {"coreItemId": item.core_id, "snapshotId": item.snapshot_id}
-
-
 def load_json_file(path: str | None) -> dict[str, Any] | None:
     if path is None:
         return None
@@ -82,7 +76,7 @@ def resolve_folder(client: Any, folder_ref: str | None, *, create: bool) -> Any 
     return client.create_folder(folder_ref)
 
 
-def create_trial_raw(
+def create_trial(
     client: Any,
     *,
     model: Any,
@@ -96,32 +90,28 @@ def create_trial_raw(
     name: str,
     description: str,
 ) -> Any:
-    payload: dict[str, Any] = {
-        "computationalModelId": ref(model),
-        "measureDesignId": ref(output_set),
-        "dataTableDesigns": [
-            {
-                "dataTableId": ref(data_table),
-                "include": True,
-                "options": {"weight": 1},
-            }
-            for data_table in data_tables
-        ],
-    }
-    if vpop is not None:
-        payload["vpopId"] = ref(vpop)
-    if protocol is not None:
-        payload["protocolDesignId"] = ref(protocol)
-    if scoring is not None:
-        payload["scoringDesignId"] = ref(scoring)
-    if solving_options_override is not None:
-        payload["solvingOptionsOverride"] = solving_options_override
-    return client.create_trial_from_json(
-        json_content=payload,
+    trial = client.create_trial(
+        model,
+        data_tables=data_tables,
+        vpop=vpop,
+        protocol=protocol,
+        simple_output_set=output_set,
+        advanced_output_set=scoring,
         folder=folder,
         name=name,
         description=description,
     )
+    if solving_options_override is not None:
+        try:
+            trial.edit_solving_options(solving_options_override)
+        except Exception:
+            print(
+                f"Trial {trial.sid} was created, but applying solving options failed; "
+                "inspect or remove the partially configured Trial before retrying.",
+                file=sys.stderr,
+            )
+            raise
+    return trial
 
 
 def valid_for_fitness_from_content(content: Any) -> bool | None:
@@ -138,13 +128,27 @@ def ensure_data_tables_can_attach(data_tables: list[Any]) -> None:
     invalid: list[str] = []
     for data_table in data_tables:
         valid = valid_for_fitness_from_content(data_table.content())
-        if valid is False:
+        if valid is not True:
             invalid.append(data_table.sid)
     if invalid:
         raise RuntimeError(
-            "Data tables attached through dataTableDesigns must report "
+            "Attached data tables must report "
             "metadata.public.validForFitnessFunction=True: " + ", ".join(invalid)
         )
+
+
+def format_sanity_error(error: Any) -> str:
+    if not isinstance(error, dict):
+        return str(error)
+    details = []
+    for key in ("code", "reason", "message", "items"):
+        value = error.get(key)
+        if value not in (None, "", []):
+            rendered = (
+                json.dumps(value, sort_keys=True) if key == "items" else str(value)
+            )
+            details.append(f"{key}={rendered}")
+    return "; ".join(details) or str(error)
 
 
 def collect_sanity_errors(value: Any) -> list[str]:
@@ -153,7 +157,7 @@ def collect_sanity_errors(value: Any) -> list[str]:
     def walk(item: Any, path: str) -> None:
         if isinstance(item, dict):
             severity = str(item.get("severity") or item.get("level") or "").lower()
-            detail = item.get("code") or item.get("message")
+            detail = format_sanity_error(item)
             if severity in {"error", "critical", "alert", "emergency"} and detail:
                 errors.append(f"{path}: {detail}")
             for key, child in item.items():
@@ -162,11 +166,7 @@ def collect_sanity_errors(value: Any) -> list[str]:
                     for index, error in enumerate(child):
                         error_path = f"{child_path}[{index}]"
                         if isinstance(error, dict):
-                            detail = (
-                                error.get("code")
-                                or error.get("reason")
-                                or error.get("message")
-                            )
+                            detail = format_sanity_error(error)
                         else:
                             detail = str(error)
                         if detail:
@@ -243,7 +243,7 @@ def write_tabular_download(download: Any, output_dir: Path, stem: str) -> None:
             extract_dir = output_dir / stem
             extract_dir.mkdir(parents=True, exist_ok=True)
             with zipfile.ZipFile(io.BytesIO(payload)) as archive:
-                archive.extractall(extract_dir)
+                safe_extract_zip(archive, extract_dir)
             print(f"Pandas unavailable; extracted {stem} ZIP results to {extract_dir}")
         else:
             csv_path = output_dir / f"{stem}.csv"
@@ -255,6 +255,15 @@ def write_tabular_download(download: Any, output_dir: Path, stem: str) -> None:
     csv_path = output_dir / f"{stem}.csv"
     df.to_csv(csv_path, index=False)
     print(f"Wrote {stem} results: {csv_path}")
+
+
+def safe_extract_zip(archive: zipfile.ZipFile, destination: Path) -> None:
+    destination = destination.resolve()
+    for member in archive.infolist():
+        member_path = (destination / member.filename).resolve()
+        if not member_path.is_relative_to(destination):
+            raise ValueError(f"Unsafe ZIP member path: {member.filename!r}")
+    archive.extractall(destination)
 
 
 def download_results(
@@ -406,7 +415,7 @@ def main() -> int:
                 folder,
                 version="move simple output set to folder",
             )
-        trial = create_trial_raw(
+        trial = create_trial(
             client,
             model=model,
             output_set=output_set,

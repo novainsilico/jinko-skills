@@ -4,7 +4,7 @@
 
 ```python
 report = calibration.get_sanity()
-report["model"]["sanity"][
+report["sanityChecks"]["model"]["sanity"][
     "errors"
 ]  # raw dict, one key per input: model, protocol, outputSet, scorings, dataTables, parameters, options, solvingTimes
 ```

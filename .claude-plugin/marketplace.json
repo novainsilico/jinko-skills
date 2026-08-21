@@ -55,7 +55,7 @@
         }
       },
       "strict": false,
-      "version": "1.7.0",
+      "version": "1.7.1",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
@@ -66,13 +66,19 @@
         "./skills/jinko-model",
         "./skills/jinko-output-set",
         "./skills/jinko-protocol",
+        "./skills/jinko-reference",
         "./skills/jinko-sdk-setup",
         "./skills/jinko-solution-and-product-guide",
+        "./skills/jinko-task-cmaes",
+        "./skills/jinko-task-define-param-to-calibrate",
+        "./skills/jinko-task-extract-data-table",
+        "./skills/jinko-task-literature-search",
+        "./skills/jinko-task-trial-data-scoping",
         "./skills/jinko-trial-viz",
         "./skills/jinko-trial",
         "./skills/jinko-vpop"
       ]
     }
   ],
-  "version": "1.7.0"
+  "version": "1.7.1"
 }

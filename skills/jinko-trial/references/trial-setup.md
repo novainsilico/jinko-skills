@@ -29,9 +29,18 @@ For creating and editing the advanced output set itself (constraints, scalars, o
 
 ## Data Tables
 
-The high-level helper does not currently expose data-table attachment. For data tables, use raw trial creation with `dataTableDesigns` and project item refs.
+Attach data tables with the supported high-level helper:
 
-Before creating the trial, inspect each data table and require `metadata.public.validForFitnessFunction` to be `True`. A table can upload successfully and still fail trial launch sanity if this metadata is false.
+```python
+trial = client.create_trial(
+    model,
+    data_tables=[client.get_data_table("dt-...")],
+    simple_output_set=output_set,
+    folder=folder,
+)
+```
+
+Before creating the trial, inspect each data table and require `metadata.public.validForFitnessFunction` to be explicitly `True`. Reject false, missing, and malformed values. A table can upload successfully and still fail trial launch sanity otherwise.
 
 ## Sanity Before Run
 
@@ -65,7 +74,7 @@ simple_output_set = client.create_simple_output_set(model, model.time_dependent_
 
 # 2. Create the advanced output set (standalone validation only — see jinko-output-set)
 advanced_output_set = client.create_advanced_output_set(
-    scalars=[{"id": "auc", "formula": "AUC_drug", "unit": "mg/L*h"}],
+    scalars=[{"id": "auc", "formula": "auc(Drug)", "unit": "mg/L*s"}],
     objectives=[...],
 )
 

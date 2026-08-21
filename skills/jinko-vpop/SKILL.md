@@ -30,6 +30,7 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 - Edit vpop designs, not generated vpops, then regenerate a new vpop.
 - Require explicit confirmation or script `--apply` before creating or updating project items.
 - Descriptor IDs in CSV headers and marginal designs must match real model component IDs when the vpop will be used with that model.
+- Reject duplicate descriptor IDs in marginal lists; converting duplicates to a mapping would otherwise silently discard earlier entries.
 
 ## Project Folder Hygiene
 
@@ -49,9 +50,9 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 Use scripts rather than embedding long Python examples in chat.
 
 - `scripts/create_vpop_from_csv.py`: uploads a CSV directly, or via pandas DataFrame with `--method dataframe`.
-- `scripts/create_vpop_design_from_design.py`: creates a vpop design from a list of `{ "id": ..., "distribution": ... }` entries and can optionally generate a vpop.
+- `scripts/create_vpop_design_from_design.py`: creates a vpop design from a list of unique `{ "id": ..., "distribution": ... }` entries and can optionally generate a vpop after diagnostics pass.
 - `scripts/inspect_vpop.py`: inspects content, description, or statistics for an existing vpop.
-- `scripts/edit_vpop_design.py`: updates or adds descriptors in an existing vpop design via the `descriptors` mutator service.
+- `scripts/edit_vpop_design.py`: updates or adds descriptors sequentially, reports already-applied IDs if a later edit fails, and runs post-edit diagnostics before success.
 
 Examples:
 

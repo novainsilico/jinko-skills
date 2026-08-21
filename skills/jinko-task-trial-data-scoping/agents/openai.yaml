@@ -1,0 +1,7 @@
+interface:
+  display_name: "Clinical Trial Data Scoping"
+  short_description: "Scope ClinicalTrials.gov modeling evidence"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-trial-data-scoping to scope relevant clinical trial evidence."
+policy:
+  allow_implicit_invocation: true

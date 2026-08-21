@@ -77,11 +77,107 @@ def load_components_from_json(path: Path) -> dict[str, list[dict[str, Any]]]:
         data = json.load(handle)
     if not isinstance(data, dict):
         raise ValueError("--from-json must contain a JSON object")
-    return {
-        "constraints": data.get("constraints", []),
-        "scalars": data.get("scalars", []),
-        "objectives": data.get("objectives", []),
+    components = {}
+    required_fields = {
+        "constraints": ("id", "constraint"),
+        "scalars": ("id", "formula"),
+        "objectives": ("id", "formula", "weight"),
     }
+    for section, fields in required_fields.items():
+        entries = data.get(section, [])
+        if not isinstance(entries, list):
+            raise ValueError(f"--from-json section {section!r} must be a list")
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                raise ValueError(f"--from-json {section}[{index}] must be an object")
+            missing = [field for field in fields if field not in entry]
+            if missing:
+                raise ValueError(
+                    f"--from-json {section}[{index}] is missing: " + ", ".join(missing)
+                )
+            if not isinstance(entry["id"], str) or not entry["id"]:
+                raise ValueError(
+                    f"--from-json {section}[{index}].id must be a non-empty string"
+                )
+            expression_field = "constraint" if section == "constraints" else "formula"
+            if section != "objectives" and (
+                not isinstance(entry[expression_field], str)
+                or not entry[expression_field]
+            ):
+                raise ValueError(
+                    f"--from-json {section}[{index}].{expression_field} must be "
+                    "a non-empty string"
+                )
+            if (
+                "filter" in entry
+                and entry["filter"] is not None
+                and (not isinstance(entry["filter"], str) or not entry["filter"])
+            ):
+                raise ValueError(
+                    f"--from-json {section}[{index}].filter must be null or a "
+                    "non-empty string"
+                )
+            if (
+                section == "scalars"
+                and "unit" in entry
+                and entry["unit"] is not None
+                and (not isinstance(entry["unit"], str) or not entry["unit"])
+            ):
+                raise ValueError(
+                    f"--from-json scalars[{index}].unit must be null or a "
+                    "non-empty string"
+                )
+            if section == "objectives":
+                formula = entry["formula"]
+                if not isinstance(formula, dict):
+                    raise ValueError(
+                        f"--from-json objectives[{index}].formula must be an object"
+                    )
+                target = formula.get("target")
+                if target is not None and (not isinstance(target, str) or not target):
+                    raise ValueError(
+                        f"--from-json objectives[{index}].formula.target must be "
+                        "null or a non-empty string"
+                    )
+                ranges = formula.get("range")
+                if not isinstance(ranges, dict):
+                    raise ValueError(
+                        f"--from-json objectives[{index}].formula.range must be an object"
+                    )
+                bounds = (
+                    "narrowRangeLowBound",
+                    "narrowRangeHighBound",
+                    "wideRangeLowBound",
+                    "wideRangeHighBound",
+                )
+                missing_bounds = [key for key in bounds if key not in ranges]
+                if missing_bounds:
+                    raise ValueError(
+                        f"--from-json objectives[{index}].formula.range is missing: "
+                        + ", ".join(missing_bounds)
+                    )
+                try:
+                    wide_low = float(ranges["wideRangeLowBound"])
+                    narrow_low = float(ranges["narrowRangeLowBound"])
+                    narrow_high = float(ranges["narrowRangeHighBound"])
+                    wide_high = float(ranges["wideRangeHighBound"])
+                    weight = float(entry["weight"])
+                except (TypeError, ValueError) as exc:
+                    raise ValueError(
+                        f"--from-json objectives[{index}] bounds and weight must "
+                        "be numeric"
+                    ) from exc
+                if not wide_low < narrow_low < narrow_high < wide_high:
+                    raise ValueError(
+                        f"--from-json objectives[{index}] requires wide_low < "
+                        "narrow_low < narrow_high < wide_high"
+                    )
+                if weight <= 0:
+                    raise ValueError(
+                        f"--from-json objectives[{index}].weight must be positive"
+                    )
+        components[section] = entries
+    return components
 
 
 def main() -> int:
@@ -204,6 +300,9 @@ def main() -> int:
             f"Diagnostics: {len(diagnostics.errors())} error(s), "
             f"{len(diagnostics.warnings())} warning(s)"
         )
+        if diagnostics.has_errors():
+            print("Advanced output set diagnostics contain errors", file=sys.stderr)
+            return 3
         return 0
     except ValidationError as exc:
         print(f"Advanced output set validation failed: {exc}", file=sys.stderr)

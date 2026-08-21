@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō References"
+  short_description: "Manage Jinkō reference PDFs and extracts"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-reference to manage reference PDFs and extracts in my Jinkō project."
+policy:
+  allow_implicit_invocation: true

@@ -40,7 +40,7 @@ This skill is pure SDK mechanics: no defaults, no diagnostics, no when-to-calibr
 
 - `parameters`: priors to calibrate (required, ≥1).
 - At least one fitness-function source (required): `dataTableDesigns` (data table must report `metadata.public.validForFitnessFunction: True`, see `jinko-data-table`) and/or an advanced output set with objectives (see `jinko-output-set`). This skill creates neither input.
-- `CalibrationOptions`: `seed` + `thresholdWeightedScore` (schema-required), `populationSize` + `numberOfIterations` (functionally required).
+- `CalibrationOptions`: `seed` + `thresholdWeightedScore` are schema-required and have contract defaults `0` and `1`; `populationSize` + `numberOfIterations` have no contract defaults and are functionally required. The bundled creation script requires population size and iteration count, and uses the contract defaults for omitted seed and threshold; pass all four explicitly when reproducibility policy requires it.
 
 Two encoding rules are mandatory before creation:
 
@@ -93,7 +93,8 @@ calibration.run()
 final_status = calibration.wait_until_completed(timeout=3600)
 ```
 
-See `references/running-and-polling.md` for `.get_sanity()`, `.status_with_metadata()`, `StoppingReason` values.
+See `references/running-and-polling.md` for `.get_sanity()`, `.status()`, and
+`StoppingReason` values.
 
 ## Results
 
@@ -101,7 +102,9 @@ See `references/running-and-polling.md` for `.get_sanity()`, `.status_with_metad
 calibration.performance()  # raw dict
 calibration.results_summary()  # raw dict
 calibration.objective_weights()  # raw dict, {objective_id: weight}
-calibration.results.sorted_patients(sort_by="weightedScore desc")  # raw, low-level
+calibration.results.sorted_patients(
+    sort_by="optimizationWeightedScore desc"
+)  # raw, low-level
 ```
 
 All results accessors return unparsed dicts today. See `references/results-and-inspection.md`.
@@ -118,7 +121,7 @@ Same as `jinko-trial`/`jinko-data-table`: propose a `YYYY-MM-DD-<experiment>` fo
 
 ```bash
 python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12
-python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:-3.0:1.0" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
+python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
 python skills/jinko-calibration-cmaes/scripts/run_calibration.py --calibration-sid ca-... --apply --timeout 3600
 python skills/jinko-calibration-cmaes/scripts/inspect_calibration.py --calibration-sid ca-... --performance --results-summary --objective-weights --output-dir calib-results
 ```

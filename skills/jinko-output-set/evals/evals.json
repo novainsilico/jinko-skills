@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Create an advanced output set with a scalar 'auc' from the model output Drug and an objective 'obj_auc' targeting its AUC between 8 and 12 (wide range 5-15), weight 1.0.",
-      "expected_output": "Uses lowercase auc(Drug), not an AUC_drug pseudo-identifier; creates the objective with the given bounds and weight; and mentions automatic validation and the need for trial/calibration-context sanity before claiming the design is runnable."
+      "expected_output": "Uses lowercase auc(Drug), not an AUC_drug pseudo-identifier, and inlines auc(Drug) in the objective target instead of targeting the sibling scalar id; creates the given bounds and weight; and requires trial/calibration-context sanity before claiming the design is runnable."
     },
     {
       "id": 2,
@@ -24,7 +24,12 @@
     {
       "id": 5,
       "prompt": "Add an objective filter so it only scores after 47 hours.",
-      "expected_output": "Does not use time > PT47H, time > 169200, or u(...). Explains that bare constants inherit time's unit, asks/uses a unit-bearing model helper parameter such as analysisStartTime via jinko-model, then uses time > analysisStartTime and validates the condition."
+      "expected_output": "Converts 47 hours to seconds and uses `time > 169200`; does not use `time > PT47H` or `u(...)`, and validates the condition."
+    },
+    {
+      "id": 6,
+      "prompt": "Add three components to sc-abc in one incremental edit workflow, but do not leave an unexplained partial update if the third is invalid.",
+      "expected_output": "Prevalidates every expression, range, duplicate id, and existing-id conflict before the first write; reports any ids applied if a later request fails; checks post-edit diagnostics; and returns failure when diagnostics contain errors."
     }
   ]
 }

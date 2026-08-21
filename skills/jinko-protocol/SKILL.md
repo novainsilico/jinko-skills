@@ -55,7 +55,7 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 
 - `scripts/create_protocol_design.py`: creates a three-arm protocol design, optionally linked to a model.
 - `scripts/create_protocol_design_from_csv.py`: creates a protocol design from a CSV file of arms.
-- `scripts/edit_protocol_design_arms.py`: creates or updates arms on an existing protocol design via the `arms` mutator service.
+- `scripts/edit_protocol_design_arms.py`: upserts arms and overrides on an existing protocol design via the `arms` mutator service. It retains arms and overrides omitted from the input; use explicit `protocol.arms.delete(...)` or `arm.remove_override(...)` calls for removals.
 - `scripts/inspect_protocol_design.py`: prints protocol content or a concise arm summary.
 
 Examples:

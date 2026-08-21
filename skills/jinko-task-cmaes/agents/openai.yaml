@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō CMA-ES Task"
+  short_description: "Execute a CMA-ES calibration step"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-cmaes to prepare and run a CMA-ES calibration step."
+policy:
+  allow_implicit_invocation: true

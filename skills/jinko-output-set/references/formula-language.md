@@ -25,53 +25,29 @@ Categorical membership: `origin in {APAC, EU}`.
 ### Component filters
 
 The optional `filter` field on a constraint or objective is a **condition**, not
-an ISO-8601 duration field. A bare number is interpreted in the unit of the
-quantity it is compared with; for example, `time > 900` means “900 in the
-current unit of `time`”, not necessarily 900 seconds. Since advanced-output
-formulas cannot use `u(...)`, do **not** hard-code scientific thresholds in a
-filter.
-
-Instead, after user confirmation, add a clearly named, unit-bearing helper
-parameter to the model, then use that id in the formula. For example, define
-`analysisStartTime` in the model with the desired value and time unit, then use:
-
-```
-time > analysisStartTime
-```
-
-Do **not** write `time > PT47H`: `PT47H` is data-table/simple-output-set
-duration syntax, not formula syntax. Use `jinko-model` to create or update the
-helper parameter; do not silently change the model merely to author an output
-set. Validate the resulting condition with
+an ISO-8601 duration field. Time values are seconds, so convert scientific
+thresholds explicitly; for example, use `time > 169200` for 47 hours. Do not
+write `time > PT47H`: `PT47H` is data-table/simple-output-set duration syntax,
+not formula syntax. Validate the resulting condition with
 `client.validate_scoring_condition(...)` before creating or editing the
 component.
 
 ## Advanced-output-set-specific syntax
 
 Time indexing accepts numeric coordinates, not ISO-8601 durations such as
-`PT4H`. Do not label a bare coordinate as seconds unless the model/time context
-has been verified; use a unit-bearing model helper parameter for a scientifically
-meaningful threshold.
+`PT4H`. Coordinates are always seconds; convert scientific times explicitly.
 
 ### Time indexing
 
 - `descriptorID[t]` — value at a single time point, e.g. `T[10]`.
 - `descriptorID[a,b]` — slice the time series between `t=a` and `t=b`, e.g. `T[0,50]`.
 
-The numeric coordinates use the unit of the model's time component. Jinkō models
-default to seconds unless that time unit was explicitly changed. Solving options
-such as `tMax: P7D` and `tStep: PT1H`, and Data Table durations such as `PT6H`, do
-not change the formula coordinate unit. For a default-seconds model, write
-`X[7200]`, `X[21600]`, and `X[86400]` for 2 hours, 6 hours, and 24 hours. Do not
-write `X[0.0833]`, `X[0.25]`, or `X[1]` merely because those values represent
-fractions of a day in the scientific protocol.
-
-Before authoring an indexed formula:
-
-1. Inspect or otherwise establish the model time component's unit.
-2. Convert every scientific time into that unit.
-3. Confirm the requested coordinate is covered by the solving interval and output grid.
-4. Validate syntax, then run bound Trial or Calibration sanity; formula validation cannot detect a scientifically wrong but syntactically valid coordinate.
+The numeric coordinates are seconds regardless of the model time component or
+solving options. Scoring expressions have no unit annotations, so convert every
+scientific time to seconds explicitly and confirm the requested coordinate is
+covered by the solving interval and output grid. Validate syntax, then run bound
+Trial or Calibration sanity; formula validation cannot detect a scientifically
+wrong but syntactically valid coordinate.
 
 ### Time reduction functions (time series → scalar)
 
@@ -91,7 +67,7 @@ A formula that is meant to be a scalar (any bare scalar, any objective target) m
 | `timeOfMax(x)` | time at which the maximum occurs |
 | `timeOfMin(x)` | time at which the minimum occurs |
 
-Combine with slicing: `gmax(X[0,100])` is the max of `X` between the numeric coordinates 0 and 100 in the model's time context.
+Combine with slicing: `gmax(X[0,100])` is the max of `X` between the numeric coordinates 0 and 100 seconds.
 
 ### Other time-series functions
 
@@ -124,6 +100,6 @@ scored against a range, e.g. "stays within `[0.8, 1.2]`" — maps directly onto 
 - **Case sensitivity reads as "function doesn't exist."** `Max(a, b)` → `Could not parse Max as a valid function name`; `max(a, b)` → parses correctly (and is a plain 2-argument elementwise max, not a time reduction — do not use it as a substitute for `gmax`).
 - **Underscore-joined identifiers always parse**, whether or not they mean anything. `AUC_T`, `T_end`, `Foo_Bar` are all syntactically valid *identifiers* to the parser (subscript notation), not function applications — do not assume `AUC_<id>` invokes an AUC function; use `auc(<id>)` instead.
 - **`x@TEnd`/`x@TStart` parses but is wrong.** `@` is the arm-selector operator, not a time-at-end operator. Use `lastValue(x)`/`firstValue(x)`, or `x[<numeric time coordinate>]` only when its unit context is verified.
-- **Hard-coded time thresholds are unit-ambiguous.** `time > 900` has no unit annotation, and `u(...)` is not accepted in advanced outputs. `time > PT47H` is also wrong because ISO durations are not formula syntax. Prefer `time > analysisStartTime`, where `analysisStartTime` is a clearly named, unit-bearing model parameter.
-- **AUC/integral units need verification.** The scalar `unit=` field is accepted and should be used when the expected dimension is known. It does not make `u(...)` valid inside a formula. Set `unit=` only after verifying the model/time context and trial sanity diagnostics; do not assume its time factor is seconds.
+- **Hard-coded time thresholds are seconds.** `u(...)` and ISO durations such as `PT47H` are not supported in scoring formulas; convert the scientific threshold explicitly.
+- **AUC/integral units include seconds.** The scalar `unit=` field is accepted and should include the `*s` time factor. It does not make `u(...)` valid inside a formula.
 - **An objective's `target` referencing a sibling scalar's `id` can fail `trial.sanity()`** even standing on the exact pattern this skill's own examples show. See `references/advanced-output-set.md`'s "Common pitfalls" for the confirmed repro and the workaround (inline the formula in `target` instead of the scalar id).

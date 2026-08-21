@@ -50,10 +50,10 @@ Scalars serialize under the raw JSON key `components.measures` — do not confus
 Never invent output ids.
 Call `model.time_dependent_ids()` to discover the model's valid output ids before creating a simple output set, same as `jinko-trial` does.
 Advanced-output-set formulas reference output ids or other scalar ids by name.
-Numeric time indices in advanced-output formulas use the model time component's
-unit, which defaults to seconds. They do not inherit units from ISO-8601 solving
-times or data-table durations. Confirm the model time unit and convert scientific
-times explicitly before writing expressions such as `X[7200]` for 2 hours.
+Scoring-formula time values are always seconds, regardless of the model time
+unit. Formulas do not support time-unit annotations: convert scientific times
+explicitly. Consequently, `int(X)` and `auc(X)` have a seconds time component;
+declare their scalar units with `*s`.
 If unsure whether a piece of formula syntax is still supported, validate it with `client.validate_scoring_formula(...)` rather than assuming old examples still apply.
 Read `references/formula-language.md` before writing any non-trivial constraint/scalar/objective formula or component filter. It gives the actual grammar (time reduction functions, time indexing, arm references) and documents validation messages.
 
@@ -74,12 +74,12 @@ See `references/simple-output-set.md` for the full schema.
 ```python
 scoring_design = client.create_advanced_output_set(
     constraints=[{"id": "adults", "constraint": "age >= 18"}],
-    scalars=[{"id": "auc", "formula": "auc(Drug)", "unit": "mg/L*h"}],
+    scalars=[{"id": "auc", "formula": "auc(Drug)", "unit": "mg/L*s"}],
     objectives=[
         {
             "id": "obj_auc",
             "formula": {
-                "target": "auc",
+                "target": "auc(Drug)",
                 "range": {
                     "narrowRangeLowBound": 8.0,
                     "narrowRangeHighBound": 12.0,
@@ -94,7 +94,7 @@ scoring_design = client.create_advanced_output_set(
 )
 ```
 
-Add components incrementally with `scoring_design.components.add_constraint(...)`, `.add_scalar(...)`, `.add_objective(...)` — each call creates a new versioned snapshot.
+Add components incrementally with `scoring_design.components.add_constraint(...)`, `.add_scalar(...)`, `.add_objective(...)` — each call creates a new versioned snapshot. For a batch, validate every component and check all ids for conflicts before the first call; if a later request fails, report the ids already applied.
 See `references/advanced-output-set.md` for full schemas, the components service, and the raw JSON escape hatch.
 
 ## Validation & Diagnostics

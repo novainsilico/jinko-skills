@@ -10,9 +10,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
+
+OVERLAY_LABEL_RE = re.compile(r"^[A-Za-z0-9_:-]+$")
 
 try:
     from dotenv import load_dotenv
@@ -53,7 +56,10 @@ def resolve_folder(client: Any, folder_ref: str | None) -> Any | None:
     folder = client.get_folder(folder_ref)
     if folder is not None:
         return folder
-    return client.get_folder_by_name(folder_ref, exact_match_only=True)
+    folder = client.get_folder_by_name(folder_ref, exact_match_only=True)
+    if folder is None:
+        raise ValueError(f"Folder {folder_ref!r} was not found.")
+    return folder
 
 
 def parse_scatter_xvsy(spec: str) -> dict[str, Any]:
@@ -83,35 +89,112 @@ def parse_scatter_xvsx(spec: str) -> dict[str, Any]:
     }
 
 
-def apply_sections(client: Any, viz: Any, args: argparse.Namespace) -> Any:
-    if getattr(args, "selected_arm", None):
-        viz = viz.set_selected_arms(args.selected_arm)
-    if getattr(args, "equate_baseline", False):
-        viz = viz.set_equate_baseline(True)
-    if getattr(args, "timeseries", None):
-        viz = viz.timeseries.set_selectors(args.timeseries)
-    if getattr(args, "scalar", None):
-        viz = viz.scalars.set_selectors(args.scalar)
-    if getattr(args, "survival", None):
-        viz = viz.survival_analysis.set_selectors(args.survival)
-    if getattr(args, "contribution", None):
-        viz = viz.contribution_analysis.set_selectors(args.contribution)
-    for spec in getattr(args, "scatter_xvsy", None) or []:
-        plot = parse_scatter_xvsy(spec)
-        viz = viz.scatter_plots.add_x_vs_y_plot(plot["x"], plot["y"], arms=plot["arms"])
-    for spec in getattr(args, "scatter_xvsx", None) or []:
-        plot = parse_scatter_xvsx(spec)
-        viz = viz.scatter_plots.add_x_vs_x_plot(
-            plot["variable"],
-            reference_arm=plot["reference_arm"],
-            compare_arms=plot["compare_arms"],
+def prepare_local_sections(args: argparse.Namespace) -> dict[str, list[Any]]:
+    overlay_label = getattr(args, "data_overlay_label", None)
+    if overlay_label is not None and not OVERLAY_LABEL_RE.fullmatch(overlay_label):
+        raise ValueError(
+            "Data overlay label must contain only letters, digits, dash '-', "
+            "underscore '_', or colon ':'."
         )
-    for table_sid in getattr(args, "data_overlay_table_sid", None) or []:
-        table = client.get_data_table(table_sid)
-        viz = viz.data_overlay.add_table(
-            table, label=getattr(args, "data_overlay_label", None)
+    return {
+        "scatter_xvsy": [
+            parse_scatter_xvsy(spec)
+            for spec in getattr(args, "scatter_xvsy", None) or []
+        ],
+        "scatter_xvsx": [
+            parse_scatter_xvsx(spec)
+            for spec in getattr(args, "scatter_xvsx", None) or []
+        ],
+    }
+
+
+def prepare_sections(client: Any, args: argparse.Namespace) -> dict[str, list[Any]]:
+    prepared = prepare_local_sections(args)
+    prepared["data_overlay_tables"] = [
+        client.get_data_table(table_sid)
+        for table_sid in getattr(args, "data_overlay_table_sid", None) or []
+    ]
+    return prepared
+
+
+def apply_sections(
+    viz: Any,
+    args: argparse.Namespace,
+    prepared: dict[str, list[Any]],
+) -> Any:
+    applied: list[str] = []
+    try:
+        if getattr(args, "selected_arm", None):
+            viz = viz.set_selected_arms(args.selected_arm)
+            applied.append("selected-arms")
+        if getattr(args, "equate_baseline", False):
+            viz = viz.set_equate_baseline(True)
+            applied.append("equate-baseline")
+        if getattr(args, "timeseries", None):
+            viz = viz.timeseries.set_selectors(args.timeseries)
+            applied.append("timeseries")
+        if getattr(args, "scalar", None):
+            viz = viz.scalars.set_selectors(args.scalar)
+            applied.append("scalars")
+        if getattr(args, "survival", None):
+            viz = viz.survival_analysis.set_selectors(args.survival)
+            applied.append("survival-analysis")
+        if getattr(args, "contribution", None):
+            viz = viz.contribution_analysis.set_selectors(args.contribution)
+            applied.append("contribution-analysis")
+        for plot in prepared["scatter_xvsy"]:
+            viz = viz.scatter_plots.add_x_vs_y_plot(
+                plot["x"], plot["y"], arms=plot["arms"]
+            )
+            applied.append("scatter-x-vs-y")
+        for plot in prepared["scatter_xvsx"]:
+            viz = viz.scatter_plots.add_x_vs_x_plot(
+                plot["variable"],
+                reference_arm=plot["reference_arm"],
+                compare_arms=plot["compare_arms"],
+            )
+            applied.append("scatter-x-vs-x")
+        for table in prepared["data_overlay_tables"]:
+            viz = viz.data_overlay.add_table(
+                table, label=getattr(args, "data_overlay_label", None)
+            )
+            applied.append(f"data-overlay:{table.sid}")
+    except Exception:
+        print(
+            f"Trial visualization {viz.sid} may be partially configured; "
+            f"completed sections: {', '.join(applied) or '<none>'}.",
+            file=sys.stderr,
         )
+        raise
     return viz
+
+
+def print_mutation_plan(action: str, target: str, args: argparse.Namespace) -> None:
+    sections = []
+    for argument in (
+        "selected_arm",
+        "timeseries",
+        "scalar",
+        "survival",
+        "contribution",
+        "scatter_xvsy",
+        "scatter_xvsx",
+        "data_overlay_table_sid",
+    ):
+        if getattr(args, argument, None):
+            sections.append(argument.replace("_", "-"))
+    if getattr(args, "equate_baseline", False):
+        sections.append("equate-baseline")
+    print(f"Would {action} trial visualization {target}.")
+    print(f"Sections/options: {', '.join(sections) or '<none>'}")
+    print("Run again with --apply to mutate the project item.")
+
+
+def print_sanity(viz: Any) -> int:
+    diagnostics = viz.sanity
+    print("Trial visualization diagnostics:")
+    print(str(diagnostics))
+    return 1 if diagnostics.has_errors() else 0
 
 
 def command_list(client: Any, args: argparse.Namespace) -> int:
@@ -141,6 +224,11 @@ def command_get(client: Any, args: argparse.Namespace) -> int:
 
 
 def command_create(client: Any, args: argparse.Namespace) -> int:
+    if not args.apply:
+        prepare_local_sections(args)
+        print_mutation_plan("create", repr(args.name or "<unnamed>"), args)
+        return 0
+    prepared = prepare_sections(client, args)
     trial = client.get_trial(args.trial_sid)
     folder = resolve_folder(client, args.folder)
     viz = trial.create_empty_trial_visualization(
@@ -149,18 +237,30 @@ def command_create(client: Any, args: argparse.Namespace) -> int:
         description=args.description,
         version=args.version,
     )
-    viz = apply_sections(client, viz, args)
+    try:
+        viz = apply_sections(viz, args, prepared)
+    except Exception:
+        print(
+            f"Created trial visualization {viz.sid} before configuration failed.",
+            file=sys.stderr,
+        )
+        raise
     print(f"Created trial visualization {viz.sid}")
     if getattr(viz, "url", None):
         print(viz.url)
-    return 0
+    return print_sanity(viz)
 
 
 def command_update(client: Any, args: argparse.Namespace) -> int:
+    if not args.apply:
+        prepare_local_sections(args)
+        print_mutation_plan("update", args.trial_viz_sid, args)
+        return 0
+    prepared = prepare_sections(client, args)
     viz = client.get_trial_visualization(args.trial_viz_sid)
-    viz = apply_sections(client, viz, args)
+    viz = apply_sections(viz, args, prepared)
     print(f"Updated trial visualization {viz.sid}")
-    return 0
+    return print_sanity(viz)
 
 
 def command_sanity(client: Any, args: argparse.Namespace) -> int:
@@ -266,6 +366,9 @@ def build_parser() -> argparse.ArgumentParser:
     create_parser.add_argument(
         "--folder", help="Existing folder id or exact folder name."
     )
+    create_parser.add_argument(
+        "--apply", action="store_true", help="Actually create the visualization."
+    )
     add_section_args(create_parser)
     create_parser.set_defaults(func=command_create)
 
@@ -274,6 +377,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     update_parser.add_argument(
         "--trial-viz-sid", required=True, help="TrialVisualization SID."
+    )
+    update_parser.add_argument(
+        "--apply", action="store_true", help="Actually update the visualization."
     )
     add_section_args(update_parser)
     update_parser.set_defaults(func=command_update)
@@ -308,6 +414,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+    if args.command in {"create", "update"} and not args.apply:
+        return args.func(None, args)
     load_env()
     sdk = load_sdk()
     if sdk is None:

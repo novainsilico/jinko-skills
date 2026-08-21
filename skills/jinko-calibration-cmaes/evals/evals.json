@@ -30,6 +30,16 @@
       "id": 6,
       "prompt": "Create a log-transformed prior with mean -1 and bounds -3 to 1, and attach my fitness data table without any extra options.",
       "expected_output": "Rejects the nonpositive/log-coordinate bounds, explains that mean/std use log10 coordinates while bounds remain physical (0.001 to 10 here), and enables Scale bounds by listing every data-table obsId in log_transform_wide_bounds unless the user explicitly opts out."
+    },
+    {
+      "id": 7,
+      "prompt": "Create a CMA-ES calibration for cm-123 with parameter k_elim, but I do not have a fitness data table or advanced scoring objectives yet.",
+      "expected_output": "Rejects creation because at least one fitness source is required and routes the user to provide a fitness-ready data table and/or an advanced output set with objectives. It does not treat a simple output set as a fitness source."
+    },
+    {
+      "id": 8,
+      "prompt": "What are the contract defaults for CMA-ES seed, score threshold, population size, and iteration count?",
+      "expected_output": "States that seed and thresholdWeightedScore are schema-required while declaring defaults 0 and 1, respectively; populationSize and numberOfIterations have no contract defaults. Recommends explicit values without inventing alternatives."
     }
   ]
 }

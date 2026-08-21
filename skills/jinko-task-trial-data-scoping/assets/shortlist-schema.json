@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Jinkō evidence shortlist candidate",
+  "description": "Shared candidate shape for publication and ClinicalTrials.gov evidence shortlists.",
+  "type": "object",
+  "required": [
+    "intent_group",
+    "evidence_type",
+    "entities",
+    "verification_passed",
+    "priority",
+    "priority_rationale",
+    "query_provenance"
+  ],
+  "properties": {
+    "pmid": {"type": "string"},
+    "doi": {"type": "string"},
+    "nct_id": {"type": "string"},
+    "title": {"type": "string"},
+    "url": {"type": "string"},
+    "citation_ama": {"type": "string"},
+    "year": {"type": "integer"},
+    "venue": {"type": "string"},
+    "intent_group": {
+      "type": "string",
+      "enum": ["Knowledge", "Data", "Models"]
+    },
+    "evidence_type": {"type": "string"},
+    "entities": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "canonical_name values from the approved Entity Table"
+    },
+    "population_or_system": {"type": "string"},
+    "intervention_or_pathway": {"type": "string"},
+    "expected_evidence": {"type": "string"},
+    "verification_passed": {"type": "boolean"},
+    "verification_note": {"type": "string"},
+    "priority": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "priority_rationale": {"type": "string"},
+    "query_provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["angle"],
+        "properties": {
+          "angle": {"type": "string"},
+          "label": {"type": "string"}
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "properties": {
+        "pmcid": {"type": "string"},
+        "supplement_available": {"type": "boolean"},
+        "open_access": {"type": "boolean"},
+        "has_results": {"type": "boolean"},
+        "overall_status": {"type": "string"}
+      }
+    }
+  }
+}

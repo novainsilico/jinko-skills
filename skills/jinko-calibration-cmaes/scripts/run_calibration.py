@@ -10,6 +10,8 @@ import argparse
 import json
 import sys
 
+from create_cmaes_calibration import sanity_errors_and_warnings
+
 try:
     from dotenv import load_dotenv
 except ImportError:  # pragma: no cover - depends on local environment
@@ -52,11 +54,30 @@ def main() -> int:
         client = JinkoClient()
         calibration = client.get_calibration(args.calibration_sid)
         print(f"Calibration: {calibration.sid}")
-        print(json.dumps(calibration.status(), indent=2, sort_keys=True))
+        initial_status = calibration.status()
+        print(json.dumps(initial_status, indent=2, sort_keys=True))
 
         if not args.apply:
             print("Not launched. Pass --apply to run.")
             return 0
+
+        state = (
+            initial_status.get("status") if isinstance(initial_status, dict) else None
+        )
+        if state in {"completed", "stopped", "error"}:
+            raise RuntimeError(
+                f"Calibration snapshot is already terminal ({state}); "
+                "create or update the configuration before rerunning it"
+            )
+
+        errors, warnings = sanity_errors_and_warnings(calibration.get_sanity())
+        if warnings:
+            print(
+                "Calibration sanity warnings: " + json.dumps(warnings),
+                file=sys.stderr,
+            )
+        if errors:
+            raise RuntimeError("Calibration sanity errors: " + json.dumps(errors))
 
         calibration.run()
         final_status = calibration.wait_until_completed(

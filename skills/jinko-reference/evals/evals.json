@@ -1,0 +1,29 @@
+{
+  "skill_name": "jinko-reference",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The Nova Oncology Study 2024 paper is already a Reference in my Jinko project (so-ABCD-1234). Read its PDF locally, find the sentence that states when tumor volume was assessed, and create a traceable textual extract. I think it is on page 4.",
+      "expected_output": "Uses the supplied Jinko Reference rather than an internet copy, downloads only to an authorized local path, creates a quote-based textual extract with a one-based page hint, and reports the Reference and Extract SIDs or URLs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Upload papers/study.pdf to my Jinko project as a Reference named Study 2024. Then make one textual extract for the reported dose and one rectangular extract for Figure 2.",
+      "expected_output": "Creates the Reference from the local PDF, prefers quote matching for the textual extract, applies a user-justified Data classification when asked, asks for or uses validated anchors for the figure, and does not claim automatic image extraction from the SDK.",
+      "files": ["papers/study.pdf"]
+    },
+    {
+      "id": 3,
+      "prompt": "I need a textual extract from the scanned PDF already attached to so-SCAN-0001. Please create it from this sentence: 'Patients received treatment every 21 days.'",
+      "expected_output": "Explains that quote matching needs a searchable native text layer and does not OCR; it proposes user-approved manual anchors or a separate approved OCR workflow instead of inventing coordinates.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Reuse the Reference named Study 2024. There are several title matches in the project and I do not have its SID yet.",
+      "expected_output": "Does not choose a same-title match. It asks for an explicit Reference SID/resource URL or verifies a stable source identifier such as DOI before reuse.",
+      "files": []
+    }
+  ]
+}

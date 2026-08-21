@@ -93,9 +93,142 @@ def parse_objective(entry: str) -> dict[str, Any]:
 def load_objective_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
-    if not isinstance(data, dict) or "id" not in data:
-        raise ValueError("--add-objective-json must contain an object with an 'id' key")
+    if not isinstance(data, dict):
+        raise ValueError("--add-objective-json must contain an object")
+    missing = [key for key in ("id", "formula", "weight") if key not in data]
+    if missing:
+        raise ValueError("--add-objective-json is missing: " + ", ".join(missing))
+    if not isinstance(data["id"], str) or not data["id"]:
+        raise ValueError("--add-objective-json 'id' must be a non-empty string")
+    formula = data["formula"]
+    if not isinstance(formula, dict):
+        raise ValueError("--add-objective-json 'formula' must be an object")
+    target = formula.get("target")
+    if target is not None and (not isinstance(target, str) or not target):
+        raise ValueError(
+            "--add-objective-json 'formula.target' must be null or a non-empty string"
+        )
+    filter_expr = data.get("filter")
+    if filter_expr is not None and (
+        not isinstance(filter_expr, str) or not filter_expr
+    ):
+        raise ValueError(
+            "--add-objective-json 'filter' must be null or a non-empty string"
+        )
+    ranges = formula.get("range")
+    if not isinstance(ranges, dict):
+        raise ValueError("--add-objective-json 'formula.range' must be an object")
+    bounds = (
+        "narrowRangeLowBound",
+        "narrowRangeHighBound",
+        "wideRangeLowBound",
+        "wideRangeHighBound",
+    )
+    missing_bounds = [key for key in bounds if key not in ranges]
+    if missing_bounds:
+        raise ValueError(
+            "--add-objective-json 'formula.range' is missing: "
+            + ", ".join(missing_bounds)
+        )
+    try:
+        wide_low = float(ranges["wideRangeLowBound"])
+        narrow_low = float(ranges["narrowRangeLowBound"])
+        narrow_high = float(ranges["narrowRangeHighBound"])
+        wide_high = float(ranges["wideRangeHighBound"])
+        weight = float(data["weight"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "--add-objective-json bounds and weight must be numeric"
+        ) from exc
+    if not wide_low < narrow_low < narrow_high < wide_high:
+        raise ValueError(
+            "--add-objective-json requires wide_low < narrow_low < "
+            "narrow_high < wide_high"
+        )
+    if weight <= 0:
+        raise ValueError("--add-objective-json weight must be positive")
     return data
+
+
+def validate_objective_bounds(objective: dict[str, Any]) -> None:
+    if "formula_target" in objective:
+        wide_low = objective["wide_range_low_bound"]
+        narrow_low = objective["narrow_range_low_bound"]
+        narrow_high = objective["narrow_range_high_bound"]
+        wide_high = objective["wide_range_high_bound"]
+        weight = objective["weight"]
+    else:
+        ranges = objective["formula"]["range"]
+        wide_low = float(ranges["wideRangeLowBound"])
+        narrow_low = float(ranges["narrowRangeLowBound"])
+        narrow_high = float(ranges["narrowRangeHighBound"])
+        wide_high = float(ranges["wideRangeHighBound"])
+        weight = float(objective["weight"])
+    if not wide_low < narrow_low < narrow_high < wide_high:
+        raise ValueError(
+            f"objective {objective['id']!r} requires wide_low < narrow_low < "
+            "narrow_high < wide_high"
+        )
+    if weight <= 0:
+        raise ValueError(f"objective {objective['id']!r} weight must be positive")
+
+
+def prevalidate_batch(
+    client: Any,
+    scoring_design: Any,
+    constraints: list[dict[str, Any]],
+    scalars: list[dict[str, Any]],
+    objectives: list[dict[str, Any]],
+) -> None:
+    entries = [*constraints, *scalars, *objectives]
+    ids = [entry["id"] for entry in entries]
+    duplicates = sorted({
+        component_id for component_id in ids if ids.count(component_id) > 1
+    })
+    if duplicates:
+        raise ValueError("Duplicate component ids in batch: " + ", ".join(duplicates))
+    existing_ids = {component.id for component in scoring_design.components.list()}
+    conflicts = sorted(existing_ids.intersection(ids))
+    if conflicts:
+        raise ValueError("Component ids already exist: " + ", ".join(conflicts))
+
+    invalid = []
+    for constraint in constraints:
+        checks = [("constraint", constraint["constraint"])]
+        if constraint.get("filter"):
+            checks.append(("filter", constraint["filter"]))
+        for kind, expression in checks:
+            result = client.validate_scoring_condition(expression)
+            if not result.is_valid:
+                invalid.append(f"{constraint['id']} {kind}: {result}")
+    for scalar in scalars:
+        result = client.validate_scoring_formula(scalar["formula"])
+        if not result.is_valid:
+            invalid.append(f"{scalar['id']} formula: {result}")
+    for objective in objectives:
+        validate_objective_bounds(objective)
+        target = (
+            objective.get("formula_target")
+            if "formula_target" in objective
+            else objective["formula"].get("target")
+        )
+        if target:
+            result = client.validate_scoring_formula(target)
+            if not result.is_valid:
+                invalid.append(f"{objective['id']} formula: {result}")
+        if objective.get("filter"):
+            result = client.validate_scoring_condition(objective["filter"])
+            if not result.is_valid:
+                invalid.append(f"{objective['id']} filter: {result}")
+    if invalid:
+        raise ValueError("Batch validation failed:\n- " + "\n- ".join(invalid))
+
+
+def report_applied(applied_ids: list[str]) -> None:
+    if applied_ids:
+        print("Applied before failure: " + ", ".join(applied_ids), file=sys.stderr)
+    else:
+        print("Applied before failure: <none>", file=sys.stderr)
 
 
 def main() -> int:
@@ -163,6 +296,8 @@ def main() -> int:
                 )
                 return 1
             objectives.append(load_objective_json(path))
+        for objective in objectives:
+            validate_objective_bounds(objective)
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -195,6 +330,8 @@ def main() -> int:
     try:
         client = JinkoClient()
         scoring_design = client.get_advanced_output_set(args.sid)
+        prevalidate_batch(client, scoring_design, constraints, scalars, objectives)
+        applied_ids: list[str] = []
 
         for constraint in constraints:
             scoring_design.components.add_constraint(
@@ -202,12 +339,14 @@ def main() -> int:
                 constraint=constraint["constraint"],
                 filter=constraint["filter"],
             )
+            applied_ids.append(constraint["id"])
             print(f"Added constraint {constraint['id']!r}")
 
         for scalar in scalars:
             scoring_design.components.add_scalar(
                 scalar["id"], formula=scalar["formula"], unit=scalar["unit"]
             )
+            applied_ids.append(scalar["id"])
             print(f"Added scalar {scalar['id']!r}")
 
         for objective in objectives:
@@ -235,6 +374,7 @@ def main() -> int:
                     description=objective.get("description"),
                     display_name=objective.get("display_name"),
                 )
+            applied_ids.append(objective["id"])
             print(f"Added objective {objective['id']!r}")
 
         diagnostics = scoring_design.diagnostics
@@ -244,13 +384,23 @@ def main() -> int:
                 f"{len(diagnostics.errors())} error(s), "
                 f"{len(diagnostics.warnings())} warning(s)"
             )
+        if diagnostics.has_errors():
+            report_applied(applied_ids)
+            print("Post-edit diagnostics contain errors", file=sys.stderr)
+            return 3
         return 0
     except ValidationError as exc:
+        report_applied(locals().get("applied_ids", []))
         print(f"Advanced output set validation failed: {exc}", file=sys.stderr)
         return 2
     except (ValueError, JinkoError) as exc:
+        report_applied(locals().get("applied_ids", []))
         print(f"Jinkō SDK request failed: {exc}", file=sys.stderr)
         return 2
+    except Exception as exc:  # noqa: BLE001 - preserve partial mutation details
+        report_applied(locals().get("applied_ids", []))
+        print(f"Advanced output set edit failed: {exc}", file=sys.stderr)
+        return 4
 
 
 if __name__ == "__main__":

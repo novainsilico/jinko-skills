@@ -77,6 +77,19 @@ def scalar(trial: Any, descriptor_id: str, arm: str | None) -> Any:
     return trial.descriptors.scalars.get(descriptor_id, arm=arm)
 
 
+def ensure_trial_completed(trial: Any) -> None:
+    status = trial.status()
+    value = (
+        status.get("status")
+        if isinstance(status, dict)
+        else getattr(status, "status", None)
+    )
+    if value != "completed":
+        raise RuntimeError(
+            f"Source trial {trial.sid} must have status 'completed'; current status is {value!r}"
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a Jinkō subsampling design.")
     parser.add_argument(
@@ -124,6 +137,7 @@ def main() -> int:
     try:
         client = JinkoClient()
         trial = client.get_trial(args.trial_sid)
+        ensure_trial_completed(trial)
         folder = resolve_folder(client, args.folder, create=args.create_folder)
         filter_builders = []
         for descriptor_id, operator, value, arm in filters:
