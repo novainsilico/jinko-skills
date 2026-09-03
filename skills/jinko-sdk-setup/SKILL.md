@@ -1,10 +1,10 @@
 ---
 name: jinko-sdk-setup
 description: Authenticate and configure access to a Jinkō project via the jinko-sdk. Use this skill whenever the user wants to connect to Jinkō, install the SDK, set up credentials or a .env file, verify API access, fail-fast check that a JINKO_API_KEY and JINKO_PROJECT_ID work, or debug ConfigurationError, AuthenticationError, or AuthorizationError from the SDK. Do not use this skill for creating models, vpops, protocols, output sets, or trials.
-compatibility: Requires Python 3.11+, the jinko Python SDK, JINKO_API_KEY, and JINKO_PROJECT_ID. Optional python-dotenv is recommended for local .env loading.
+compatibility: Requires Python 3.11+ and network access. The validation script diagnoses missing or outdated SDK installations, credentials, and optional python-dotenv support.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -16,32 +16,10 @@ BE CAREFUL: the right package is `jinko-sdk` that export a `jinko` module. `jink
 
 ## Workflow
 
-1. Confirm the user has Python 3.11+.
-2. Install the Jinko SDK: `jinko-sdk`. 
-3. Install  dotenv support when needed.
-4. Ask the user to create an API key using `https://doc.jinko.ai/docs/api/` if they do not already have one.
-5. Ask the user to set `JINKO_API_KEY` and `JINKO_PROJECT_ID` in their shell or local `.env` file.
-6. Point them to `assets/.env.example` as the safe template. Do not ask them to paste secrets into chat.
-6. Run or adapt `scripts/check_jinko_connection.py` to fail fast on configuration, authentication, authorization, or project-read-access issues.
-7. If the check passes, report that the Jinkō connection is OK.
-8. When the user wants to browse the project after setup, recommend `client.search(...)` as the default read-only exploration call before moving to a workflow-specific skill.
+> **SDK VERSION PREREQUISITE:** Run the bundled script below. It verifies the
+> installed SDK against every neighboring SDK-dependent skill before API access.
 
-## Required Configuration
-
-- `JINKO_API_KEY`: API key created in the Jinkō web interface.
-- `JINKO_PROJECT_ID`: project identifier used by the SDK.
-
-For alternate or on-premises environments, the SDK also supports:
-
-- `JINKO_BASE_URL`: API endpoint.
-- `JINKO_URL`: application URL used to construct resource links.
-
-Do not introduce alternate environments unless the user needs them. When they
-do, configure both values so SDK-generated links do not point to the public app.
-
-## Validation Script
-
-Use the bundled script instead of writing ad hoc checks:
+Run the bundled deterministic check and follow its success or error message:
 
 ```bash
 python skills/jinko-sdk-setup/scripts/check_jinko_connection.py
@@ -82,9 +60,4 @@ The setup script uses a one-item, non-rendered `search()` only as its project-re
 
 ## Troubleshooting
 
-- For `ConfigurationError`, check that `.env` or the shell environment contains both required variables.
-- For missing `JINKO_API_KEY`, direct the user to `https://doc.jinko.ai/docs/api/`.
-- For `AuthenticationError`, assume the API key is missing, expired, malformed, or copied incorrectly.
-- For `AuthorizationError`, assume the API key is valid but does not have access to the requested project.
-- For other SDK request failures, check that `JINKO_PROJECT_ID` is copied exactly and that the network can reach Jink
-- If the user uses `direnv`, ask them to ensure `.envrc` loads `.env`, then run `direnv allow`.
+Run the workflow script and act on its deterministic diagnostic. Do not replace it with ad hoc checks or ask the user to share secrets.

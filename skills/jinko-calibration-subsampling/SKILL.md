@@ -9,7 +9,7 @@ compatibility: >-
   Creating designs or generated Vpops requires write and run permissions in the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -25,8 +25,10 @@ It neither calibrates the model nor creates new patients.
 Use `jinko-trial` to create, sanity-check, and run the source Trial, and `jinko-vpop` to inspect the generated Vpop.
 Scientific choices belong to a workflow or domain expert, not this skill.
 
-> **PREREQUISITE:** Initialize the Jinkō connection as described in `../jinko-sdk-setup/SKILL.md`.
-> If unavailable, offer to install `novainsilico/jinko-skills#jinko-sdk-setup`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Canonical Flow
 

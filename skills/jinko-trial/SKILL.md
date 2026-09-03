@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -14,10 +14,10 @@ license: MIT
 
 Use this skill for trial setup, sanity checks, run/poll, and result download. Keep creation of upstream assets in their dedicated skills: `jinko-model`, `jinko-vpop`, `jinko-protocol`, `jinko-data-table`, and `jinko-output-set` (simple and advanced output sets).
 
-> **PREREQUISITE:** Before using this skill, make sure the Jinkō connection is
-> initialized as described in `../jinko-sdk-setup/SKILL.md`. If that skill is not
-> found, check the available skills for `jinko-sdk-setup`, or tell the user
-> to install it from `novainsilico/jinko-skills` before proceeding.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Minimum Trial
 
@@ -53,7 +53,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 
 - Create simple output set: `client.create_simple_output_set(model, model.time_dependent_ids())` unless explicit output ids were requested. See `jinko-output-set` for measure shapes and advanced output sets (constraints/scalars/objectives).
 - Create trial: `client.create_trial(model, data_tables=..., vpop=..., protocol=..., simple_output_set=..., advanced_output_set=...)`.
-- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options()` to inspect them. For solving times, prefer `trial.get_solving_times()` / `trial.set_solving_times(base_period, additional_periods=...)`.
+- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options()` to inspect them. For solving times, prefer `trial.get_solving_times()` / `trial.set_solving_times(t_max=timedelta(...), t_step=timedelta(...), additional_periods=[{"t_max":timedelta(...), ...])`.
 - Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
 - Poll: `trial.wait_until_completed(timeout=1800)`.

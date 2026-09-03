@@ -18,7 +18,7 @@ compatibility: >-
   write and run permissions.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -31,10 +31,10 @@ license: MIT
 The calibration manager API is CMA-ES only — no type/method discriminator exists. "Subsampling" is an unrelated VPop-generator feature, not a calibration type.
 This skill is pure SDK mechanics: no defaults, no diagnostics, no when-to-calibrate guidance.
 
-> **PREREQUISITE:** Before using this skill, make sure the Jinkō connection is
-> initialized as described in `../jinko-sdk-setup/SKILL.md`. If that skill is not
-> found, check the available skills for `jinko-sdk-setup`, or tell the user
-> to install it from `novainsilico/jinko-skills` before proceeding.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Minimum Calibration
 
@@ -85,6 +85,8 @@ calibration = model.create_calibration(
 Equivalent client-level call: `client.create_calibration(model=model, ...)`.
 `calibrationOptionsOverride`, `solvingOptionsOverride`, `coreVersion` have no typed kwarg — use `client.create_calibration_from_json(json_content=payload)` / `client.calibrations.create_raw(payload)`.
 See `references/creating-a-calibration.md` for full field tables.
+
+Solving times can be set post-creation with `calibration.set_solving_times(t_max=timedelta(...), t_step=timedelta(...), additional_periods=[{"t_max":timedelta(...), ...])`.
 
 ## Run & Poll
 

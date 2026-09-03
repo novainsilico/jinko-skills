@@ -11,11 +11,16 @@ compatibility: >-
   Check set-up with jinko-sdk-setup. Applying labels requires model write access.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
 # Define Parameters To Calibrate
+
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 Classify model inputs from supplied evidence; do not infer unsupported provenance
 or invent calibration steps.

@@ -12,7 +12,7 @@ compatibility: >-
   write and run permissions.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -20,6 +20,11 @@ license: MIT
 
 Execute a confirmed calibration specification. Do not invent objectives,
 constraints, parameter priors, optimizer options, or acceptance criteria.
+
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Inputs
 

@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Model creation/editing requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -14,9 +14,14 @@ license: MIT
 
 Use this skill for technical model construction and editing through the SDK. Keep the scope on SDK mechanics and model validity, not biological plausibility. Initialize the connection with `jinko-sdk-setup` first.
 
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
+
 ## Required Workflow
 
-1. Prefer editing the supplied model. Create one only when needed, in a dedicated folder, with `client.create_empty_model()`.
+1. If a model was already supplied, prefer editing it over creating a new one. Create one only when needed, in a dedicated folder, with `client.create_empty_model()`.
 2. Retrieve the model, inspect its components, tags, units, solving options, and diagnostics before proposing edits. Inspect the unit-checking mode with `model.get_unit_check()`.
 3. Set the unit-checking mode with `model.set_unit_check("UnitCheckAndConvertAllSpeciesToExtentUnits")`. Do not select another mode unless a human explicitly directs it after the consequences are explained.
 4. Give every directly declared numeric value a unit: numeric parameter formulas, compartment volumes, and species initial conditions. A parameter whose value is derived from an expression may omit its declared unit when the expression determines it. Validate non-trivial units against `references/units_static_info.json` and diagnostics.
@@ -30,7 +35,7 @@ Use this skill for technical model construction and editing through the SDK. Kee
 
 Use `scripts/create_minimal_model.py`, `scripts/tag_model_components.py`, and `scripts/validate_model_readiness.py` rather than long ad-hoc snippets. Scripts are dry-run by default and mutate only with `--apply`.
 
-For solver time-grid calculations, use `scripts/iso8601.py`.
+For solver time-grid calculations, use `scripts/iso8601.py`. Solving times can be set with `model.set_solving_times(t_max=timedelta(...), t_step=timedelta(...), additional_periods=[{"t_max":timedelta(...), ...])`.
 
 ## Reference Routing
 

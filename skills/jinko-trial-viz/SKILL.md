@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or patching trial visualizations requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -16,10 +16,10 @@ Use this skill for TrialVisualization project items: creating a visualization fo
 
 Keep trial execution and result downloads in `jinko-trial`. Use this skill after a trial exists and the user wants the Jinkō visualization artifact or its plot configuration.
 
-> **PREREQUISITE:** Before using this skill, make sure the Jinkō connection is
-> initialized as described in `../jinko-sdk-setup/SKILL.md`. If that skill is not
-> found, check the available skills for `jinko-sdk-setup`, or tell the user
-> to install it from `novainsilico/jinko-skills` before proceeding.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Core Workflow
 

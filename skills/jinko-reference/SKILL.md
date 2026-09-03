@@ -15,7 +15,7 @@ compatibility: >-
   `jinko-sdk[pdf]` and a PDF with a searchable native text layer.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.7,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -25,8 +25,10 @@ Use this skill for reference-PDF and extract mechanics through the typed SDK.
 References are Jinkō `Source` project items: preserve their SID so evidence stays
 traceable from a model or report to its source.
 
-> **PREREQUISITE:** Initialize access with `jinko-sdk-setup`. If it is not
-> available, ask the user to install it from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Core Rules
 

@@ -74,21 +74,21 @@ context of use before recommending it.
 Use these sources in priority order when relevant to the question.
 
 ### Core capability sources
-- Overall capabilities: `https://www.novainsilico.ai/`
-- Scientific credibility (publications and posters): `https://www.novainsilico.ai/resources/publications-posters/`
+- Overall capabilities: `https://novainsilico.ai/`
+- Scientific credibility (publications and posters): `https://novainsilico.ai/evidence`
 
 ### Model sources
 - Current model library: `https://doc.jinko.ai/model-library.json`
-- Premium model docs: `https://doc.jinko.ai/docs/category/model-library`
+- Premium model docs: `https://doc.jinko.ai/docs/platform/model-library`
 
 ### Product feature sources
-- Platform capabilities: `https://doc.jinko.ai/docs/category/platform`
-- AI capabilities: `https://doc.jinko.ai/docs/category/ai-agents`
-- Release notes: `https://doc.jinko.ai/docs/category/release-notes`
-- Product landing page: `https://www.jinko.ai`
+- Platform capabilities: `https://doc.jinko.ai/docs/platform/features-and-capabilities`
+- AI capabilities: `https://doc.jinko.ai/docs/agentic/kohai`
+- Release notes: `https://doc.jinko.ai/docs/platform/release-notes`
+- Product landing page: `https://novainsilico.ai/jinko`
 
 ### Use-case source
-- Digital twins and scientific capabilities: `https://doc.jinko.ai/docs/digital-twins/`
+- Digital twins and scientific capabilities: `https://doc.jinko.ai/docs/human-expertise/digital-twins`
 
 ## Evidence and uncertainty guidance
 - Prefer evidence-backed statements when publication or documentation support exists.

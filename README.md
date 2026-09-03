@@ -146,16 +146,17 @@ trials and analyzing results.
 | [`jinko-trial-viz`](./skills/jinko-trial-viz/SKILL.md) | Create, inspect, sanity-check, and retrieve Jinkō trial visualizations. |
 | [`jinko-vpop`](./skills/jinko-vpop/SKILL.md) | Create, generate, and inspect virtual populations. |
 
-Need a Jinkō account? [Request a demo](https://www.jinko.ai/#Form) to get started.
+Need a Jinkō account? [Request a demo](https://www.novainsilico.ai/try-jinko) to get started.
 
 ## SDK compatibility
 
 Skills that use the Jinkō SDK declare a compatible SDK version range in their
-`SKILL.md` metadata (`requires_sdk`, a PEP 440 specifier). Install a matching
-`jinko` SDK version:
+`SKILL.md` metadata (`requires_sdk`, a PEP 440 specifier). Install or upgrade the
+official SDK, then use `jinko-sdk-setup` to verify the installed version against
+the skills bundle:
 
 ```bash
-pip install "jinko-sdk>=1.2,<2.0"
+pip install --upgrade jinko-sdk
 ```
 
 Start with `jinko-sdk-setup` to verify your credentials and SDK installation before

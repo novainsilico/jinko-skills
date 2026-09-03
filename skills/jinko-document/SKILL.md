@@ -12,7 +12,7 @@ compatibility: >-
   access to the target Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.2,<2.0"
+  requires_sdk: ">=1.8,<2.0"
 license: MIT
 ---
 
@@ -21,10 +21,10 @@ license: MIT
 Use this skill for SDK-backed document creation and updates. Stay on the typed SDK
 surface whenever possible.
 
-> **PREREQUISITE:** Before using this skill, make sure the Jinkō connection is
-> initialized as described in `../jinko-sdk-setup/SKILL.md`. If that skill is not
-> found, check the available skills for `jinko-sdk-setup`, or tell the user
-> to install it from `novainsilico/jinko-skills` before proceeding.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
+> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
+> skill is not found, install it from `novainsilico/jinko-skills`.
 
 ## Core Rules
 
