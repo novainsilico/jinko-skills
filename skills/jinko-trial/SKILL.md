@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -53,7 +53,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 
 - Create simple output set: `client.create_simple_output_set(model, model.time_dependent_ids())` unless explicit output ids were requested. See `jinko-output-set` for measure shapes and advanced output sets (constraints/scalars/objectives).
 - Create trial: `client.create_trial(model, data_tables=..., vpop=..., protocol=..., simple_output_set=..., advanced_output_set=...)`.
-- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options()` to inspect them. For solving times, prefer `trial.get_solving_times()` / `trial.set_solving_times(t_max=timedelta(...), t_step=timedelta(...), additional_periods=[{"t_max":timedelta(...), ...])`.
+- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options(as_iso8601=True)` to inspect raw duration strings, or omit the flag for `timedelta` values. For focused edits, use `trial.set_solving_times(t_max=timedelta(days=28), t_step="P1D")` with either representation.
 - Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
 - Poll: `trial.wait_until_completed(timeout=1800)`.
@@ -78,19 +78,22 @@ When data tables are attached, pass them through the supported `data_tables=` ar
 - When a trial or output set fails validation, inspect and repair the existing item first. Re-run `trial.sanity()` after the repair.
 - Create a new trial or output set only when the user requests an independent scenario, the existing item is immutable/incompatible, or a repair would destroy a result the user asked to preserve. State the reason when creating a replacement.
 
-## Bundled Scripts
+## SDK Scripts
 
-- `scripts/find_completed_trial_results.py`: lists trials, finds the first completed one, prints its summary, and downloads TimeSeries and Scalar results to pandas DataFrames.
-- `scripts/setup_and_run_trial.py`: creates a simple output set, creates a trial from model plus optional assets, sanity-checks, optionally runs, polls, and optionally downloads results.
+These are on `PATH` as console scripts once the SDK is installed, and also
+runnable via `python -m` as shown below.
+
+- `jinko.cli.find_completed_trial_results`: lists trials, finds the first completed one, prints its summary, and downloads TimeSeries and Scalar results to pandas DataFrames.
+- `jinko.cli.setup_and_run_trial`: creates a simple output set, creates a trial from model plus optional assets, sanity-checks, optionally runs, polls, and optionally downloads results.
 
 Examples:
 
 ```bash
-python skills/jinko-trial/scripts/find_completed_trial_results.py --limit 20 --output-dir trial-results
-python skills/jinko-trial/scripts/setup_and_run_trial.py --model-sid cm-...
-python skills/jinko-trial/scripts/setup_and_run_trial.py --model-sid cm-... --output-id Drug
-python skills/jinko-trial/scripts/setup_and_run_trial.py --model-sid cm-... --output-id Drug --folder 2026-06-15-trial-run --create-folder --apply --run
-python skills/jinko-trial/scripts/setup_and_run_trial.py --model-sid cm-... --output-id Drug --vpop-sid vp-... --protocol-design-sid pd-... --data-table-sid dt-... --apply --run --download-results
+python -m jinko.cli.find_completed_trial_results --limit 20 --output-dir trial-results
+python -m jinko.cli.setup_and_run_trial --model-sid cm-...
+python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug
+python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug --folder 2026-06-15-trial-run --create-folder --apply --run
+python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug --vpop-sid vp-... --protocol-design-sid pd-... --data-table-sid dt-... --apply --run --download-results
 ```
 
 ## Reference Routing

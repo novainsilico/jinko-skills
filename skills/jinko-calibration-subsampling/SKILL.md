@@ -9,7 +9,7 @@ compatibility: >-
   Creating designs or generated Vpops requires write and run permissions in the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -63,13 +63,16 @@ A design can be pointed at another Trial only when descriptor/arm pairs remain c
 ## Project Folder Hygiene
 
 Propose a `YYYY-MM-DD-<experiment>` folder and reuse an exact-name match via `client.get_folder_by_name(name, exact_match_only=True)`.
-Create folders and remote project items only after confirmation or when a bundled script receives `--apply`.
+Create folders and remote project items only after confirmation or when a script receives `--apply`.
 
-## Bundled Scripts
+## SDK Scripts
 
-- `scripts/create_subsampling_design.py`: dry-run creation of numeric filters, normal scalar marginals, and observables; `--apply` creates the design.
-- `scripts/generate_subsampled_vpop.py`: dry-run generation plan; `--apply` checks diagnostics and creates the Vpop.
-- `scripts/inspect_subsampling_design.py`: prints design content, diagnostics, source Trial, and generated-Vpop options/fitness without mutating anything.
+These are on `PATH` as console scripts once the SDK is installed, and also
+runnable via `python -m` as shown below.
+
+- `jinko.cli.create_subsampling_design`: dry-run creation of numeric filters, normal scalar marginals, and observables; `--apply` creates the design.
+- `jinko.cli.generate_subsampled_vpop`: dry-run generation plan; `--apply` checks diagnostics and creates the Vpop.
+- `jinko.cli.inspect_subsampling_design`: prints design content, diagnostics, source Trial, and generated-Vpop options/fitness without mutating anything.
 
 Read `references/scripts.md` for invocation examples.
 

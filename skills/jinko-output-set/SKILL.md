@@ -19,7 +19,7 @@ compatibility: >-
   plain text without them.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -121,20 +121,23 @@ For trials, use `jinko-trial`: `model.create_trial(simple_output_set=..., advanc
 For calibrations, use `jinko-calibration-cmaes` for the SDK call (`model.create_calibration(simple_output_set=..., advanced_output_set=..., ...)`).
 A calibration needs at least one fitness-function source: a data table with `validForFitnessFunction: True` (see `jinko-data-table`) and/or an advanced output set with objectives.
 
-## Bundled Scripts
+## SDK Scripts
 
-- `scripts/create_simple_output_set.py`: dry-run by default, creates a simple output set with `--apply`.
-- `scripts/create_advanced_output_set.py`: dry-run by default, creates an advanced output set with `--apply`.
-- `scripts/inspect_output_set.py`: inspects an existing simple or advanced output set.
-- `scripts/edit_advanced_output_set.py`: adds constraints/scalars/objectives to an existing advanced output set.
+These are on `PATH` as console scripts once the SDK is installed, and also
+runnable via `python -m` as shown below.
+
+- `jinko.cli.create_simple_output_set`: dry-run by default, creates a simple output set with `--apply`.
+- `jinko.cli.create_advanced_output_set`: dry-run by default, creates an advanced output set with `--apply`.
+- `jinko.cli.inspect_output_set`: inspects an existing simple or advanced output set.
+- `jinko.cli.edit_advanced_output_set`: adds constraints/scalars/objectives to an existing advanced output set.
 
 ```bash
-python skills/jinko-output-set/scripts/create_simple_output_set.py --model-sid cm-... --output-id Drug
-python skills/jinko-output-set/scripts/create_simple_output_set.py --model-sid cm-... --output-id Drug --folder 2026-07-07-output-sets --create-folder --apply
-python skills/jinko-output-set/scripts/create_advanced_output_set.py --constraint "adults:age >= 18" --scalar "auc:auc(Drug)" --name "PK scoring"
-python skills/jinko-output-set/scripts/create_advanced_output_set.py --from-json skills/jinko-output-set/assets/advanced_output_set_example.json --apply
-python skills/jinko-output-set/scripts/inspect_output_set.py --kind advanced --sid sc-... --diagnostics
-python skills/jinko-output-set/scripts/edit_advanced_output_set.py --sid sc-... --add-objective "obj_auc:auc(Drug):8:12:5:15:1.0" --show-diagnostics --apply
+python -m jinko.cli.create_simple_output_set --model-sid cm-... --output-id Drug
+python -m jinko.cli.create_simple_output_set --model-sid cm-... --output-id Drug --folder 2026-07-07-output-sets --create-folder --apply
+python -m jinko.cli.create_advanced_output_set --constraint "adults:age >= 18" --scalar "auc:auc(Drug)" --name "PK scoring"
+python -m jinko.cli.create_advanced_output_set --from-json skills/jinko-output-set/assets/advanced_output_set_example.json --apply
+python -m jinko.cli.inspect_output_set --kind advanced --sid sc-... --diagnostics
+python -m jinko.cli.edit_advanced_output_set --sid sc-... --add-objective "obj_auc:auc(Drug):8:12:5:15:1.0" --show-diagnostics --apply
 ```
 
 ## Reference Routing

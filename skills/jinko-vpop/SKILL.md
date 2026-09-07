@@ -6,7 +6,7 @@ compatibility: >-
    Check set-up with the `jinko-sdk-setup` skill. Creating vpops or vpop designs requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -45,24 +45,26 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 - `assets/toy_marginals.json`: list-of-marginals vpop design for `Dose` and `k_elim`.
 - `assets/distrib.json`: source of truth for admissible marginal distribution shapes.
 
-## Bundled Scripts
+## SDK Scripts
 
-Use scripts rather than embedding long Python examples in chat.
+Use scripts rather than embedding long Python examples in chat. These are on
+`PATH` as console scripts once the SDK is installed, and also runnable via
+`python -m` as shown below.
 
-- `scripts/create_vpop_from_csv.py`: uploads a CSV directly, or via pandas DataFrame with `--method dataframe`.
-- `scripts/create_vpop_design_from_design.py`: creates a vpop design from a list of unique `{ "id": ..., "distribution": ... }` entries and can optionally generate a vpop after diagnostics pass.
-- `scripts/inspect_vpop.py`: inspects content, description, or statistics for an existing vpop.
-- `scripts/edit_vpop_design.py`: updates or adds descriptors sequentially, reports already-applied IDs if a later edit fails, and runs post-edit diagnostics before success.
+- `jinko.cli.create_vpop_from_csv`: uploads a CSV directly, or via pandas DataFrame with `--method dataframe`.
+- `jinko.cli.create_vpop_design_from_design`: creates a vpop design from a list of unique `{ "id": ..., "distribution": ... }` entries and can optionally generate a vpop after diagnostics pass.
+- `jinko.cli.inspect_vpop`: inspects content, description, or statistics for an existing vpop.
+- `jinko.cli.edit_vpop_design`: updates or adds descriptors sequentially, reports already-applied IDs if a later edit fails, and runs post-edit diagnostics before success.
 
 Examples:
 
 ```bash
-python skills/jinko-vpop/scripts/create_vpop_from_csv.py --csv skills/jinko-vpop/assets/toy_vpop.csv
-python skills/jinko-vpop/scripts/create_vpop_from_csv.py --csv skills/jinko-vpop/assets/toy_vpop.csv --apply
-python skills/jinko-vpop/scripts/create_vpop_from_csv.py --csv skills/jinko-vpop/assets/toy_vpop.csv --folder 2026-06-15-vpop-study --create-folder --apply
-python skills/jinko-vpop/scripts/create_vpop_design_from_design.py --design skills/jinko-vpop/assets/toy_marginals.json --model-sid cm-... --apply --generate
-python skills/jinko-vpop/scripts/inspect_vpop.py --vpop-sid vp-... --statistics --correlations
-python skills/jinko-vpop/scripts/edit_vpop_design.py --vpop-design-sid vd-... --design skills/jinko-vpop/assets/toy_marginals.json --apply
+python -m jinko.cli.create_vpop_from_csv --csv skills/jinko-vpop/assets/toy_vpop.csv
+python -m jinko.cli.create_vpop_from_csv --csv skills/jinko-vpop/assets/toy_vpop.csv --apply
+python -m jinko.cli.create_vpop_from_csv --csv skills/jinko-vpop/assets/toy_vpop.csv --folder 2026-06-15-vpop-study --create-folder --apply
+python -m jinko.cli.create_vpop_design_from_design --design skills/jinko-vpop/assets/toy_marginals.json --model-sid cm-... --apply --generate
+python -m jinko.cli.inspect_vpop --vpop-sid vp-... --statistics --correlations
+python -m jinko.cli.edit_vpop_design --vpop-design-sid vd-... --design skills/jinko-vpop/assets/toy_marginals.json --apply
 ```
 
 ## CSV Upload Pattern

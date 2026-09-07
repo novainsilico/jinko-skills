@@ -35,4 +35,4 @@ DataFrame upload serializes to CSV internally and requires pandas.
 
 ## Safety
 
-Use `scripts/create_vpop_from_csv.py` without `--apply` first to validate the CSV header and row count.
+Use `python -m jinko.cli.create_vpop_from_csv` without `--apply` first to validate the CSV header and row count.

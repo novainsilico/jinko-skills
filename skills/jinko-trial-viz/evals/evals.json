@@ -4,10 +4,10 @@
     {
       "id": 1,
       "prompt": "Create a Jinkō trial visualization for trial SID tr-demo with time-series plots for Drug and TumorVolume, scalar plots for AUC and Cmax, and show me how to sanity-check just those sections.",
-      "expected_output": "Uses jinko-trial-viz, previews the mutation by default and requires explicit confirmation or --apply, resolves the trial with client.get_trial(trial_sid), creates a TrialVisualization via trial.create_empty_trial_visualization(...) (or the bundled trial_viz.py script), configures timeseries and scalars sections via typed subservices, then prints sanity diagnostics and fails on errors.",
+      "expected_output": "Uses jinko-trial-viz, previews the mutation by default and requires explicit confirmation or --apply, resolves the trial with client.get_trial(trial_sid), creates a TrialVisualization via trial.create_empty_trial_visualization(...) (or the `jinko.cli.trial_viz` script), configures timeseries and scalars sections via typed subservices, then prints sanity diagnostics and fails on errors.",
       "files": [],
       "assertions": [
-        "The output creates the TrialVisualization via trial.create_empty_trial_visualization(...) or the bundled trial_viz.py script, not a raw POST request.",
+        "The output creates the TrialVisualization via trial.create_empty_trial_visualization(...) or the `jinko.cli.trial_viz` script, not a raw POST request.",
         "The output resolves the trial via client.get_trial(trial_sid) rather than requiring manual core/snapshot ids.",
         "The output configures both timeseries and scalars sections via their typed subservices.",
         "The output includes a sanity-check step scoped to timeseries and scalars.",
@@ -18,7 +18,7 @@
     {
       "id": 2,
       "prompt": "I already have a trial viz tv-demo. Update it to add a scatter plot comparing AUC vs Cmax across control and treated arms, then retrieve the resulting visualization JSON.",
-      "expected_output": "Requires explicit confirmation or --apply, uses client.get_trial_visualization('tv-demo') then viz.scatter_plots.add_x_vs_y_plot('AUC', 'Cmax', arms=['control', 'treated']) (or the bundled trial_viz.py update command), prints post-update diagnostics and fails on errors, then fetches viz.content() afterward.",
+      "expected_output": "Requires explicit confirmation or --apply, uses client.get_trial_visualization('tv-demo') then viz.scatter_plots.add_x_vs_y_plot('AUC', 'Cmax', arms=['control', 'treated']) (or the `jinko.cli.trial_viz` update command), prints post-update diagnostics and fails on errors, then fetches viz.content() afterward.",
       "files": [],
       "assertions": [
         "The output updates the existing TrialVisualization rather than creating an unrelated new trial.",

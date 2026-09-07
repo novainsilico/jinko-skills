@@ -18,7 +18,7 @@ compatibility: >-
   write and run permissions.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -86,7 +86,7 @@ Equivalent client-level call: `client.create_calibration(model=model, ...)`.
 `calibrationOptionsOverride`, `solvingOptionsOverride`, `coreVersion` have no typed kwarg — use `client.create_calibration_from_json(json_content=payload)` / `client.calibrations.create_raw(payload)`.
 See `references/creating-a-calibration.md` for full field tables.
 
-Solving times can be set post-creation with `calibration.set_solving_times(t_max=timedelta(...), t_step=timedelta(...), additional_periods=[{"t_max":timedelta(...), ...])`.
+Solving times can be set post-creation with `calibration.set_solving_times(t_max=timedelta(days=28), t_step="P1D")`; each duration may be a `timedelta` or ISO 8601 string.
 
 ## Run & Poll
 
@@ -115,17 +115,20 @@ All results accessors return unparsed dicts today. See `references/results-and-i
 
 Same as `jinko-trial`/`jinko-data-table`: propose a `YYYY-MM-DD-<experiment>` folder, reuse an exact-name match via `client.get_folder_by_name(name, exact_match_only=True)`, create only on confirmation or `--create-folder --apply`.
 
-## Bundled Scripts
+## SDK Scripts
 
-- `scripts/create_cmaes_calibration.py`: dry-run by default, creates a calibration with `--apply`.
-- `scripts/run_calibration.py`: runs and polls an existing calibration with `--apply`.
-- `scripts/inspect_calibration.py`: prints/writes raw performance/results_summary/objective_weights/sorted_patients JSON.
+These are on `PATH` as console scripts once the SDK is installed, and also
+runnable via `python -m` as shown below.
+
+- `jinko.cli.create_cmaes_calibration`: dry-run by default, creates a calibration with `--apply`.
+- `jinko.cli.run_calibration`: runs and polls an existing calibration with `--apply`.
+- `jinko.cli.inspect_calibration`: prints/writes raw performance/results_summary/objective_weights/sorted_patients JSON.
 
 ```bash
-python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12
-python skills/jinko-calibration-cmaes/scripts/create_cmaes_calibration.py --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
-python skills/jinko-calibration-cmaes/scripts/run_calibration.py --calibration-sid ca-... --apply --timeout 3600
-python skills/jinko-calibration-cmaes/scripts/inspect_calibration.py --calibration-sid ca-... --performance --results-summary --objective-weights --output-dir calib-results
+python -m jinko.cli.create_cmaes_calibration --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12
+python -m jinko.cli.create_cmaes_calibration --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
+python -m jinko.cli.run_calibration --calibration-sid ca-... --apply --timeout 3600
+python -m jinko.cli.inspect_calibration --calibration-sid ca-... --performance --results-summary --objective-weights --output-dir calib-results
 ```
 
 ## Reference Routing

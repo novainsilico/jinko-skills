@@ -48,6 +48,6 @@ If the SDK returns raw dictionaries in a given environment, use:
 valid = content.get("metadata", {}).get("public", {}).get("validForFitnessFunction")
 ```
 
-The bundled scripts support both typed and dictionary-shaped responses.
+The SDK scripts (`jinko.cli.create_data_table`, `jinko.cli.inspect_data_table`) support both typed and dictionary-shaped responses.
 
 For data tables attached through trial or calibration `dataTableDesigns`, require this value to be `True` before creating or launching the downstream item.

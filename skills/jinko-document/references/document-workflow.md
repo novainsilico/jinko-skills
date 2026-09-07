@@ -64,12 +64,12 @@ rejected as too broad.
 Before a production update:
 
 1. retain the last approved markdown payload
-2. run `scripts/check_markdown_structure.py --baseline <approved> --candidate <candidate>`; add `--append-only-section <heading>` for every protected history section and stop if it reports a loss
+2. run `python -m jinko.cli.check_markdown_structure --baseline <approved> --candidate <candidate>`; add `--append-only-section <heading>` for every protected history section and stop if it reports a loss
 3. reject code-wrapped Jinkō resource links such as `` `[label](<resource-url>)` ``
 4. resolve every Jinkō SID and verify every requested revision exists
 5. publish a disposable canary containing representative tables, equations, links, cards, and revision links
 6. inspect the rendered canary and delete it before updating production documents
-7. preview `create_document_from_markdown.py --document-sid do-... --baseline-markdown <approved>` with the validated candidate and a new `--output-markdown` path, then apply with its approval digest; the helper reruns the structural check, covers the baseline in the digest, and retains the exact transformed payload before replacing the production body
+7. preview `python -m jinko.cli.create_document_from_markdown --document-sid do-... --baseline-markdown <approved>` with the validated candidate and a new `--output-markdown` path, then apply with its approval digest; the helper reruns the structural check, covers the baseline in the digest, and retains the exact transformed payload before replacing the production body
 
 ## Local images
 

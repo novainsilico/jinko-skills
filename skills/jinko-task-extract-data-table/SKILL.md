@@ -12,7 +12,7 @@ compatibility: >-
   images or PDFs requires a suitable reader, OCR, or digitization tool.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 

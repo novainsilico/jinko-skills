@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating data tables requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -52,23 +52,26 @@ Use ISO-8601 duration strings for `time`, for example `PT0S`, `PT6H`, or `P1D`.
 - `assets/toy_data_table_ranges.csv`: range observations suitable for calibration objective workflows.
 - `assets/data-table.json`: schema subset for supported data-table rows.
 
-## Bundled Scripts
+## SDK Scripts
 
-- `scripts/create_data_table.py`: dry-run-validates every CSV row and creates a
+These are on `PATH` as console scripts once the SDK is installed, and also
+runnable via `python -m` as shown below.
+
+- `jinko.cli.create_data_table`: dry-run-validates every CSV row and creates a
   data table with `--apply`; use `--allowed-obs-id`, `--require-unit`,
   `--require-experiment-ref`, and `--require-fitness` for calibration inputs.
-- `scripts/inspect_data_table.py`: inspects existing data tables and can enforce
+- `jinko.cli.inspect_data_table`: inspects existing data tables and can enforce
   fitness compatibility with `--require-fitness`.
 
 Examples:
 
 ```bash
-python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv
-python skills/jinko-data-table/scripts/create_data_table.py --source extracted.csv --allowed-obs-id Drug --require-unit --require-experiment-ref --require-fitness --apply
-python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --apply
-python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --folder 2026-06-15-fit-data --create-folder --apply
-python skills/jinko-data-table/scripts/create_data_table.py --source skills/jinko-data-table/assets/toy_data_table_values.csv --method dataframe --apply
-python skills/jinko-data-table/scripts/inspect_data_table.py --data-table-sid dt-... --fitness --validate
+python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv
+python -m jinko.cli.create_data_table --source extracted.csv --allowed-obs-id Drug --require-unit --require-experiment-ref --require-fitness --apply
+python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --apply
+python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --folder 2026-06-15-fit-data --create-folder --apply
+python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_values.csv --method dataframe --apply
+python -m jinko.cli.inspect_data_table --data-table-sid dt-... --fitness --validate
 ```
 
 ## Reference Routing

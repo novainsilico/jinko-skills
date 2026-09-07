@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or editing protocol designs requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -51,22 +51,25 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 - `assets/toy_protocol_arms.csv`: the same three arms in CSV form, one row per arm, for use with `create_protocol_design_from_csv`.
 - `assets/protocol.json`: subset of the OpenAPI schema for protocol arm shape.
 
-## Bundled Scripts
+## SDK Scripts
 
-- `scripts/create_protocol_design.py`: creates a three-arm protocol design, optionally linked to a model.
-- `scripts/create_protocol_design_from_csv.py`: creates a protocol design from a CSV file of arms.
-- `scripts/edit_protocol_design_arms.py`: upserts arms and overrides on an existing protocol design via the `arms` mutator service. It retains arms and overrides omitted from the input; use explicit `protocol.arms.delete(...)` or `arm.remove_override(...)` calls for removals.
-- `scripts/inspect_protocol_design.py`: prints protocol content or a concise arm summary.
+These are on `PATH` as console scripts once the SDK is installed, and also
+runnable via `python -m` as shown below.
+
+- `jinko.cli.create_protocol_design`: creates a three-arm protocol design, optionally linked to a model.
+- `jinko.cli.create_protocol_design_from_csv`: creates a protocol design from a CSV file of arms.
+- `jinko.cli.edit_protocol_design_arms`: upserts arms and overrides on an existing protocol design via the `arms` mutator service. It retains arms and overrides omitted from the input; use explicit `protocol.arms.delete(...)` or `arm.remove_override(...)` calls for removals.
+- `jinko.cli.inspect_protocol_design`: prints protocol content or a concise arm summary.
 
 Examples:
 
 ```bash
-python skills/jinko-protocol/scripts/create_protocol_design.py --model-sid cm-...
-python skills/jinko-protocol/scripts/create_protocol_design.py --model-sid cm-... --apply
-python skills/jinko-protocol/scripts/create_protocol_design.py --model-sid cm-... --folder 2026-06-15-regimens --create-folder --apply
-python skills/jinko-protocol/scripts/create_protocol_design_from_csv.py --csv skills/jinko-protocol/assets/toy_protocol_arms.csv --apply
-python skills/jinko-protocol/scripts/edit_protocol_design_arms.py --protocol-design-sid pd-... --arms skills/jinko-protocol/assets/toy_protocol_arms.json --apply
-python skills/jinko-protocol/scripts/inspect_protocol_design.py --protocol-design-sid pd-... --summary
+python -m jinko.cli.create_protocol_design --model-sid cm-...
+python -m jinko.cli.create_protocol_design --model-sid cm-... --apply
+python -m jinko.cli.create_protocol_design --model-sid cm-... --folder 2026-06-15-regimens --create-folder --apply
+python -m jinko.cli.create_protocol_design_from_csv --csv skills/jinko-protocol/assets/toy_protocol_arms.csv --apply
+python -m jinko.cli.edit_protocol_design_arms --protocol-design-sid pd-... --arms skills/jinko-protocol/assets/toy_protocol_arms.json --apply
+python -m jinko.cli.inspect_protocol_design --protocol-design-sid pd-... --summary
 ```
 
 ## Arm Shape

@@ -4,7 +4,7 @@ description: Authenticate and configure access to a Jinkō project via the jinko
 compatibility: Requires Python 3.11+ and network access. The validation script diagnoses missing or outdated SDK installations, credentials, and optional python-dotenv support.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -16,13 +16,14 @@ BE CAREFUL: the right package is `jinko-sdk` that export a `jinko` module. `jink
 
 ## Workflow
 
-> **SDK VERSION PREREQUISITE:** Run the bundled script below. It verifies the
-> installed SDK against every neighboring SDK-dependent skill before API access.
+> **SDK VERSION PREREQUISITE:** Run the check below. It ships with the SDK and
+> verifies the installed SDK against every neighboring SDK-dependent skill
+> before API access.
 
-Run the bundled deterministic check and follow its success or error message:
+Run the deterministic check and follow its success or error message:
 
 ```bash
-python skills/jinko-sdk-setup/scripts/check_jinko_connection.py
+python -m jinko.cli.check_jinko_connection
 ```
 
 The script:
@@ -60,4 +61,4 @@ The setup script uses a one-item, non-rendered `search()` only as its project-re
 
 ## Troubleshooting
 
-Run the workflow script and act on its deterministic diagnostic. Do not replace it with ad hoc checks or ask the user to share secrets.
+Run the check again and act on its deterministic diagnostic. Do not replace it with ad hoc checks or ask the user to share secrets.

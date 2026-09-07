@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Model creation/editing requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -33,9 +33,9 @@ Use this skill for technical model construction and editing through the SDK. Kee
 6. Use high-level SDK methods and `model.components.batch(version="...")` for related component changes. The platform tags above already exist; do not recreate them. Create declarations only for other, custom tags.
 7. Re-fetch the model, require no error diagnostics, and run `simple_solve()` for representative `output` components. For events, verify the expected pre-/post-event change.
 
-Use `scripts/create_minimal_model.py`, `scripts/tag_model_components.py`, and `scripts/validate_model_readiness.py` rather than long ad-hoc snippets. Scripts are dry-run by default and mutate only with `--apply`.
+Use `scripts/create_minimal_model.py`, and the SDK's `python -m jinko.cli.tag_model_components` and `python -m jinko.cli.validate_model_readiness`, rather than long ad-hoc snippets. Scripts are dry-run by default and mutate only with `--apply`.
 
-For solver time-grid calculations, use `scripts/iso8601.py`. Solving times can be set with `model.set_solving_times(t_max=timedelta(...), t_step=timedelta(...), additional_periods=[{"t_max":timedelta(...), ...])`.
+For transparent ISO 8601 duration conversions, use `from jinko.iso8601 import Duration`, for example `Duration.parse("P1M").to_timedelta()`. Solving times accept `timedelta` or ISO strings: `model.set_solving_times(t_max=timedelta(days=28), t_step="P1D", additional_periods=[{"t_max": "P7D", "t_step": timedelta(hours=1)}])`.
 
 ## Reference Routing
 

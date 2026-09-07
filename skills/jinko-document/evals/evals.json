@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Create a Jinkō document from report.md that includes an inline concentration equation and a displayed mass-balance equation.",
-      "expected_output": "Keeps inline mathematics between single dollar signs and writes the standalone mass-balance equation in a fenced `mathBlock` block, previews the bundled script with a new --output-markdown path, and creates the document only after approval of the complete input-and-argument digest with --apply --confirm-digest."
+      "expected_output": "Keeps inline mathematics between single dollar signs and writes the standalone mass-balance equation in a fenced `mathBlock` block, previews the `jinko.cli.create_document_from_markdown` script with a new --output-markdown path, and creates the document only after approval of the complete input-and-argument digest with --apply --confirm-digest."
     },
     {
       "id": 2,
@@ -13,7 +13,7 @@
     },
     {
       "id": 3,
-      "prompt": "Prepare report/main.md for upload. It references ![plot](../shared-images/result.png) and cites an existing Jinkō Reference URL. Use the bundled script safely while keeping the shared image directory usable.",
+      "prompt": "Prepare report/main.md for upload. It references ![plot](../shared-images/result.png) and cites an existing Jinkō Reference URL. Use the `jinko.cli.create_document_from_markdown` script safely while keeping the shared image directory usable.",
       "expected_output": "Uses an explicit narrow `--asset-root` containing the resolved image, previews without `--apply` or network access, validates the image content, includes the image bytes and Reference manifest in the approval digest, preserves the explicit existing Reference URL, and uses an authorized invocation with `--apply --confirm-digest`."
     },
     {

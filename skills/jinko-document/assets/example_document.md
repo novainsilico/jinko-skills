@@ -31,7 +31,7 @@ Use a `mathBlock` fenced code block for a display mathematical expression:
 
 ## Images
 
-Local image paths are rewritten by the bundled script:
+Local image paths are rewritten by the `jinko.cli.create_document_from_markdown` script:
 
 ![Example local image](./example-image.jpg)
 

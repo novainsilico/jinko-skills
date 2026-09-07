@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or patching trial visualizations requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.8,<2.0"
+  requires_sdk: ">=1.9,<2.0"
 license: MIT
 ---
 
@@ -46,17 +46,19 @@ Keep trial execution and result downloads in `jinko-trial`. Use this skill after
 
 Read `references/trial-viz-typed-api.md` for full examples of each subservice.
 
-## Bundled Script
+## SDK Script
 
-Use the script for repeatable create, update, get, list, and sanity operations through the typed API.
+Use the script for repeatable create, update, get, list, and sanity operations
+through the typed API. It is on `PATH` as a console script once the SDK is
+installed, and also runnable via `python -m` as shown below.
 
 ```bash
-python skills/jinko-trial-viz/scripts/trial_viz.py list --limit 20
-python skills/jinko-trial-viz/scripts/trial_viz.py create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC
-python skills/jinko-trial-viz/scripts/trial_viz.py create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC --apply
-python skills/jinko-trial-viz/scripts/trial_viz.py get --trial-viz-sid tv-... --output-file viz.content.json
-python skills/jinko-trial-viz/scripts/trial_viz.py update --trial-viz-sid tv-... --scatter-xvsy "AUC,Cmax,control,treated" --apply
-python skills/jinko-trial-viz/scripts/trial_viz.py sanity --trial-viz-sid tv-... --only timeseries --only scatterPlots
+python -m jinko.cli.trial_viz list --limit 20
+python -m jinko.cli.trial_viz create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC
+python -m jinko.cli.trial_viz create --trial-sid tr-... --name "My trial viz" --timeseries Drug --scalar AUC --apply
+python -m jinko.cli.trial_viz get --trial-viz-sid tv-... --output-file viz.content.json
+python -m jinko.cli.trial_viz update --trial-viz-sid tv-... --scatter-xvsy "AUC,Cmax,control,treated" --apply
+python -m jinko.cli.trial_viz sanity --trial-viz-sid tv-... --only timeseries --only scatterPlots
 ```
 
 For scatter, overlay, filter, or grouping configuration beyond the script's flags, use the typed subservices directly in Python (see `references/trial-viz-typed-api.md`).
@@ -64,7 +66,7 @@ For scatter, overlay, filter, or grouping configuration beyond the script's flag
 ## Project Folder Hygiene
 
 - Prefer creating trial visualizations in the same folder as the trial or in a dedicated analysis folder.
-- Pass a folder id or exact folder name through the bundled script's `--folder`, or `folder=folder` on `create_empty_trial_visualization(...)` directly.
+- Pass a folder id or exact folder name through the script's `--folder`, or `folder=folder` on `create_empty_trial_visualization(...)` directly.
 - Treat an explicit folder that cannot be resolved as an error; never silently create the visualization in the project root.
 - Reuse existing trial visualizations when the user wants an additional plot on the same analysis; call the relevant section's setter instead of creating duplicates.
 
