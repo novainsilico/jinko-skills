@@ -35,7 +35,7 @@ evidence, curate data and knowledge, build or adapt a model, design multi-arm
 protocols, generate virtual populations, run trials at scale, and analyze
 results.
 
-Jinkō comes in two flavors: multi-tenant SaaS (managed by Nova) or **on-premise**, deployed as a dedicated instance within your own private cloud environment, such as instances on AWS, Azure or Google Cloud Platform.
+Jinkō comes in two flavors: multi-tenant SaaS (managed by Nova) or **[on-premise](https://doc.jinko.ai/docs/human-expertise/enterprise-deployment/)**, deployed as a dedicated instance within your own private cloud environment, such as instances on AWS, Azure or Google Cloud Platform.
 
 ## Installation
 
@@ -140,6 +140,8 @@ trials and analyzing results.
 | [`jinko-task-cmaes`](./skills/jinko-task-cmaes/SKILL.md) | Execute a confirmed CMA-ES calibration from prepared Jinkō inputs. |
 | [`jinko-task-define-param-to-calibrate`](./skills/jinko-task-define-param-to-calibrate/SKILL.md) | Classify model inputs and assign them to calibration steps. |
 | [`jinko-task-extract-data-table`](./skills/jinko-task-extract-data-table/SKILL.md) | Extract traceable evidence into readable or Jinkō-ready tables. |
+| [`jinko-task-export-to-matlab`](./skills/jinko-task-export-to-matlab/SKILL.md) | Export a Jinkō model to SimBiology and compare MATLAB simulations with Jinkō results. |
+| [`jinko-task-from-nonmem`](./skills/jinko-task-from-nonmem/SKILL.md) | Convert a NONMEM run into a validated Jinkō model and trial setup. |
 | [`jinko-task-literature-search`](./skills/jinko-task-literature-search/SKILL.md) | Discover and prioritize biomedical publications from PubMed. |
 | [`jinko-task-trial-data-scoping`](./skills/jinko-task-trial-data-scoping/SKILL.md) | Discover and prioritize ClinicalTrials.gov registry records. |
 | [`jinko-trial`](./skills/jinko-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |

@@ -4,7 +4,7 @@ description: Authenticate and configure access to a Jinkō project via the jinko
 compatibility: Requires Python 3.11+ and network access. The validation script diagnoses missing or outdated SDK installations, credentials, and optional python-dotenv support.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.9,<2.0"
+  requires_sdk: ">=1.10,<2.0"
 license: MIT
 ---
 

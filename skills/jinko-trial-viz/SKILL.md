@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or patching trial visualizations requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.9,<2.0"
+  requires_sdk: ">=1.10,<2.0"
 license: MIT
 ---
 

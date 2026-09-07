@@ -12,7 +12,7 @@ compatibility: >-
   access to the target Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.9,<2.0"
+  requires_sdk: ">=1.10,<2.0"
 license: MIT
 ---
 

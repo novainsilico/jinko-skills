@@ -27,6 +27,8 @@ orchestration; resource skills own reusable Jinkō SDK/API mechanics.
 - ClinicalTrials.gov discovery: `jinko-task-trial-data-scoping`.
 - Reference PDFs and source extracts: `jinko-reference`.
 - Evidence-to-table extraction: `jinko-task-extract-data-table`.
+- MATLAB/SimBiology export and solver parity: `jinko-task-export-to-matlab`.
+- NONMEM model and trial conversion: `jinko-task-from-nonmem`.
 - Data-table mechanics: `jinko-data-table`.
 - Model mechanics: `jinko-model`.
 - Calibration-input classification: `jinko-task-define-param-to-calibrate`.

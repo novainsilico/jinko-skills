@@ -55,7 +55,7 @@
         }
       },
       "strict": false,
-      "version": "1.9.0",
+      "version": "1.10.0",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
@@ -72,6 +72,8 @@
         "./skills/jinko-task-cmaes",
         "./skills/jinko-task-define-param-to-calibrate",
         "./skills/jinko-task-extract-data-table",
+        "./skills/jinko-task-export-to-matlab",
+        "./skills/jinko-task-from-nonmem",
         "./skills/jinko-task-literature-search",
         "./skills/jinko-task-trial-data-scoping",
         "./skills/jinko-trial-viz",
@@ -80,5 +82,5 @@
       ]
     }
   ],
-  "version": "1.9.0"
+  "version": "1.10.0"
 }

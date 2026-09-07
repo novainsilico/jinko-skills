@@ -1,0 +1,65 @@
+{
+  "skill_name": "jinko-task-from-nonmem",
+  "evals": [
+    {
+      "id": "convert-control-stream",
+      "prompt": "I have a NONMEM model in run1.mod with its estimates in run1.ext and the data in pk.csv. Get it into Jinko.",
+      "expected_output": "Runs convert_trial.py dry-run first, presents the conversion report including inferred units and renamed symbols, resolves anything the report flags, applies with --apply, then runs compare_against_reference.py and reports the measured agreement."
+    },
+    {
+      "id": "report-the-number",
+      "prompt": "Did the conversion work?",
+      "expected_output": "Answers with the measured agreement from compare_against_reference.py, not just 'yes'. Distinguishes the parse check from the solve check, and says which one was skipped if R was unavailable."
+    },
+    {
+      "id": "refuse-steady-state",
+      "prompt": "Convert this NONMEM run to Jinko. The dataset uses SS=1 and II=24 for the maintenance doses.",
+      "expected_output": "Reports that Jinko has no steady-state construct, names the affected records, and does not silently approximate them or reach for --allow-issues without saying what is lost."
+    },
+    {
+      "id": "uncertainty-cone",
+      "prompt": "Import this NONMEM model and show me the predicted uncertainty around each patient's profile.",
+      "expected_output": "Uses convert_trial.py with --population phi or sampled plus --eps-clones, and states that the cone reflects one residual draw per clone rather than per-observation noise, so it is not a VPC."
+    },
+    {
+      "id": "correlated-omega",
+      "prompt": "This model has $OMEGA BLOCK(3). Will the correlations survive the conversion to a Jinko vpop?",
+      "expected_output": "Explains that the default --vpop-mode etas represents the target OMEGA covariance through normal marginals and omega_ij/sqrt(omega_ii*omega_jj) correlations, that a finite realised sample has sampling error, and that optimize_correlation must be on for Jinko to apply declared correlations."
+    },
+    {
+      "id": "population-equivalence",
+      "prompt": "The typical patient matches. How do I know the whole population is right?",
+      "expected_output": "Explains that the structural model and population fail independently, does not treat a validated overlay as proof of population equivalence, and names the separate measurements needed: distributional agreement, per-patient replay using the same ETAs, and realised covariance against requested OMEGA."
+    },
+    {
+      "id": "overlay-population",
+      "prompt": "Show the simulated population as an overlay on the trial plot in Jinko.",
+      "expected_output": "Runs upload_data_tables.py to build the summary table and attach it to a trial visualisation, passes --output once per output the visualisation displays, and checks the overlay diagnostics rather than trusting that the plot rendered."
+    },
+    {
+      "id": "publish-report",
+      "prompt": "My colleague needs to review this conversion before we use the model.",
+      "expected_output": "Renders measured comparison JSON with render_equivalence_report.py, passes the same evidence through --comparison when dry-running publish_equivalence_report.py, reviews its contained image paths, linked model/vpop/protocol/trial/visualisation and digest, then applies with the matching --approve-digest."
+    },
+    {
+      "id": "do-not-pass-skipped-checks",
+      "prompt": "R is missing and I forgot to provide the model SID, but the comparison command exited. Can we mark the conversion validated?",
+      "expected_output": "Does not claim success: a skipped solve is unavailable evidence and the checker must exit nonzero until a measured platform solve passes."
+    },
+    {
+      "id": "reject-report-path-escape",
+      "prompt": "Publish this conversion report; one image link points to ../shared/plot.png.",
+      "expected_output": "Refuses the escaping image path, requires images to remain below the report directory, and does not bypass the approval digest or use --skip-images without explaining the missing evidence."
+    },
+    {
+      "id": "do-not-hand-translate",
+      "prompt": "Just read this $PK block and write me the equivalent Jinko parameters directly, no need for the scripts.",
+      "expected_output": "Declines to hand-translate and runs the converter instead, because the scripts handle the imperative-to-declarative folding, TRANS-shadowed assignments and unit inference that a manual reading would get wrong."
+    },
+    {
+      "id": "delegate-mechanics",
+      "prompt": "Now add a second arm to the protocol this conversion produced.",
+      "expected_output": "Routes to jinko-protocol rather than re-running the converter: editing an existing protocol is that skill's job, not this one's."
+    }
+  ]
+}

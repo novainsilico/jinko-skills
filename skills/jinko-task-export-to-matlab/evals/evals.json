@@ -1,0 +1,35 @@
+{
+  "skill_name": "jinko-task-export-to-matlab",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Export https://jinko.ai/cm-123 to SimBiology.",
+      "expected_output": "Asks only for any missing CM identity, exports before asking about outputs, validates SimulationSettings_<model_name>.yaml, fingerprints the workbook/settings, and gives the one concise Model Builder handoff only if no reusable SBPROJ exists, including removal of the blank model's default unnamed compartment before Excel import."
+    },
+    {
+      "id": 2,
+      "prompt": "The model cm-456 was re-exported after a settings-only update; its workbook is unchanged and I have model.sbproj. Compare it in MATLAB.",
+      "expected_output": "Reuses model.sbproj without requesting reimport, applies the new settings, lists eligible time-dependent outputs, requests one selection of at most ten, includes capitalized Time in simple_solve automatically, and converts returned Jinkō seconds to the manifest's MATLAB TimeUnits before setting OutputTimes."
+    },
+    {
+      "id": 3,
+      "prompt": "Compare B, E, and TotalTumor from cm-789 to my saved SimBiology project. Jinkō has two values at time zero and the imported dose is inactive.",
+      "expected_output": "Detects inactive doses and asks what to do, uses the final/post-event duplicate value, preserves the source SBPROJ, normalizes compatible units, and reports pointwise diagnostics plus trapezoidal AUC with a 1% WARN threshold."
+    },
+    {
+      "id": 4,
+      "prompt": "Compare every output in cm-987 even though there are 14 time-dependent variables and the export is missing SimulationSettings_model.yaml.",
+      "expected_output": "Lists the eligible outputs but requires a user selection of at most ten, recognizes the required SimulationSettings_<model_name>.yaml naming convention, and stops with a specific validation error if that required file is absent."
+    },
+    {
+      "id": 5,
+      "prompt": "Validate the SimBiology export of https://jinko.ai/cm-246. MATLAB tools may be available through a lazily loaded MCP server.",
+      "expected_output": "Before launching MATLAB or choosing a fallback, explicitly inspects the complete callable tool registry, including lazy-loaded capabilities. When a MATLAB evaluation or script-execution MCP tool is found, reports that it is available and uses it for the MATLAB work rather than the local CLI."
+    },
+    {
+      "id": 6,
+      "prompt": "Re-run the MATLAB comparison for cm-246 in the same output folder; the existing comparison files are important and one MATLAB value is NaN.",
+      "expected_output": "Refuses to overwrite existing artifacts without explicit --overwrite and rejects the non-finite MATLAB result rather than reporting PASS or WARN."
+    }
+  ]
+}
