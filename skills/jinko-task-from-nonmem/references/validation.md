@@ -113,11 +113,16 @@ running the checker; the checker never versions the model itself. Pass the same
 `--time-unit` used during conversion so returned platform seconds are translated
 back to the NONMEM time basis correctly.
 
+**The dosing route comes from the emitted model.** A dataset can dose a
+different compartment from `$MODEL`'s `DEFDOSE`. Recover the target from the
+created model's dose event and use that same compartment and infusion duration
+for the reference solve; otherwise the comparison solves a different route.
+
 **The relative-error floor scales with the curve.** A lagged model is exactly
 zero before absorption starts. One solver's floating-point crumb of `1e-9`
 against the other's exact zero is a relative error of `1.0` on identical
-curves. The floor is a millionth of the reference peak, which says what is
-actually meant — a concentration a millionth of Cmax is not distinguishable
+curves. The floor is one hundred-thousandth of the reference peak, which says
+what is actually meant — a concentration at that scale is not distinguishable
 from zero — and still catches a real early-time error, which is orders of
 magnitude larger. The worst *absolute* difference and the peak it is measured
 against are both reported, so nothing is hidden behind the floor.
@@ -164,8 +169,8 @@ Below `1e-3` maximum relative error. In practice a converted 2-compartment oral
 model agrees to around `5e-6`, the difference being solver tolerances rather
 than anything structural. A model with an absorption lag sits nearer `1e-4`,
 because the point at the lag boundary is where the two solvers' last bits
-differ most and the curve there is at the floor. An error above `1e-3` is a
-bug, not noise.
+differ most and the curve there is at the floor. An error above `1e-3` at a
+meaningful concentration is a bug, not noise.
 
 ## Comparing against the original run's own output
 

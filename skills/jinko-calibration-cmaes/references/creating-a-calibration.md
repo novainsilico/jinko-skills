@@ -101,6 +101,12 @@ also declaring defaults. The typed SDK therefore requires values when constructi
 server will fill them. `populationSize` and `numberOfIterations` have no declared
 defaults.
 
+`optimizationWeightedScore` is the per-patient averaged sum of scores.
+Calibration maximizes it; its mathematical maximum is `1`, so the default
+`thresholdWeightedScore=1` is the full-score target. Calibration stops when a
+patient exceeds the configured threshold. Objective weights determine each
+objective's relative contribution; see the [advanced output set reference](../../jinko-output-set/references/advanced-output-set.md).
+
 ## `solving_*` kwargs
 
 Flattened onto `create()`/`create_calibration()`: `solving_allow_varying_stoichiometry`, `solving_discontinuity_events`, `solving_evaluator`, `solving_extent_units`, `solving_inline_limit`, `solving_max_events`, `solving_mute_phenomena`, `solving_mute_variables`, `solving_ode_solver_absolute_tolerance`, `solving_ode_solver_initial_step`, `solving_ode_solver_maximum_step`, `solving_ode_solver_relative_tolerance`, `solving_output_compartments`, `solving_output_parameters`, `solving_output_rates`, `solving_output_variables`, `solving_scoring_mode`, `solving_solver`, `solving_solving_times`, `solving_unit_check`. Source of truth: `Model.create_calibration` docstring in the SDK.
@@ -124,7 +130,7 @@ calibration = model.create_calibration(
     protocol=protocol,
     advanced_output_set=scoring_design,
     calib_seed=42,
-    calib_threshold_weighted_score=0.0,
+    calib_threshold_weighted_score=1.0,
     calib_number_of_iterations=100,
     calib_population_size=12,
 )
@@ -138,7 +144,7 @@ calibration = client.create_calibration(
     parameters=[...],
     advanced_output_set=scoring_design,
     calib_seed=42,
-    calib_threshold_weighted_score=0.0,
+    calib_threshold_weighted_score=1.0,
 )
 ```
 
@@ -171,7 +177,7 @@ payload = {
     },
     "calibrationOptions": {
         "seed": 42,
-        "thresholdWeightedScore": 0.0,
+        "thresholdWeightedScore": 1.0,
         "numberOfIterations": 100,
         "populationSize": 12,
     },

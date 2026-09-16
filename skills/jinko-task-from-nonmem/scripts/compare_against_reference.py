@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -288,9 +289,41 @@ def _platform_grid(
     return [when for when, _ in paired], [value for _, value in paired]
 
 
+def _dosing_compartment(jinko_model, model) -> int:
+    """Recover the compartment the emitted dose event actually targets."""
+    from nonmem2jinko.naming import Naming
+
+    events = jinko_model.components.list_events()
+    described = {
+        int(match.group(1))
+        for event in events
+        if (
+            match := re.search(
+                r"\binto compartment (\d+)\b",
+                getattr(event, "description", None) or "",
+                re.IGNORECASE,
+            )
+        )
+    }
+    if len(described) == 1:
+        return described.pop()
+
+    # Older or manually edited models may not retain the emitted description.
+    naming = Naming(advan=model.advan)
+    naming.register_states(model.states)
+    updated = {target for event in events for target in event.updates}
+    matched = [
+        state.number
+        for state in model.states
+        if naming.state_by_number(state.number) in updated
+        or f"infusionRate{naming.compartment_role(state.number)}" in updated
+    ]
+    return matched[0] if len(matched) == 1 else model.dosing_compartment
+
+
 def _dosing_from_model(
-    jinko_model, args
-) -> tuple[list[tuple[float, float]], float | None]:
+    jinko_model, model, args
+) -> tuple[list[tuple[float, float]], int]:
     """Read the dose schedule back off the created model.
 
     Guessing the dose is what makes a comparison meaningless: the local solve
@@ -314,11 +347,16 @@ def _dosing_from_model(
     # reference, not a number, and falling back to a bolus when it cannot be
     # parsed disagrees with the platform by most of the peak. The reference
     # solve resolves it from the IR's own properties instead.
-    duration = None
+    compartment = _dosing_compartment(jinko_model, model)
+    if compartment != model.dosing_compartment:
+        print(
+            f"  dosing compartment read from the model: {compartment} "
+            f"(control-stream default is {model.dosing_compartment})"
+        )
 
     if slots:
         print(f"  dosing read from the model: {len(slots)} per-patient slot(s)")
-        return [pair for pair in slots if pair[1]], duration
+        return [pair for pair in slots if pair[1]], compartment
 
     dose = args.dose
     if dose is None:
@@ -334,7 +372,7 @@ def _dosing_from_model(
     schedule = [(step * interval, dose) for step in range(max(count, 1))]
     if count > 1:
         print(f"  repeated {count} times every {interval:g}")
-    return schedule, duration
+    return schedule, compartment
 
 
 def _prediction_id(jinko_model) -> str | None:
@@ -445,6 +483,7 @@ def _reference_series(
     covariates: dict[str, float],
     schedule: list[tuple[float, float]],
     duration: float | None,
+    compartment: int,
     grid: list[float],
     observed: list[float],
 ) -> tuple[list[float], list[float], list[float], str]:
@@ -463,6 +502,7 @@ def _reference_series(
             times=grid,
             estimates=estimates,
             covariates=covariates,
+            compartment=compartment,
             schedule=schedule,
             duration=duration,
         ).values["concentration"]
@@ -491,7 +531,7 @@ def _reference_series(
             args.control_stream,
             times=grid,
             schedule=schedule or [(0.0, 0.0)],
-            compartment=model.dosing_compartment,
+            compartment=compartment,
             duration=duration,
             estimates=estimates,
         )
@@ -613,7 +653,7 @@ def _check_solve(model, estimates, args, metrics: dict) -> int:
 
     jinko_model = client.get_model(args.model_sid)
 
-    schedule, duration = _dosing_from_model(jinko_model, args)
+    schedule, compartment = _dosing_from_model(jinko_model, model, args)
     covariates = _covariates_from_model(jinko_model, model)
     try:
         resolved = local.resolve_parameters(
@@ -622,7 +662,7 @@ def _check_solve(model, estimates, args, metrics: dict) -> int:
         duration = local.infusion_duration(
             model,
             resolved,
-            model.dosing_compartment,
+            compartment,
             schedule[0][1] if schedule else 0.0,
         )
     except (RuntimeError, ValueError) as error:
@@ -684,6 +724,7 @@ def _check_solve(model, estimates, args, metrics: dict) -> int:
             covariates=covariates,
             schedule=schedule,
             duration=duration,
+            compartment=compartment,
             grid=grid,
             observed=observed,
         )

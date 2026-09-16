@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.10,<2.0"
+  requires_sdk: ">=1.11,<2.0"
 license: MIT
 ---
 
@@ -53,7 +53,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 
 - Create simple output set: `client.create_simple_output_set(model, model.time_dependent_ids())` unless explicit output ids were requested. See `jinko-output-set` for measure shapes and advanced output sets (constraints/scalars/objectives).
 - Create trial: `client.create_trial(model, data_tables=..., vpop=..., protocol=..., simple_output_set=..., advanced_output_set=...)`.
-- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options(as_iso8601=True)` to inspect raw duration strings, or omit the flag for `timedelta` values. For focused edits, use `trial.set_solving_times(t_max=timedelta(days=28), t_step="P1D")` with either representation.
+- Edit solving options after creation: `trial.edit_solving_options({...})`; use `trial.get_solving_options()` to inspect raw ISO 8601 duration strings, or `trial.get_solving_options(duration_format="timedelta")` for `timedelta` values. For focused edits, use `trial.set_solving_times(t_max=timedelta(days=28), t_step="P1D")` with either representation.
 - Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
 - Poll: `trial.wait_until_completed(timeout=1800)`.

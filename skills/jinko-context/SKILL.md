@@ -1,15 +1,24 @@
 ---
 name: jinko-context
 description: >-
-  Explain core Jinkō context, navigation, version management, and domain language for agents and users. Use this skill whenever the user needs a mental model of Jinkō projects, folders, project items, snapshots, sources, extracts, protocols, trials, calibration, virtual populations, references, or modeling context; when translating between generic terms and Jinkō terminology; or when an agent needs orientation before navigating or modifying Jinkō artifacts. This skill is conceptual and terminology-focused; use dedicated jinko-* workflow skills for creating or editing specific artifacts.
+  Explain core Jinkō context, navigation, version management, and domain language for agents and users. Use this skill whenever the user needs a mental model of Jinkō projects, folders, project items, snapshots, sources, extracts, protocols, trials, calibration, virtual populations, references, or modeling context; when translating between generic terms and Jinkō terminology; or when an agent needs orientation before navigating or modifying Jinkō artifacts. It includes a safe SDK example to list folders, render their tree, and create a folder after explicit user confirmation. Use dedicated jinko-* workflow skills for creating or editing scientific artifacts.
+compatibility: >-
+  Check set-up with the `jinko-sdk-setup` skill. Folder creation requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
+  requires_sdk: ">=1.11,<2.0"
 license: MIT
 ---
 
 # Jinkō Context
 
 Use this skill to explain Jinkō's shared mental model and vocabulary. Keep answers practical: the goal is to help a user or agent navigate Jinkō artifacts without confusing project organization, scientific content, and immutable versions.
+
+> **PREREQUISITE:** The folder-management example needs an initialized `jinko-sdk`
+> connection and an SDK satisfying its `metadata.requires_sdk` range. Run the
+> `jinko-sdk-setup` skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once
+> its check passes. If that skill is not found, install it from
+> `novainsilico/jinko-skills`.
 
 ## Navigation and Version Management
 
@@ -108,4 +117,5 @@ Avoid: extraction catalog, model input bundle.
 - Preserve the Git analogy for orientation, but do not imply Jinkō is literally Git.
 - Distinguish stable SID identity from immutable snapshot identity where that resource exposes snapshots.
 - Use head/latest only when the user wants the current state; name snapshots when exact reproducibility matters.
+- When the user needs to inspect or create folders, read `references/folder-management.md` and use its bundled script rather than improvising API calls.
 - Route implementation tasks to the relevant skill: `jinko-model`, `jinko-protocol`, `jinko-trial`, `jinko-vpop`, `jinko-data-table`, or `jinko-sdk-setup`.

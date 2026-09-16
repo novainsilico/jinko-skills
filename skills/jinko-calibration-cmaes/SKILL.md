@@ -18,7 +18,7 @@ compatibility: >-
   write and run permissions.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.10,<2.0"
+  requires_sdk: ">=1.11,<2.0"
 license: MIT
 ---
 
@@ -76,7 +76,7 @@ calibration = model.create_calibration(
         }
     ],
     calib_seed=42,
-    calib_threshold_weighted_score=0.0,
+    calib_threshold_weighted_score=1.0,
     calib_number_of_iterations=100,
     calib_population_size=12,
 )
@@ -125,8 +125,8 @@ runnable via `python -m` as shown below.
 - `jinko.cli.inspect_calibration`: prints/writes raw performance/results_summary/objective_weights/sorted_patients JSON.
 
 ```bash
-python -m jinko.cli.create_cmaes_calibration --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12
-python -m jinko.cli.create_cmaes_calibration --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 0.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
+python -m jinko.cli.create_cmaes_calibration --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 1.0 --iterations 100 --population-size 12
+python -m jinko.cli.create_cmaes_calibration --model-sid cm-... --data-table-sid dt-... --parameter "k_elim:-1.0:0.5:0.001:10.0:log" --seed 42 --threshold-weighted-score 1.0 --iterations 100 --population-size 12 --folder 2026-07-07-calib --create-folder --apply
 python -m jinko.cli.run_calibration --calibration-sid ca-... --apply --timeout 3600
 python -m jinko.cli.inspect_calibration --calibration-sid ca-... --performance --results-summary --objective-weights --output-dir calib-results
 ```

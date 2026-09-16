@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating data tables requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.10,<2.0"
+  requires_sdk: ">=1.11,<2.0"
 license: MIT
 ---
 

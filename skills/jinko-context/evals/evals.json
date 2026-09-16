@@ -1,0 +1,20 @@
+{
+  "skill_name": "jinko-context",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Before I start modeling, show me the folder structure of this Jinkō project without changing anything.",
+      "expected_output": "Uses scripts/manage_folders.py without --create, explains that it lists all folders and renders a folders-only tree, and does not make a remote write."
+    },
+    {
+      "id": 2,
+      "prompt": "I need an Analysis folder at the project root. Please create it in my connected Jinkō project.",
+      "expected_output": "Confirms the target and explains that creation writes remotely before using scripts/manage_folders.py --create Analysis. It does not claim folder update, move, or delete support."
+    },
+    {
+      "id": 3,
+      "prompt": "Create a Figures folder inside my existing Results folder, then rename Results to Final Results.",
+      "expected_output": "Requests the resolved Results folder SID and confirmation before proposing child-folder creation. It identifies renaming as unsupported by the public folder API and does not invent an edit command."
+    }
+  ]
+}
