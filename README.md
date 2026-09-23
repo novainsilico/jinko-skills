@@ -142,6 +142,7 @@ trials and analyzing results.
 | [`jinko-task-extract-data-table`](./skills/jinko-task-extract-data-table/SKILL.md) | Extract traceable evidence into readable or Jinkō-ready tables. |
 | [`jinko-task-export-to-matlab`](./skills/jinko-task-export-to-matlab/SKILL.md) | Export a Jinkō model to SimBiology and compare MATLAB simulations with Jinkō results. |
 | [`jinko-task-from-nonmem`](./skills/jinko-task-from-nonmem/SKILL.md) | Convert a NONMEM run into a validated Jinkō model and trial setup. |
+| [`jinko-task-ichm15-planning`](./skills/jinko-task-ichm15-planning/SKILL.md) | Get recommendations on preparing the documentation related to ICHM15 planning phase. |
 | [`jinko-task-literature-search`](./skills/jinko-task-literature-search/SKILL.md) | Discover and prioritize biomedical publications from PubMed. |
 | [`jinko-task-trial-data-scoping`](./skills/jinko-task-trial-data-scoping/SKILL.md) | Discover and prioritize ClinicalTrials.gov registry records. |
 | [`jinko-trial`](./skills/jinko-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |

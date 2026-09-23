@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or editing protocol designs requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.11,<2.0"
+  requires_sdk: ">=1.12,<2.0"
 license: MIT
 ---
 
@@ -30,7 +30,7 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 ## Core Rules
 
 - Prefer `client.create_protocol_design(arms, model=model)` when a model is available.
-- Use `client.create_protocol_design_from_csv(csv_file_path=...)` when arms come from a spreadsheet. The CSV is posted as-is; the platform parses and validates it against its own protocol design CSV schema. This path does not accept a `model` argument; link a model with `client.create_protocol_design(...)` instead if that's required. See `assets/toy_protocol_arms.csv` for an example file and `references/protocol-design.md` for the SDK call.
+- Use `client.create_protocol_design_from_csv(csv_file_path=...)` when arms come from a spreadsheet. Use the canonical metadata columns `arm`, `control`, `active`, and `weight`. The platform maps all other columns to overrides. This path does not accept a `model` argument; link a model with `client.create_protocol_design(...)` instead if that is required. See `assets/toy_protocol_arms.csv` for an example file and `references/protocol-design.md` for the SDK call.
 - Link protocol designs to a model when possible so the protocol design carries the model snapshot reference.
 - The override `key` must target a protocol-runnable model input, such as `Dose` or `route` in the toy model.
 - Use formulas as strings, for example `"1.0"`, `"iv"`, or `"PT24H"` depending on the target component.

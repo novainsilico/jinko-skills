@@ -55,7 +55,7 @@
         }
       },
       "strict": false,
-      "version": "1.11.0",
+      "version": "1.12.0",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
@@ -74,6 +74,7 @@
         "./skills/jinko-task-extract-data-table",
         "./skills/jinko-task-export-to-matlab",
         "./skills/jinko-task-from-nonmem",
+        "./skills/jinko-task-ichm15-planning",
         "./skills/jinko-task-literature-search",
         "./skills/jinko-task-trial-data-scoping",
         "./skills/jinko-trial-viz",
@@ -82,5 +83,5 @@
       ]
     }
   ],
-  "version": "1.11.0"
+  "version": "1.12.0"
 }

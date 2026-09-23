@@ -55,17 +55,17 @@ protocol = client.create_protocol_design(
 
 ## SDK Create From CSV Pattern
 
-`create_protocol_design_from_csv` posts the CSV file as-is; the platform
-parses and validates it server-side against its own protocol design CSV
-schema, one row per arm. `armControl`, `armIsActive`, and `armWeight` are
-optional columns; every other column is an override key, matching the same
-`Dose`/`route` overrides used in the JSON example above.
+`create_protocol_design_from_csv` sends one arm per row as native CSV. `arm` is
+required. `control`, `active`, and `weight` are optional metadata columns.
+Every other column is an override key, matching the same `Dose`/`route`
+overrides used in the JSON example above. The SDK rejects rows without a usable
+`arm` value before it sends the create request.
 
 `assets/toy_protocol_arms.csv` (equivalent to the JSON arms above, minus
 `iv_high_dose`'s override values differing only by dose):
 
 ```csv
-armName,armControl,armIsActive,armWeight,Dose,route
+arm,control,active,weight,Dose,route
 iv_low_dose,,true,1,1.0,iv
 po_mid_dose,iv_low_dose,true,1,2.0,po
 iv_high_dose,iv_low_dose,true,1,3.0,iv
@@ -77,6 +77,13 @@ protocol = client.create_protocol_design_from_csv(
     csv_file_path="skills/jinko-protocol/assets/toy_protocol_arms.csv",
     folder=folder,
 )
+```
+
+Export the latest protocol design, or a specific revision, as native CSV bytes:
+
+```python
+csv_content = protocol.export_csv()
+historical_csv = protocol.export_csv(revision=2)
 ```
 
 This path does not accept a `model` argument. To bind a model, use

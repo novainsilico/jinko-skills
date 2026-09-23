@@ -9,7 +9,7 @@ compatibility: >-
   Creating designs or generated Vpops requires write and run permissions in the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.11,<2.0"
+  requires_sdk: ">=1.12,<2.0"
 license: MIT
 ---
 

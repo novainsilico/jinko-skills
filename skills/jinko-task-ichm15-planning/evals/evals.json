@@ -1,0 +1,42 @@
+{
+  "skill_name": "jinko-task-ichm15-planning",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to know whether an existing PK/PD model can support a dose-selection decision for a pediatric extrapolation program, without new clinical data before filing. Draft the ICH M15 planning assessment and a MAP document for this question of interest.",
+      "expected_output": "A regulator-facing assessment covering Question of Interest, Context of Use, Model Influence, Consequence of Wrong Decision, Model Risk, Model Impact, Technical Criteria, and Appropriateness of Proposed MIDD, each rated and justified where applicable, followed by a MAP document using the template sections. No internal tooling or skill names appear anywhere in the output.",
+      "expectations": [
+        "The output covers all six key assessment elements plus Technical Criteria and Appropriateness of Proposed MIDD, each rated low/medium/high with a justification where a rating applies.",
+        "Model Risk is derived from Model Influence and Consequence of Wrong Decision rather than assessed independently.",
+        "The output includes a MAP document following the references/map.md section structure.",
+        "The output does not contain an introduction, conclusion, or 'next steps' section beyond what the cited sections require.",
+        "The output contains no internal skill names (e.g. jinko-task-ichm15-planning, jinko-document, jinko-sdk-setup) or references to SKILL.md / references/*.md / .agents/skills / .claude/skills.",
+        "Before presenting the deliverable, the assistant reports having run scripts/check_no_skill_leak.py against the drafted document and that it passed."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Maintenance treatment intensity may be reducible in a front-line metastatic lung cancer regimen, but the risk is loss of clinical efficacy. We need to frame de-escalation scenarios, preserve relevant efficacy endpoints, and understand how regimen changes may affect disease-control outcomes. Please proceed with your best-effort assessment without pausing to ask me anything -- I won't be available to answer follow-ups.",
+      "expected_output": "Since no Question of Interest, Context of Use, model/MIDD strategy, or decision is stated, and the user has explicitly waived clarifying questions, the assistant proceeds but opens with an explicit 'Assumptions' block naming every invented element (the constructed QoI/CoU, the model type, the decision being supported) before the six-element assessment and MAP document that follow.",
+      "expectations": [
+        "Because the prompt gives only a bare scientific problem with no stated Question of Interest, Context of Use, model, or decision, and explicitly tells the assistant not to pause, the output leads with an explicit 'Assumptions' (or equivalently labeled) block listing every invented/assumed element -- it does not silently fold an invented QoI/CoU/model into the ratings' justification prose as if it had been given.",
+        "The output covers all six key assessment elements plus Technical Criteria and Appropriateness of Proposed MIDD, each rated low/medium/high with a justification where a rating applies.",
+        "Model Risk is derived from Model Influence and Consequence of Wrong Decision using the combination matrix in references/terms.md rather than assessed independently.",
+        "The output includes a MAP document following the references/map.md section structure.",
+        "The output contains no internal skill names (e.g. jinko-task-ichm15-planning, jinko-document, jinko-sdk-setup) or references to SKILL.md / references/*.md / .agents/skills / .claude/skills.",
+        "Before presenting the deliverable, the assistant reports having run scripts/check_no_skill_leak.py against the drafted document and that it passed."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Response variability in acute myeloid leukemia may depend on baseline molecular and cellular characteristics, making broad trial inclusion less efficient. We'd like your read on how this affects patient-selection hypotheses for our program.",
+      "expected_output": "Since no Question of Interest, Context of Use, model, or decision is stated, and the prompt does not waive clarifying questions, the assistant asks one focused question about the single most consequential missing piece (e.g. what decision the model output is meant to support, or what modeling strategy is planned) instead of drafting a full assessment on invented framing.",
+      "expectations": [
+        "The output asks exactly one focused clarifying question about the missing Question of Interest, Context of Use, model/strategy, or decision -- it does not run a broad multi-question intake interview.",
+        "The output does not draft a six-element assessment or MAP document yet, since the required framing has not been confirmed.",
+        "The output does not silently invent and present a disease, model type, or decision as if the user had stated it.",
+        "The output contains no internal skill names or references to SKILL.md / references/*.md / .agents/skills / .claude/skills."
+      ]
+    }
+  ]
+}

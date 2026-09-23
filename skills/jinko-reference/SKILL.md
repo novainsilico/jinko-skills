@@ -15,7 +15,7 @@ compatibility: >-
   `jinko-sdk[pdf]` and a PDF with a searchable native text layer.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.11,<2.0"
+  requires_sdk: ">=1.12,<2.0"
 license: MIT
 ---
 

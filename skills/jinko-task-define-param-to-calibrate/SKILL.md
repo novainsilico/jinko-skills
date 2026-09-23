@@ -11,7 +11,7 @@ compatibility: >-
   Check set-up with jinko-sdk-setup. Applying labels requires model write access.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.11,<2.0"
+  requires_sdk: ">=1.12,<2.0"
 license: MIT
 ---
 
