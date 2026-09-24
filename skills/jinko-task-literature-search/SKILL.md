@@ -70,8 +70,9 @@ verification evidence, priority rationale, and query provenance. Do not infer
 quantitative availability from a title alone.
 
 Run `scripts/validate_shortlist.py` before presenting `shortlist.json`. Present a
-concise Markdown view grouped by intent and ask which sources to inspect or pass
-to `jinko-task-extract-data-table`.
+concise Markdown view grouped by intent, citing each publication as
+`Author (Year) [PMID]` (or `[DOI]` when no PMID exists) so it's identifiable at a
+glance, and ask which sources to inspect or pass to `jinko-task-extract-data-table`.
 
 ## Artifacts
 

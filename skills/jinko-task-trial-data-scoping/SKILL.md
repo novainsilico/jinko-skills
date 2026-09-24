@@ -80,5 +80,7 @@ identified and inspected.
 - `shortlist.json`: schema-valid prioritized candidates.
 
 Present a concise Markdown view with NCT link, title, phase/status, results
-availability, population, interventions, primary outcomes, and priority rationale.
-Clearly separate scoped candidates from analysis-ready data.
+availability, population, interventions, primary outcomes, and priority rationale —
+cite any linked publication as `Author (Year) [PMID]`, matching
+`jinko-task-literature-search`'s convention. Clearly separate scoped candidates
+from analysis-ready data.
