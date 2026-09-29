@@ -33,6 +33,7 @@ Use this skill for protocol-design mechanics through the SDK. Keep the separatio
 - Use `client.create_protocol_design_from_csv(csv_file_path=...)` when arms come from a spreadsheet. Use the canonical metadata columns `arm`, `control`, `active`, and `weight`. The platform maps all other columns to overrides. This path does not accept a `model` argument; link a model with `client.create_protocol_design(...)` instead if that is required. See `assets/toy_protocol_arms.csv` for an example file and `references/protocol-design.md` for the SDK call.
 - Link protocol designs to a model when possible so the protocol design carries the model snapshot reference.
 - The override `key` must target a protocol-runnable model input, such as `Dose` or `route` in the toy model.
+- Solving times are overridable per arm through the `tMax` and `tStep` keys, as `assets/protocol.json` shows. Use this when arms need different time horizons or different output resolution, for example when one reported figure runs to 7 days at hourly resolution and another runs to 56 days at daily resolution.
 - Use formulas as strings, for example `"1.0"`, `"iv"`, or `"PT24H"` depending on the target component.
 - Include control relationships when comparing arms; use `armControl` to identify the comparator arm.
 - Edit individual arms on an existing design with `protocol.arms` (`get`, `create`, `set_control`, `set_active`, `set_weight`, `set_override`, `delete`, `compare_overrides`), not by replacing the raw design payload.

@@ -1,0 +1,745 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jinko.ai/schemas/paper2model/reproduction-spec.schema.json",
+  "title": "Paper-to-model reproduction specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "paper",
+    "scope",
+    "sources",
+    "coverage",
+    "assumptions",
+    "interpretations",
+    "implementation",
+    "validation",
+    "targets",
+    "artifacts",
+    "assessment",
+    "limitations",
+    "retrievals",
+    "project_items",
+    "experiments"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "retrievals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/retrieval"
+      }
+    },
+    "project_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/projectItem"
+      }
+    },
+    "experiments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/experiment"
+      }
+    },
+    "visual_evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/visualEvidence"
+      }
+    },
+    "paper": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "citation",
+        "identifier",
+        "license"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "citation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Licence the paper is published under, as the publisher states it, for example 'CC BY 4.0', 'CC BY-NC 4.0', 'MIT', or 'Elsevier TDM'. Use 'not provided' when the source carries no licence statement, and 'not found' when one was looked for and not located. A licence decides what may be redistributed, so it is recorded with the paper's identity rather than inferred later."
+        }
+      }
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "locator",
+          "sha256",
+          "extraction",
+          "reviewed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "paper",
+              "supplement",
+              "ocr",
+              "table",
+              "figure",
+              "code",
+              "other"
+            ]
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "extraction": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reviewed": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/coverageCount"
+      },
+      "required": [
+        "states",
+        "parameters",
+        "equations",
+        "initial_conditions",
+        "events",
+        "scenarios"
+      ]
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision_id",
+          "statement",
+          "basis",
+          "approved_by",
+          "impact"
+        ],
+        "properties": {
+          "decision_id": {"$ref": "#/$defs/text"},
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approved_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "impact": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "interpretations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "supersedes",
+          "kind",
+          "source_statements",
+          "affected_components",
+          "implementation_change",
+          "verification",
+          "affected_targets",
+          "informed_by_targets",
+          "approved_by",
+          "decision",
+          "alternatives",
+          "evidence",
+          "target_informed"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_informed": {
+            "type": "boolean"
+          },
+          "id": {"$ref": "#/$defs/text"},
+          "status": {"enum": ["active", "superseded", "proposed", "rejected"]},
+          "supersedes": {"$ref": "#/$defs/ids"},
+          "kind": {
+            "enum": ["equivalent_translation", "platform_adaptation", "source_correction", "assumption", "unresolved_conflict"]
+          },
+          "source_statements": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/sourceStatement"}
+          },
+          "affected_components": {"$ref": "#/$defs/ids"},
+          "implementation_change": {"$ref": "#/$defs/text"},
+          "verification": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/check"}
+          },
+          "affected_targets": {"$ref": "#/$defs/ids"},
+          "informed_by_targets": {"$ref": "#/$defs/ids"},
+          "approved_by": {"$ref": "#/$defs/optionalId"}
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "model_sid",
+        "model_revision",
+        "unit_policy",
+        "repairs",
+        "unresolved_conflicts"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_started",
+            "blocked",
+            "created",
+            "validated",
+            "failed"
+          ]
+        },
+        "model_sid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_revision": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "unit_policy": {
+          "type": "string"
+        },
+        "repairs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolved_conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_errors",
+        "solve_status",
+        "checks"
+      ],
+      "properties": {
+        "diagnostic_errors": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "solve_status": {
+          "enum": [
+            "not_run",
+            "passed",
+            "failed",
+            "unavailable"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/target"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "locator",
+          "sha256"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-fA-F0-9]{64}$"
+          }
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "confidence",
+        "rationale",
+        "curated_implementation"
+      ],
+      "properties": {
+        "curated_implementation": {"$ref": "#/$defs/curatedAssessment"},
+        "outcome": {
+          "enum": [
+            "reproduced",
+            "partially_reproduced",
+            "implemented_not_assessed",
+            "failed_validation",
+            "blocked_evidence"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "moderate",
+            "low",
+            "not_supportable"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "sourceStatement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "locator", "statement"],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/text"},
+        "locator": {"$ref": "#/$defs/text"},
+        "statement": {"$ref": "#/$defs/text"}
+      }
+    },
+    "curatedAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "rationale", "reference_artifact"],
+      "properties": {
+        "status": {"enum": ["passed", "failed", "not_assessed", "incomplete"]},
+        "rationale": {"$ref": "#/$defs/text"},
+        "reference_artifact": {"$ref": "#/$defs/optionalId"}
+      }
+    },
+    "visualEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "image",
+        "caption",
+        "source_locator",
+        "target_names",
+        "result_artifact",
+        "uncertainty"
+      ],
+      "properties": {
+        "image": {
+          "$ref": "#/$defs/text"
+        },
+        "caption": {
+          "$ref": "#/$defs/text"
+        },
+        "source_locator": {
+          "$ref": "#/$defs/text"
+        },
+        "target_names": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "result_artifact": {
+          "$ref": "#/$defs/text"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "optionalId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https?://[^\\s]+$"
+    },
+    "retrieval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "purpose",
+        "status",
+        "source_ids",
+        "note"
+      ],
+      "properties": {
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "purpose": {
+          "$ref": "#/$defs/text"
+        },
+        "status": {
+          "enum": [
+            "retrieved",
+            "not_found",
+            "inaccessible",
+            "not_attempted",
+            "awaiting_user_source"
+          ]
+        },
+        "source_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "note": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "projectItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "sid",
+        "revision",
+        "url",
+        "fixed_url"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/text"
+        },
+        "kind": {
+          "enum": [
+            "reference",
+            "model",
+            "protocol",
+            "vpop",
+            "output_set",
+            "trial",
+            "document",
+            "data_table"
+          ]
+        },
+        "sid": {
+          "$ref": "#/$defs/text"
+        },
+        "revision": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "fixed_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^https?://[^\\s]+$"
+        }
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "design_kind",
+        "source_id",
+        "source_locator",
+        "protocol_id",
+        "arm_id",
+        "vpop_id",
+        "patient_ids",
+        "variability_kind",
+        "variability_evidence",
+        "output_set_id",
+        "trial_id",
+        "target_names",
+        "observable_mapping",
+        "note"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/text"
+        },
+        "design_kind": {
+          "enum": [
+            "experimental_arm",
+            "theoretical_scenario",
+            "analytical_check"
+          ]
+        },
+        "source_id": {
+          "$ref": "#/$defs/text"
+        },
+        "source_locator": {
+          "$ref": "#/$defs/text"
+        },
+        "protocol_id": {
+          "$ref": "#/$defs/optionalId"
+        },
+        "arm_id": {
+          "$ref": "#/$defs/optionalId"
+        },
+        "vpop_id": {
+          "$ref": "#/$defs/optionalId"
+        },
+        "patient_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "variability_kind": {
+          "enum": [
+            "none",
+            "initial_condition_sweep",
+            "biological_variability",
+            "analytical_control"
+          ]
+        },
+        "variability_evidence": {
+          "$ref": "#/$defs/text"
+        },
+        "output_set_id": {
+          "$ref": "#/$defs/optionalId"
+        },
+        "trial_id": {
+          "$ref": "#/$defs/optionalId"
+        },
+        "target_names": {
+          "$ref": "#/$defs/ids"
+        },
+        "observable_mapping": {
+          "$ref": "#/$defs/text"
+        },
+        "note": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "coverageCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reported",
+        "implemented"
+      ],
+      "properties": {
+        "reported": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "implemented": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "unavailable",
+            "not_applicable"
+          ]
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "decision_ids",
+        "name",
+        "source_locator",
+        "metric",
+        "tolerance",
+        "measured",
+        "status",
+        "independent",
+        "transformation"
+      ],
+      "properties": {
+        "basis": {"enum": ["publication", "curated_implementation"]},
+        "decision_ids": {"$ref": "#/$defs/ids"},
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tolerance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "measured": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "unavailable",
+            "not_assessable"
+          ]
+        },
+        "independent": {
+          "type": "boolean"
+        },
+        "transformation": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

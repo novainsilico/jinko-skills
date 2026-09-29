@@ -30,6 +30,31 @@
       "id": 6,
       "prompt": "Attach data table dt-123 to a new trial, but only if it is confirmed valid for fitness.",
       "expected_output": "Requires metadata.public.validForFitnessFunction to be exactly True, rejects false or missing values, and passes the DataTable through client.create_trial(..., data_tables=[table]) rather than constructing raw project-item references."
+    },
+    {
+      "id": 7,
+      "prompt": "On completed trial tr-1234, I want to draw my own plots in matplotlib: the AUC distribution in the treated arm for adults only (age >= 18), split by AUC quartiles, and the tumor volume median with 5-95% band per arm. Don't create anything in the project.",
+      "expected_output": "Resolves the trial, gets descriptor handles from trial.descriptors, calls trial.results.aggregate_scalars with age.gte(18) and auc.group_by_quantiles(4), and trial.results.aggregate_timeseries with quantiles [0.05, 0.5, 0.95] and trial.results.group_by_arm(); no TrialVisualization is created.",
+      "files": [],
+      "assertions": [
+        "The output resolves tr-1234 with client.get_trial and uses trial.descriptors to build filters and groups.",
+        "The output calls trial.results.aggregate_scalars with a filter built as age.gte(18) (or equivalent descriptor builder) and a quantile grouping with count 4.",
+        "The output calls trial.results.aggregate_timeseries with quantiles including 0.05, 0.5 and 0.95 and groups by arm.",
+        "The output does not create a TrialVisualization or any other project item.",
+        "The output does not use raw HTTP requests or the full scalars/timeseries downloads to compute these aggregates."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "For trial tr-1234 give me the Kaplan-Meier data for time_to_progression by arm, a tornado contribution analysis of Tumor.Drug.auc at the median using baseline inputs only, and the per-patient AUC vs Cmax values for a scatter.",
+      "expected_output": "Calls trial.results.survival_analysis, trial.results.tornado_sensitivity(quantile=0.5, input_descriptors='InputBaselineOnly' or None), and trial.results.scalars_per_population with both outputs; reports the typed return models.",
+      "files": [],
+      "assertions": [
+        "The output calls trial.results.survival_analysis for time_to_progression with trial.results.group_by_arm() grouping.",
+        "The output calls trial.results.tornado_sensitivity with quantile=0.5 and baseline-only input descriptors.",
+        "The output calls trial.results.scalars_per_population with both the AUC and Cmax outputs.",
+        "The output does not create or read a TrialVisualization to obtain the data."
+      ]
     }
   ]
 }

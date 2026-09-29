@@ -28,9 +28,10 @@ for highlight in extract.highlights:
 Use `reference.iter_extracts()` to retrieve all extracts attached to one source;
 filter by kind or classification when reviewing a large collection.
 
-## Upload a PDF
+## Create a Reference
 
-Create a new Reference from exactly one local file path or byte payload:
+Use `create_reference_from_pdf` with exactly one of `pdf_file_path` or
+`pdf_content` to upload a PDF.
 
 ```python
 import jinko
@@ -45,6 +46,10 @@ reference = client.create_reference_from_pdf(
 reference = client.get_reference("so-EXAMPLE")
 reference.file.save_content_to_file("downloads/nova-2021.pdf")
 ```
+
+For a DOI-only Reference, use
+`client.create_reference_from_doi("10.1000/example")`. The API fetches its
+bibliography from Crossref; no PDF is needed.
 
 `save_content_to_file` creates missing parent directories, but its destination
 must be a file path, not a directory.

@@ -45,17 +45,30 @@ batch.create_event(
 )
 ```
 
-Recurrent event pattern (here for weekly treatment):
+Recurrent event pattern (here for weekly treatment). The dose amount, the first
+dose time, the dose interval, and the number of doses are parameters tagged
+`i::protocol`, so a protocol design can vary the regimen without a model edit:
 
 ```python
-batch.create_event(
-    id="weekly_dose",
-    updates={"Drug": "Drug + Dose"},
-    time_trigger_first_time="7 * u(day)",
-    time_trigger_every="7 * u(day)",
-    time_trigger_count=6,
-    record=True,
-)
+with model.components.batch(version="dosing") as batch:
+    batch.create_parameter(
+        id="dose_amount", formula="10", unit="mg", tags=["i::protocol"]
+    )
+    batch.create_parameter(
+        id="dose_start", formula="7", unit="day", tags=["i::protocol"]
+    )
+    batch.create_parameter(
+        id="dose_interval", formula="7", unit="day", tags=["i::protocol"]
+    )
+    batch.create_parameter(id="dose_number", formula="6", tags=["i::protocol"])
+    batch.create_event(
+        id="weekly_dose",
+        updates={"Drug": "Drug + dose_amount"},
+        time_trigger_first_time="dose_start",
+        time_trigger_every="dose_interval",
+        time_trigger_count="dose_number",
+        record=True,
+    )
 ```
 
 Parameter-update pattern:
@@ -75,8 +88,9 @@ contains the expected value before and after the trigger.
 
 ## Event Safety
 
+- Write the dosing schedule as model parameters tagged `i::protocol`: the dose amount, the first dose time, the dose interval, and the number of doses. Do not write them as literals in the event. A protocol design overrides parameters, so a literal schedule cannot be compared across arms and forces a model edit for each new regimen. A trigger field accepts a parameter name as well as a number.
 - An event may update a parameter, compartment, or species. A parameter targeted by an event must be created or edited with `constant=False`; a constant parameter cannot be altered by an event.
-- Express time triggers with an explicit time dimension, for example `7 * u(h)` and `24 * u(h)`. Do not rely on a bare number being interpreted in the intended time unit.
+- Express a numeric time trigger with an explicit time dimension, for example `7 * u(h)` and `24 * u(h)`. Do not rely on a bare number being interpreted in the intended time unit. A parameter used in a trigger carries its own declared unit.
 - Set `record=True` when users need to inspect the discontinuity in `simple_solve` or trial output. This records the state immediately before and after the event.
 - After adding or changing an event, request the affected component in `simple_solve`, inspect its values around the trigger, and report whether the expected update occurred.
 
@@ -97,14 +111,27 @@ Every component returned by `model.components.get_*`, `list_*`, `create_*`, or
 `batch.edit_*` supports tags and traceability links. Create helpers also accept
 `tags=[...]` and `links=[...]` when the metadata is already known.
 
+Link a value-bearing input to the evidence it came from, in this order of
+preference: the Extract that holds the value, the Reference that holds the
+Extract, then another project item such as a Document. Use an external DOI or
+URL only when the project holds no such item. Never build a link from a
+hard-coded hostname. `ProjectItem.url` and `Highlight.url` follow the configured
+`JINKO_URL`, so they stay correct on an on-premises deployment.
+
 ```python
 parameter = model.components.get_parameter("k_clearance")
 
 parameter.add_tag("i::vpop")
-parameter.add_link("https://example.org/source")
 
-# A project item can be passed directly; its Jinkō URL is stored as the link.
-parameter.add_link(client.get_document("do-..."))
+# Preferred: the Extract that carries the value. The SDK stores its Jinkō URL.
+extract = client.get_extract("as-EXAMPLE")
+parameter.add_link(extract)
+
+# A Reference, Document, or any other project item can be passed directly.
+parameter.add_link(client.get_reference("so-EXAMPLE"))
+
+# A highlight inside an Extract is addressed by its own URL.
+parameter.add_link(extract.highlights[0].url)
 ```
 
 Use `component.tags` and `component.links` to inspect the current metadata;

@@ -1,7 +1,7 @@
 ---
 name: jinko-trial
 description: >-
-  Create, sanity-check, run, poll, and download results for Jinkō in-silico trials via the jinko-sdk. Use this skill whenever the user wants to set up a trial from a computational model and simple output set, optionally attach a vpop, protocol, data table, or advanced scoring output set, launch a trial, wait for completion, inspect completed trials, or download TimeSeries and Scalar results as pandas DataFrames. Do not use this skill for model editing, vpop creation, protocol design authoring, data-table upload, output-set creation/editing, or trial visualization.
+  Create, sanity-check, run, poll, download results, and compute plot data for Jinkō in-silico trials via the jinko-sdk. Use this skill whenever the user wants to set up a trial from a computational model and simple output set, optionally attach a vpop, protocol, data table, or advanced scoring output set, launch a trial, wait for completion, inspect completed trials, download TimeSeries and Scalar results as pandas DataFrames, or get calculated plot data (scalar distributions, time-series quantile bands, survival curves, contribution/tornado analysis, per-patient scatter values), filtered or grouped by descriptors, to draw their own plots. Do not use this skill for model editing, vpop creation, protocol design authoring, data-table upload, output-set creation/editing, or configuring a stored TrialVisualization.
 compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas.
 metadata:
@@ -62,6 +62,8 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 - Download time series as pandas when available: `trial.results.timeseries({...}).to_dataframe()`.
 - Download scalars as pandas when available: `trial.results.scalars([...]).to_dataframe()`.
 - Without pandas, use `TabularDownload.raw_bytes`; result payloads may be CSV or zipped CSV.
+- Calculated plot data, read-only and typed: `trial.results.aggregate_scalars(...)`, `aggregate_timeseries(...)`, `tornado_sensitivity(...)`, `survival_analysis(...)`, `scalars_per_population(...)` (scatter). Filters and groups both come from the descriptor handles (`age.gte(18)`, `sex.in_levels([...])`, `auc.group_by_quantiles(4)`, `sex.group_by_levels()`), plus `trial.results.group_by_arm()`. No import beyond `JinkoClient` is needed. Query the trial directly and do not create a TrialVisualization just to read data. The same filter and group vocabulary configures a stored visualization in `jinko-trial-viz`.
+- Ignore every time series and scalar whose id starts with `__jinko`. These are platform telemetry, such as `__jinkoSolvingTime`, `__jinkoAllocationMiB`, and `__jinkoNumSteps`. They differ between any two runs of the same trial and carry no scientific meaning, so exclude them before comparing results, reporting agreement, or computing any metric.
 
 When data tables are attached, pass them through the supported `data_tables=` argument. Require each data table to report `metadata.public.validForFitnessFunction is True` before creating the trial; reject `False`, missing, and malformed values.
 
@@ -100,3 +102,4 @@ python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug --vp
 
 - Read `references/trial-setup.md` for trial creation, the safe pre-launch sanity-check workflow, and troubleshooting `ADVANCED_OUTPUTS_ERRORS`/"The following advanced outputs have errors".
 - Read `references/trial-results.md` for completed-trial discovery and result downloads.
+- Read `references/trial-plot-data.md` for aggregate plot data, selectors, filters, and groups.

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Paper to Model"
+  short_description: "Reconstruct a published model in Jinkō"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-paper2model to reconstruct this paper's model in Jinkō and produce a fidelity report."
+policy:
+  allow_implicit_invocation: true

@@ -14,7 +14,7 @@ license: MIT
 
 Use this skill for TrialVisualization project items: creating a visualization for a trial, configuring plot sections, retrieving the stored visualization payload, and running visualization sanity checks.
 
-Keep trial execution and result downloads in `jinko-trial`. Use this skill after a trial exists and the user wants the Jinkō visualization artifact or its plot configuration.
+Keep trial execution, result downloads, and calculated plot data (`trial.results.aggregate_*`) in `jinko-trial`; do not create a visualization only to read data. Use this skill after a trial exists and the user wants the Jinkō visualization artifact or its plot configuration.
 
 > **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
 > SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill

@@ -125,7 +125,7 @@ trials and analyzing results.
 
 | Skill | Purpose |
 | --- | --- |
-| [`jinko`](./skills/jinko/SKILL.md) | Orchestrate end-to-end Jinkō modeling workflows across the published skill set. |
+| [`jinko`](./skills/jinko/SKILL.md) | Route a Jinkō request to the narrowest published skill that owns it. |
 | [`jinko-calibration-cmaes`](./skills/jinko-calibration-cmaes/SKILL.md) | Create, run, poll, and inspect CMA-ES calibrations through the SDK. |
 | [`jinko-calibration-subsampling`](./skills/jinko-calibration-subsampling/SKILL.md) | Create, run, and inspect subsampling virtual-population generation. |
 | [`jinko-context`](./skills/jinko-context/SKILL.md) | Core Jinkō concepts, navigation, and domain terminology. |
@@ -144,6 +144,7 @@ trials and analyzing results.
 | [`jinko-task-from-nonmem`](./skills/jinko-task-from-nonmem/SKILL.md) | Convert a NONMEM run into a validated Jinkō model and trial setup. |
 | [`jinko-task-ichm15-planning`](./skills/jinko-task-ichm15-planning/SKILL.md) | Get recommendations on preparing the documentation related to ICHM15 planning phase. |
 | [`jinko-task-literature-search`](./skills/jinko-task-literature-search/SKILL.md) | Discover and prioritize biomedical publications from PubMed. |
+| [`jinko-task-paper2model`](./skills/jinko-task-paper2model/SKILL.md) | Reconstruct a published mechanistic model in Jinkō and report its fidelity and confidence. |
 | [`jinko-task-trial-data-scoping`](./skills/jinko-task-trial-data-scoping/SKILL.md) | Discover and prioritize ClinicalTrials.gov registry records. |
 | [`jinko-trial`](./skills/jinko-trial/SKILL.md) | Set up, sanity-check, run, poll, and download in silico trial results. |
 | [`jinko-trial-viz`](./skills/jinko-trial-viz/SKILL.md) | Create, inspect, sanity-check, and retrieve Jinkō trial visualizations. |

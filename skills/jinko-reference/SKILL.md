@@ -54,8 +54,10 @@ traceable from a model or report to its source.
    and existing extracts, then reuse it. If only bibliographic metadata is
    available, require a verified stable identifier such as DOI; title alone is
    insufficient.
-2. Upload a user-supplied PDF with `create_reference_from_pdf` only when the
-   project does not already contain the required source.
+2. Create a Reference with `client.create_reference_from_doi(doi)` for a verified
+   DOI, or upload a user-supplied PDF with `client.create_reference_from_pdf`.
+   For a PDF, provide exactly one of `pdf_file_path` or `pdf_content`. Check that
+   the project does not already contain the Reference.
 3. Use `create_extract_from_pdf_quote` for textual passages. It is the preferred
    method because it finds anchors automatically; give one-based `page_hints`
    when known.

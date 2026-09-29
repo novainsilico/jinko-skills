@@ -1,0 +1,85 @@
+{
+  "skill_name": "jinko-task-paper2model",
+  "evals": [
+    {
+      "id": "automatic-source-correction",
+      "prompt": "The paper states dA/dt=-CL*A/V, while its reaction table uses an undefined k. A supplied symbolic check confirms k=CL/V. Another equation fixes a dimensional defect but leaves an unknown avidity coefficient; the user has approved f=1. Reconcile these statements before building the model.",
+      "expected_output": "Applies the verified clearance and equation corrections automatically. Records precise source statements, the defense, and checks. Treats f=1 as a separate approved assumption, records affected outputs and unmeasured sensitivity, and never presents it as a publication value. Reconciles evidence before the final adequacy gate."
+    },
+    {
+      "id": "superseded-selection-and-held-out-target",
+      "prompt": "Target A selected a reporting denominator. A new decision supersedes the old one but keeps the choice; its local target-informed field is empty. Both required targets A and held-out B pass, and execution passed. The candidate uses a defended alternative to the curator, whose fixed-reference comparison fails. Assess both results.",
+      "expected_output": "Retains A's selection dependency through supersession, keeps B independent if it was held out, reports partially_reproduced without high confidence, and records failed curated agreement separately. Accepts the documented alternative without claiming curated parity."
+    },
+    {
+      "id": "equivalent-basis-two-assessments",
+      "prompt": "The candidate uses a molar basis and the curator uses counts. Independent checks establish equivalence, including reciprocal units. Reviewed source-supported corrections and execution checks pass. All required independent publication targets pass. No assumption or unresolved conflict remains. Curated numerical comparison has not run. Assess the result.",
+      "expected_output": "Permits reproduced with high confidence on the supplied evidence. Accepts reversible unit changes and verified corrections. Reports curated implementation agreement as not_assessed, without claiming a numerical run or penalizing publication fidelity for the missing curator comparison."
+    },
+    {
+      "id": "report-first-feedback",
+      "prompt": "Prepare the concise Jinkō report from actual comparison results and SDK receipts on a custom host. One required target failed. Keep the large audit local.",
+      "expected_output": "Starts immediately after the title with created artifact cards, then source cards. Uses full SDK links for every human-facing SID. Gives essential findings first, includes the failed target and frozen metric, and adds actual overlays with uncertainty through jinko-document image upload mechanics. Does not fabricate images or include large default tables."
+    },
+    {
+      "id": "source-access-and-ocr-feedback",
+      "prompt": "Publisher and repository attempts for the primary paper and Supplement S2 failed. Another source is a scan with broken extracted equations. A dedicated OCR capability is available. What happens next?",
+      "expected_output": "Asks whether the user has access to the precise primary paper and supplement and can upload them or provide a link. Records awaiting_user_source and continues independent sources. Discovers and prefers the dedicated OCR capability, produces a neutral evidence packet, and visually reviews equations. Distinguishes PyPDF extraction from OCR, preserves native extraction for clean PDFs, and requires no private public-skill dependency."
+    },
+    {
+      "id": "supplement-and-experiment-binding",
+      "prompt": "The paper puts receptor values for two cell lines and its washout schedule in a named supplement that is missing from our packet. Reproduce its vehicle and drug-washout experiments with a Protocol and a Vpop.",
+      "expected_output": "Retrieves the named supplement and records access results before declaring evidence missing; blocks creation while target-driving values remain unresolved; binds Protocol arms, measured cell-line Vpop rows, observables, and publication targets without inventing a distribution."
+    },
+    {
+      "id": "deterministic-sweep",
+      "prompt": "The paper varies initial mass over a fixed grid under two pulse schedules. Only one schedule and initial mass appear in Figure 2. Add a zero-state analytical control and compare the result.",
+      "expected_output": "Uses Protocol schedules and deterministic initial-condition Vpop rows, distinguishes the sweep from biological variability, excludes the analytical control from publication scores, and binds Figure 2 only to its stated arm and row."
+    },
+    {
+      "id": "published-report-cards",
+      "prompt": "Publish the reproduction report with source Reference, model, Protocol, and Vpop cards and fixed-revision provenance. The SDK supplies a custom app host.",
+      "expected_output": "Uses exact SDK URLs in typed project_items, emits unversioned source and artifact URLs alone in paragraphs, keeps fixed revisions as ordinary links, delegates publication to jinko-document, and retains the exact payload and verifies rendered cards."
+    },
+    {
+      "id": "paper-without-code",
+      "prompt": "Reproduce this QSP paper in Jinko. There is no source code, but the PDF has equations, a pathway diagram, parameter tables, and a validation figure.",
+      "expected_output": "Builds a traceable evidence matrix from equations, diagram, tables, initial conditions, and target data; does not require code; freezes comparison rules; delegates Jinkō mechanics; and produces an executable model plus the mandatory fidelity and confidence report."
+    },
+    {
+      "id": "scanned-paper-ocr",
+      "prompt": "This old PK/PD paper is a scanned PDF. Recreate its model in Jinko.",
+      "expected_output": "Uses an approved OCR capability or requests a provider-neutral OCR packet, retains source hashes and page images, reviews target-driving symbols and values against the scan, and reduces confidence if material OCR remains unreviewed."
+    },
+    {
+      "id": "missing-initial-condition",
+      "prompt": "Implement this four-state model. The paper gives all ODEs and parameters but never states the initial value of the third state.",
+      "expected_output": "Checks whether the initial value can be derived from stated equilibrium conditions; otherwise records the gap, asks for an approved assumption, and emits a blocked_evidence report without mutating Jinkō."
+    },
+    {
+      "id": "paper-code-conflict",
+      "prompt": "The supplement equation uses k=0.1, but the authors' repository uses k=1.0. Reproduce Figure 2.",
+      "expected_output": "Records both values and exact locators, defines whether the claim targets the publication or executable artifact, requires an explicit precedence decision, and reports paper fidelity separately from code parity."
+    },
+    {
+      "id": "no-quantitative-target",
+      "prompt": "The model paper has complete equations and parameters but no plots or numeric results. Build it anyway.",
+      "expected_output": "Can implement and validate execution, but reports implemented_not_assessed with low confidence rather than claiming reproduction."
+    },
+    {
+      "id": "event-side-semantics",
+      "prompt": "Reproduce this impulsive immunotherapy model and its pulsed trajectory; the target includes values exactly at dose times.",
+      "expected_output": "Models doses as events, declares pre-event or post-event target semantics before comparison, uses the actual Jinkō Time series, checks event jumps, and reports target coverage and measured errors."
+    },
+    {
+      "id": "nonmem-routing",
+      "prompt": "Reproduce this published population PK model. Its primary specification is a NONMEM control stream and output tables.",
+      "expected_output": "Routes the conversion to jinko-task-from-nonmem rather than hand-translating it, while retaining the publication target and reproduction-report requirements."
+    },
+    {
+      "id": "failed-model-still-reports",
+      "prompt": "We created the model, but Jinko reports a dimensional diagnostic and the solve did not run. Is the paper reproduced?",
+      "expected_output": "Reports failed_validation, treats the missing solve as unavailable evidence, and still generates a reproduction report with the blocking diagnostic and no unsupported confidence claim."
+    }
+  ]
+}

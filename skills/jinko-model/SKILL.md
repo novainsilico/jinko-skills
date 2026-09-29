@@ -27,11 +27,22 @@ Use this skill for technical model construction and editing through the SDK. Kee
 4. Give every directly declared numeric value a unit: numeric parameter formulas, compartment volumes, and species initial conditions. A parameter whose value is derived from an expression may omit its declared unit when the expression determines it. Validate non-trivial units against `references/units_static_info.json` and diagnostics.
 5. Attach the built-in platform tags before considering the model complete:
    - `i::vpop` for inputs that vary across virtual patients.
-   - `i::protocol` for inputs that vary across protocol arms or scenarios.
+   - `i::protocol` for inputs that vary across protocol arms or scenarios, including the dose amount, first dose time, dose interval, and number of doses of a dosing event.
    - One evidence-backed source tag for each applicable value-bearing input: `s::knowledge`, `s::arbitrary`, or `s::to-calibrate`. Leave an uncertain input untagged and report it for review. Never assign `s::calibrated` during construction; it records an accepted calibration result.
    - `output` for important time-series outputs to plot or calibrate against.
-6. Use high-level SDK methods and `model.components.batch(version="...")` for related component changes. The platform tags above already exist; do not recreate them. Create declarations only for other, custom tags.
-7. Re-fetch the model, require no error diagnostics, and run `simple_solve()` for representative `output` components. For events, verify the expected pre-/post-event change.
+
+   Three of these decide whether the model is usable downstream, so check them
+   across the whole model, not only per component. At least one component must
+   carry `output`, or nothing can be plotted, measured, or calibrated against:
+   treat its absence as an error. No component carrying `i::protocol` means the
+   model cannot be given protocol arms, and none carrying `i::vpop` means it
+   cannot vary across virtual patients: report each as a warning, correct only
+   for a model meant to be single-arm and deterministic.
+   `python -m jinko.cli.validate_model_readiness --model-sid cm-...` runs these
+   three checks by default.
+6. Attach a traceability link to every value-bearing input tagged `s::knowledge`. Prefer, in this order: the Extract that holds the value, the Reference that holds the Extract, then any other project item that produced the value. Use an external DOI or URL only when the project holds no such item, and report every external link for review. Use the `jinko-reference` skill to upload a missing source and to create its extracts in a dedicated literature subfolder before you link.
+7. Use high-level SDK methods and `model.components.batch(version="...")` for related component changes. The platform tags above already exist; do not recreate them. Create declarations only for other, custom tags.
+8. Re-fetch the model, require no error diagnostics, and run `simple_solve()` for representative `output` components. For events, verify the expected pre-/post-event change.
 
 Use `scripts/create_minimal_model.py`, and the SDK's `python -m jinko.cli.tag_model_components` and `python -m jinko.cli.validate_model_readiness`, rather than long ad-hoc snippets. Scripts are dry-run by default and mutate only with `--apply`.
 
