@@ -31,6 +31,7 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 - Require explicit confirmation or script `--apply` before creating or updating project items.
 - Descriptor IDs in CSV headers and marginal designs must match real model component IDs when the vpop will be used with that model.
 - Reject duplicate descriptor IDs in marginal lists; converting duplicates to a mapping would otherwise silently discard earlier entries.
+- Log-scale distributions mix two conventions. See "Log-scale distributions" below before you write a `LogUniform`, `LogNormal`, or `LogNormalTruncated` payload.
 
 ## Project Folder Hygiene
 
@@ -91,6 +92,20 @@ Use a list of marginal entries in skill assets and scripts:
 ```
 
 The script converts this list to the SDK mapping expected by `create_vpop_design_from_design(marginal_distributions=...)`.
+
+## Log-scale distributions
+
+`assets/distrib.json` defines numeric fields but does not describe their scale:
+
+- `LogUniform`: `lowBound` and `highBound` are exponents of `base`. For a range of approximately 9.5e-8 to 8.55e-7 with `base: 10`, pass `-7.02` and `-6.07`.
+- `LogNormal` and `LogNormalTruncated`: `mean` and `stdev` are the mean and standard deviation of the base logarithm of the value. With `base: 10`, `mean: -6` gives an untruncated median of 1e-6.
+- `LogNormalTruncated`: `posLowBound` and `posHighBound` bound the value itself. For a range of 1e-7 to 1e-5, pass those positive numbers directly.
+
+Value-scale numbers passed as log-scale parameters can produce a Vpop at the wrong order of magnitude without a diagnostic error. After generating a Vpop with a log-scale marginal, read back the descriptor statistics before using it:
+
+```bash
+python -m jinko.cli.inspect_vpop --vpop-sid vp-... --statistics
+```
 
 ## Reference Routing
 

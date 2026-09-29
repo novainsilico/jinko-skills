@@ -164,7 +164,8 @@ pip install --upgrade jinko-sdk
 ```
 
 Start with `jinko-sdk-setup` to verify your credentials and SDK installation before
-using the workflow skills.
+using the workflow skills. The SDK reference is documented at
+[doc.jinko.ai/sdk](https://doc.jinko.ai/sdk/).
 
 ## License
 
