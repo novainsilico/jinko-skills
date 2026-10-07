@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or editing protocol designs requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.12,<2.0"
+  requires_sdk: ">=1.13,<2.0"
 license: MIT
 ---
 

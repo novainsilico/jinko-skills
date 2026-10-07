@@ -55,7 +55,7 @@
         }
       },
       "strict": false,
-      "version": "1.12.3",
+      "version": "1.13.0",
       "skills": [
         "./skills/jinko",
         "./skills/jinko-calibration-cmaes",
@@ -84,5 +84,5 @@
       ]
     }
   ],
-  "version": "1.12.3"
+  "version": "1.13.0"
 }

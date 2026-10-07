@@ -20,6 +20,11 @@
       "id": 4,
       "prompt": "My Jinkō SDK connection check passes. Now I want a quick way to browse what's in the project before deciding whether I need model, protocol, or trial help.",
       "expected_output": "Confirms setup is complete, explains that the validation script already performs a minimal non-rendered read-only search, and recommends JinkoClient.search(...) for broader exploration with a small example such as client.search(limit=20, columns=\"compact\")."
+    },
+    {
+      "id": 5,
+      "prompt": "I only have a JINKO_API_KEY in my .env, no project ID. I want a script that counts the models in every project I can reach.",
+      "expected_output": "Runs `python -m jinko.cli.check_jinko_connection` without JINKO_PROJECT_ID, which lists the visible projects. Writes the script with JinkoOrgClient: list_projects(), then project(...) for a JinkoClient per project. The script catches AuthenticationError on the first request of a project client and skips that project, because a project key sees projects outside its scope."
     }
   ]
 }

@@ -1,10 +1,10 @@
 ---
 name: jinko-sdk-setup
-description: Authenticate and configure access to a Jinkō project via the jinko-sdk. Use this skill whenever the user wants to connect to Jinkō, install the SDK, set up credentials or a .env file, verify API access, fail-fast check that a JINKO_API_KEY and JINKO_PROJECT_ID work, or debug ConfigurationError, AuthenticationError, or AuthorizationError from the SDK. Do not use this skill for creating models, vpops, protocols, output sets, or trials.
+description: Authenticate and configure access to a Jinkō project via the jinko-sdk. Use this skill whenever the user wants to connect to Jinkō, install the SDK, set up credentials or a .env file, verify API access, fail-fast check that a JINKO_API_KEY and JINKO_PROJECT_ID work, tell a project key from an organization key, choose between JinkoClient and JinkoOrgClient, or debug ConfigurationError, AuthenticationError, or AuthorizationError from the SDK. Do not use this skill for creating models, vpops, protocols, output sets, or trials.
 compatibility: Requires Python 3.11+ and network access. The validation script diagnoses missing or outdated SDK installations, credentials, and optional python-dotenv support.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.12,<2.0"
+  requires_sdk: ">=1.13,<2.0"
 license: MIT
 ---
 
@@ -30,11 +30,10 @@ The script:
 
 - Loads `.env` when `python-dotenv` is installed.
 - Redacts sensitive values when showing configuration.
-- Requires both `JINKO_API_KEY` and `JINKO_PROJECT_ID`.
-- Constructs `JinkoClient()` from environment variables.
-- Calls `client.auth_check()` to prove authentication.
-- Calls `client.search(limit=1, show_table=False, show_table_hint=False)` to prove minimal read-only project-item access.
-- Prints minimal output on success.
+- Requires `JINKO_API_KEY`, which holds either a project key or an organization key.
+- Without `JINKO_PROJECT_ID`, lists the projects visible to the key with `JinkoOrgClient().list_projects()`. This list does not show the key scope, so the script does not report the key type.
+- With `JINKO_PROJECT_ID`, constructs `JinkoClient()`, calls `client.auth_check()`, then `client.search(limit=1, show_table=False, show_table_hint=False)` to prove minimal read-only project-item access.
+- Prints minimal output on success, including the key type when `JINKO_PROJECT_ID` is set.
 
 Use `--show-config` only when debugging local setup; it prints presence and redacted values, never the full API key.
 
@@ -58,6 +57,22 @@ Use `search()` when the user wants to:
 - orient themselves before choosing a model, protocol, vpop, or trial workflow
 
 The setup script uses a one-item, non-rendered `search()` only as its project-read check after authentication. Use a larger interactive `search()` only for exploration after validation succeeds.
+
+## Choosing a client
+
+Both clients accept a project key and an organization key, so choose by task. Use `JinkoClient()` for work in the project that `JINKO_PROJECT_ID` names. Use `JinkoOrgClient` when `JINKO_PROJECT_ID` is unset or the task spans several projects. `JinkoOrgClient` reads `JINKO_API_KEY` and `JINKO_BASE_URL` only:
+
+```python
+from jinko import JinkoOrgClient
+
+org = JinkoOrgClient()
+for project in org.list_projects():
+    print(project.id, project.name)
+
+client = org.project(project.id)  # a JinkoClient for that project
+```
+
+`list_projects()` lists the projects visible to the key owner and does not show the key scope: a project key sees the same list but reaches only its own project. A project outside the key scope raises `AuthenticationError` on the first request of its client, so a script that loops over the list catches that error and skips the project.
 
 ## Troubleshooting
 

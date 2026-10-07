@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Model creation/editing requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.12,<2.0"
+  requires_sdk: ">=1.13,<2.0"
 license: MIT
 ---
 
@@ -41,8 +41,21 @@ Use this skill for technical model construction and editing through the SDK. Kee
    `python -m jinko.cli.validate_model_readiness --model-sid cm-...` runs these
    three checks by default.
 6. Attach a traceability link to every value-bearing input tagged `s::knowledge`. Prefer, in this order: the Extract that holds the value, the Reference that holds the Extract, then any other project item that produced the value. Use an external DOI or URL only when the project holds no such item, and report every external link for review. Use the `jinko-reference` skill to upload a missing source and to create its extracts in a dedicated literature subfolder before you link.
-7. Use high-level SDK methods and `model.components.batch(version="...")` for related component changes. The platform tags above already exist; do not recreate them. Create declarations only for other, custom tags.
-8. Re-fetch the model, require no error diagnostics, and run `simple_solve()` for representative `output` components. For events, verify the expected pre-/post-event change.
+7. Optionally attach scientific scoped tags for model navigation and visualization:
+   - `granularity::*` for biological or spatial scale; tag color `#0cd95e`.
+   - `phenomenon::*` for the represented physical or biological process; tag color `#f87171`.
+   - `module::*` for an implemented mechanism or submodel; tag color `#66c09c`.
+   - `readout::*` for observation level; tag color `#da1d1d`.
+
+   Use confirmed component definitions and source evidence. Preserve existing
+   tags; leave unsupported classifications unassigned. These custom tags are
+   not readiness requirements. Read [scientific scoped tags](references/scientific-scoped-tags.md)
+   for selection rules and the QSP, PBPK, and PK/PD example catalog.
+   Pass the family color to `model.create_tag(..., color=...)`; use
+   `tag.set_color(...)` when aligning an existing declaration. Tag-family colors
+   are separate from graph component-type colors.
+8. Use high-level SDK methods and `model.components.batch(version="...")` for related component changes. The platform tags above already exist; do not recreate them. Create declarations only for other, custom tags.
+9. Re-fetch the model, require no error diagnostics, and run `simple_solve()` for representative `output` components. For events, verify the expected pre-/post-event change.
 
 Use `scripts/create_minimal_model.py`, and the SDK's `python -m jinko.cli.tag_model_components` and `python -m jinko.cli.validate_model_readiness`, rather than long ad-hoc snippets. Scripts are dry-run by default and mutate only with `--apply`.
 
@@ -53,3 +66,4 @@ For transparent ISO 8601 duration conversions, use `from jinko.iso8601 import Du
 - Read `references/model-components.md` for component batching, tags, events, formulas, and algebraic rules.
 - Read `references/unit_docs.md` for unit semantics and conversion behavior.
 - Read `references/model-validation.md` for diagnostics and readiness checks.
+- Read `references/scientific-scoped-tags.md` when selecting optional scale, phenomenon, module, or readout tags. It includes a broad, extensible catalog of QSP, PBPK, and PK/PD examples.
