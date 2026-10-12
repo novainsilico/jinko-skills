@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Fail if internal skill/implementation names leak into a generated deliverable.
 
-The ICH M15 planning outputs (assessment table, MAP document, Jinko documents)
-are regulator-facing. Names of the skills, files, or tooling used to produce
-them have no meaning to a reviewer and must never appear in the deliverable.
+The ICH M15 planning and evidence-submission outputs (assessment table, MAP
+document, MAR document, Jinko documents) are regulator-facing. Names of the
+skills, files, or tooling used to produce them have no meaning to a reviewer
+and must never appear in the deliverable.
 
 Usage:
     python check_no_skill_leak.py <file1.md> [file2.md ...]
@@ -33,6 +34,7 @@ LITERAL_TERMS = [
     ".agents/skills",
     ".claude/skills",
     "references/map.md",
+    "references/mar.md",
     "references/terms.md",
 ]
 

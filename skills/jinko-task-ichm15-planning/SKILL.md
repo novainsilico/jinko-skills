@@ -3,10 +3,10 @@ name: jinko-task-ichm15-planning
 description: >-
   From a scientific question of interest, get recommendations on preparing and formatting the documentation related to ICHM15 planning phase, which covers ICH M15 key assessments elements, technical criteria evaluation of model and model outcomes, appropriateness of Proposed MIDD and a Model Analysis Planning (MAP) document. Optionally upload the recommended documentation in Jinkō. 
 compatibility: >-
-  Jinkō upload requires jinko-sdk-setup and project write access.
+  Jinkō upload requires jinko-document, jinko-sdk-setup, and project write access.
 metadata:  
   author: Nova In Silico
-  requires_sdk: ">=1.13,<2.0"
+  requires_sdk: ">=1.14,<2.0"
 license: MIT
 ---
 
@@ -26,7 +26,7 @@ Use it for:
 - Technical Criteria and Appropriateness of Proposed MIDD (§2.2.1–2.2.2, planning stage)
 - Recommendation of a Model Analysis Planning (MAP) document
 
-Note that this skill focuses specifically on the planning stage: drug developers are planning MIDD activities, before model outcomes are available. Required: all six key assessment elements + Technical Criteria + Appropriateness of Proposed MIDD. It leaves out the submission stage. 
+Note that this skill focuses specifically on the planning stage: drug developers are planning MIDD activities, before model outcomes are available. Required: all six key assessment elements + Technical Criteria + Appropriateness of Proposed MIDD. It leaves out the submission stage.
 
 
 ## Frame
@@ -124,8 +124,10 @@ Using /references/map.md, generate a Model Analysis Plan (MAP) document.
 
 > **PREREQUISITE:** Creating Jinkō documents needs an initialized `jinko-sdk`
 > connection satisfying this skill's `metadata.requires_sdk` range. Run the
-> `jinko-sdk-setup` skill and proceed only once its check passes. If that skill
-> is not found, install it from `novainsilico/jinko-skills`. This prerequisite
+> `jinko-sdk-setup` skill and proceed only once its check passes. A session code
+> can be exchanged only once, so call `get_session_code` again before this
+> upload. If that skill is not found, install it from `novainsilico/jinko-skills`.
+> This prerequisite
 > applies only to this optional upload step — the planning guidance above needs
 > no SDK access.
 
@@ -140,4 +142,4 @@ If pushing several documents to jinko, link them in both directions, not just on
 
 ## Reference to the most current ICHM15 documentation. 
 
-A reference to the current version of the ICHM15 documentation can be inserted at the end of the documentation, linking to https://www.fda.gov/regulatory-information/search-fda-guidance-documents/m15-general-principles-model-informed-drug-development
+A reference to the current version of the ICHM15 documentation can be inserted at the end of the documentation, linking to https://ich.org/page/multidisciplinary-guidelines#15

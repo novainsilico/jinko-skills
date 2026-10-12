@@ -6,7 +6,7 @@ compatibility: >-
   Requires Jinkō project write access and an initialized jinko-sdk connection. Scanned documents require an approved OCR service or a provider-neutral OCR packet. Source-code execution requires explicit authorization.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.13,<2.0"
+  requires_sdk: ">=1.14,<2.0"
 license: MIT
 ---
 
@@ -139,6 +139,8 @@ and report what remains uncertain.
     When actual comparison results exist, add source-versus-simulation overlays,
     predeclared metrics, and uncertainty through `visual_evidence`. Include failed
     comparisons honestly. Never fabricate plots or insert placeholder images.
+    By default, draw the overlays with the Jinkō plot style (`jinko.plotting`; recipes in
+    `jinko-trial`, `references/trial-plots.md`).
     Use `jinko-document` for existing image upload mechanics, publication, and
     rendered inspection; retain the exact upload payload. Read
     `references/report-delivery.md` for fields, commands, and source requests.

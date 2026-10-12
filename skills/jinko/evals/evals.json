@@ -7,6 +7,7 @@
   {"query": "Do the published Jinkō skills support generic sensitivity analysis or credible intervals?", "should_trigger": true},
   {"query": "just fix the unit-check error on the Drug compartment in this Jinkō model", "should_trigger": false},
   {"query": "how do I get a Jinkō API key and set JINKO_API_KEY in my .env?", "should_trigger": false},
+  {"query": "A Jinko MCP server is connected. Call get_session_code and use it as JINKO_SESSION_CODE.", "should_trigger": false},
   {"query": "explain what a snapshot is versus a project item in Jinkō terminology", "should_trigger": false},
   {"query": "search PubMed for recent papers on CAR-T cytokine release syndrome mechanisms", "should_trigger": false},
   {"query": "convert this CSV of observed concentrations into a Jinkō data table", "should_trigger": false},

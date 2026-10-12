@@ -4,9 +4,11 @@ Calculated plot data (distributions, quantile bands, survival curves,
 contribution analysis, per-patient scatter values) comes straight from the
 trial through `trial.results`. You do not need a TrialVisualization: creating
 one only to read data clutters the project. Every call is read-only and returns
-a typed `jinko.openapi_types` model. Use these calls when the aggregate is
-what you need. Download the full tables with `timeseries()` / `scalars()` only
-when you need raw per-patient series.
+a typed `jinko.openapi_types` model. Each model has a `to_dataframe()` method
+(requires pandas) that returns a tidy frame. To draw the frames, see
+`trial-plots.md`. Use these calls when the aggregate is what you need. Download
+the full tables with `timeseries()` / `scalars()` only when you need raw
+per-patient series.
 
 `JinkoClient` is the only import: filters and groups are built from the
 descriptor handles and the results service themselves.

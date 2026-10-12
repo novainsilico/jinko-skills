@@ -9,7 +9,7 @@ compatibility: >-
   Creating designs or generated Vpops requires write and run permissions in the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.13,<2.0"
+  requires_sdk: ">=1.14,<2.0"
 license: MIT
 ---
 
@@ -27,8 +27,10 @@ Scientific choices belong to a workflow or domain expert, not this skill.
 
 > **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
 > SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
-> skill is not found, install it from `novainsilico/jinko-skills`.
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
+> session code can be exchanged only once, so call `get_session_code` again
+> before this skill's own SDK process. If that skill is not found, install it
+> from `novainsilico/jinko-skills`.
 
 ## Canonical Flow
 

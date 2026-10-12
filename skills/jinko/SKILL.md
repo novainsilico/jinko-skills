@@ -20,11 +20,10 @@ orchestration; resource skills own reusable Jinkō SDK/API mechanics.
 
 ## Routing Map
 
-- Connection and credentials: `jinko-sdk-setup`.
+- Connection and credentials: `jinko-sdk-setup` (`JINKO_API_KEY`, or a single-use `JINKO_SESSION_CODE` from the Jinko MCP `get_session_code` tool).
 - Terminology and navigation: `jinko-context`.
 - Product capabilities and model-library discovery: `jinko-solution-and-product-guide`.
 - Publication discovery: `jinko-task-literature-search`.
-- Published paper-to-model reconstruction and fidelity reporting: `jinko-task-paper2model`.
 - ClinicalTrials.gov discovery: `jinko-task-trial-data-scoping`.
 - Reference PDFs and source extracts: `jinko-reference`.
 - Evidence-to-table extraction: `jinko-task-extract-data-table`.

@@ -25,6 +25,11 @@
       "id": 5,
       "prompt": "I only have a JINKO_API_KEY in my .env, no project ID. I want a script that counts the models in every project I can reach.",
       "expected_output": "Runs `python -m jinko.cli.check_jinko_connection` without JINKO_PROJECT_ID, which lists the visible projects. Writes the script with JinkoOrgClient: list_projects(), then project(...) for a JinkoClient per project. The script catches AuthenticationError on the first request of a project client and skips that project, because a project key sees projects outside its scope."
+    },
+    {
+      "id": 6,      
+      "prompt": "A Jinko MCP server is connected and exposes get_session_code. I also have a JINKO_API_KEY in .env. Connect the SDK without putting secrets in chat.",
+      "expected_output": "Calls get_session_code, exports the returned code as JINKO_SESSION_CODE for one SDK process, and does not write that code into .env or chat. A code can be exchanged only once, so a later SDK process needs a new get_session_code call. Prefers JINKO_SESSION_CODE over JINKO_API_KEY. Still requires JINKO_PROJECT_ID, then runs python -m jinko.cli.check_jinko_connection."
     }
   ]
 }

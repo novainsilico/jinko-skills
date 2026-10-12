@@ -35,7 +35,8 @@ and was mangled besides.
 `publish_equivalence_report.py` uploads the Markdown as a Jinkō document,
 uploads the referenced plots as images, rewrites local image targets to their
 uploaded URLs, and prepends a linked index of the converted items. `https`
-targets are left alone.
+targets are left alone. By default, draw the plots with the Jinkō plot style (`jinko.plotting`;
+recipes in `jinko-trial`, `references/trial-plots.md`).
 
 Local images must be relative paths contained below the report directory.
 Absolute paths, parent traversal, and symlinks escaping that directory are

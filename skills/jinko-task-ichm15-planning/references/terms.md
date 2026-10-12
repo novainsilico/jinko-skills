@@ -29,19 +29,32 @@ Shared terminology for the ICH M15 review skills. Definitions from ICH M15 Step 
 
 - `Technical Criteria`: key criteria for evaluating the model and model outcomes needed to inform MIDD evidence acceptance, specific to the question of interest and commensurate with model risk (§2.2.1)
 - `Appropriateness of Proposed MIDD`: the rationale for why the proposed MIDD is suitable to answer the question of interest (§2.2.2)
+- `Evaluation of Model(s) and Model Outcomes`: a brief discussion of the key results and conclusions of the technical evaluation of the model and model outcomes (§2.2.3)
+- `Outcome of MIDD Evidence Assessment`: the multidisciplinary team's assessment and conclusion on whether the model outcomes are considered MIDD evidence; does not refer to regulatory review activities (§2.2.4)
+
+## Model Evaluation Elements (§3)
+
+- `verification`: activities that ensure user-generated code for processing data and conducting analysis is error-free, equations reflecting model assumptions are correctly represented in the programming language or software, and calculations are accurate
+- `validation and applicability assessment`: activities that assess model performance and robustness, including adequacy and relevance of the data, model conceptual form, model assumptions, approach to model development, graphical and numerical diagnostics, and external validation; also referred to as "fit-for-purpose"
+- `applicability assessment`: focuses on the adequacy of the data and model for each intended use (distinct from appropriateness of proposed MIDD, which assesses whether the MIDD strategy is suitable)
 
 ## Reporting (§4)
 
 - `MAP`: Model Analysis Plan; pre-defined documentation of intended model analysis, including objectives, data, methods, planned evaluation activities, and technical criteria (§4.1)
+- `MAR`: Model Analysis Report; documents the results of each model analysis submitted to regulators; MAP included as appendix (§4.2)
 
 
-## Development Stage
+## Development Stages
 
 - `MIDD planning stage`: any timepoint when drug developers are planning MIDD activities, generally prior to availability of model outcomes relevant to the question of interest
+- `MIDD evidence submission stage`: any timepoint when model outcomes are considered as MIDD evidence and submitted to regulators
 
 
 ## Other Terms
 
+- `MIDD evidence`: model outcomes that have been determined, by application of the MIDD evidence assessment framework including model evaluation, to be appropriate to inform the answer to the question of interest
+- `Model outcomes`: results derived from M&S (via model-based predictions or simulations) and associated conclusions, typically aligned to a question of interest
+- `Model evaluation`: performing verification, validation, and applicability assessment of the model
 - `Multidisciplinary team`: a team of subject matter experts from functional areas relevant to the question of interest and context of use
 - `User-generated code`: instructions written by the user of a programming language or software
 

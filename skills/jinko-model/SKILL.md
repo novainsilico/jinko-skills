@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Model creation/editing requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.13,<2.0"
+  requires_sdk: ">=1.14,<2.0"
 license: MIT
 ---
 
@@ -16,8 +16,10 @@ Use this skill for technical model construction and editing through the SDK. Kee
 
 > **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
 > SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
-> skill is not found, install it from `novainsilico/jinko-skills`.
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
+> session code can be exchanged only once, so call `get_session_code` again
+> before this skill's own SDK process. If that skill is not found, install it
+> from `novainsilico/jinko-skills`.
 
 ## Required Workflow
 
@@ -56,6 +58,8 @@ Use this skill for technical model construction and editing through the SDK. Kee
    are separate from graph component-type colors.
 8. Use high-level SDK methods and `model.components.batch(version="...")` for related component changes. The platform tags above already exist; do not recreate them. Create declarations only for other, custom tags.
 9. Re-fetch the model, require no error diagnostics, and run `simple_solve()` for representative `output` components. For events, verify the expected pre-/post-event change.
+
+To read a method signature, call `help()` on the object the client returns, for example `help(type(model))` or `help(model.simple_solve)`. The SDK has no `jinko.model` module.
 
 Use `scripts/create_minimal_model.py`, and the SDK's `python -m jinko.cli.tag_model_components` and `python -m jinko.cli.validate_model_readiness`, rather than long ad-hoc snippets. Scripts are dry-run by default and mutate only with `--apply`.
 

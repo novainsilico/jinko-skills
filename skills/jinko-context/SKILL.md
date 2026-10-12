@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Folder creation requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.13,<2.0"
+  requires_sdk: ">=1.14,<2.0"
 license: MIT
 ---
 
@@ -17,8 +17,9 @@ Use this skill to explain Jinkō's shared mental model and vocabulary. Keep answ
 > **PREREQUISITE:** The folder-management example needs an initialized `jinko-sdk`
 > connection and an SDK satisfying its `metadata.requires_sdk` range. Run the
 > `jinko-sdk-setup` skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once
-> its check passes. If that skill is not found, install it from
-> `novainsilico/jinko-skills`.
+> its check passes. A session code can be exchanged only once, so call
+> `get_session_code` again before this skill's own SDK process. If that skill
+> is not found, install it from `novainsilico/jinko-skills`.
 
 ## Navigation and Version Management
 
@@ -117,5 +118,5 @@ Avoid: extraction catalog, model input bundle.
 - Preserve the Git analogy for orientation, but do not imply Jinkō is literally Git.
 - Distinguish stable SID identity from immutable snapshot identity where that resource exposes snapshots.
 - Use head/latest only when the user wants the current state; name snapshots when exact reproducibility matters.
-- When the user needs to inspect or create folders, read `references/folder-management.md` and use its bundled script rather than improvising API calls.
+- When the user needs to inspect, create, or change folders, read `references/folder-management.md` and use its bundled script or the SDK calls it names rather than improvising API calls.
 - Route implementation tasks to the relevant skill: `jinko-model`, `jinko-protocol`, `jinko-trial`, `jinko-vpop`, `jinko-data-table`, or `jinko-sdk-setup`.

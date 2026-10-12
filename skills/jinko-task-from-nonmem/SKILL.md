@@ -6,7 +6,7 @@ compatibility: >-
   Needs `pip install "jinko-sdk[nonmem2jinko]"`; the converter ships with the SDK but its numerical extra does not install by default. Check set-up with the `jinko-sdk-setup` skill. Creating project items requires write access to the Jinkō project. The independent-parse check needs R with `nonmem2rx` and `rxode2`; without them the conversion still runs, but that check is unavailable rather than passed.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.13,<2.0"
+  requires_sdk: ">=1.14,<2.0"
 license: MIT
 ---
 
@@ -16,8 +16,10 @@ Convert a NONMEM run into a working Jinkō trial.
 
 > **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
 > SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. If that
-> skill is not found, install it from `novainsilico/jinko-skills`.
+> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
+> session code can be exchanged only once, so call `get_session_code` again
+> before this skill's own SDK process. If that skill is not found, install it
+> from `novainsilico/jinko-skills`.
 >
 > This skill additionally needs the converter's extra, which the SDK does not
 > install by default:

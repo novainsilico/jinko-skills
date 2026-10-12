@@ -17,4 +17,8 @@ python skills/jinko-context/scripts/manage_folders.py \
   --create "Figures" --parent-id "fo-..."
 ```
 
-The script refuses to create an exact duplicate below the requested parent. Do not present folder renaming, moving, or deletion as supported SDK operations: they are outside the public folder API.
+The script refuses to create an exact duplicate below the requested parent.
+
+To rename, recolor, or move a folder, call `folder.update(name=..., color=..., parent=...)` on a `Folder` returned by `client.get_folder(...)`, `client.get_folder_by_name(...)`, or `client.list_folders(...)`. Pass only the fields to change. `parent=None` moves the folder to the project root.
+
+`folder.delete()` deletes the folder, all its descendant folders, and every project item they contain. Show the user the folder tree with its project items and get explicit confirmation before you call it.
