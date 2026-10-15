@@ -1,12 +1,12 @@
 ---
 name: jinko-context
 description: >-
-  Explain core Jinkō context, navigation, version management, and domain language for agents and users. Use this skill whenever the user needs a mental model of Jinkō projects, folders, project items, snapshots, sources, extracts, protocols, trials, calibration, virtual populations, references, or modeling context; when translating between generic terms and Jinkō terminology; or when an agent needs orientation before navigating or modifying Jinkō artifacts. It includes a safe SDK example to list folders, render their tree, and create a folder after explicit user confirmation. Use dedicated jinko-* workflow skills for creating or editing scientific artifacts.
+  Explain core Jinkō context, navigation, version management, and domain language for agents and users. Use this skill whenever the user needs a mental model of Jinkō projects, folders, project items, snapshots, references, extracts, highlights, protocols, trials, calibration, virtual populations, traceability links, or modeling context; when translating between generic terms and Jinkō terminology; or when an agent needs orientation before navigating or modifying Jinkō artifacts. It includes a safe SDK example to list folders, render their tree, and create a folder after explicit user confirmation. Use dedicated jinko-* workflow skills for creating or editing scientific artifacts.
 compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Folder creation requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 
@@ -25,9 +25,9 @@ Use this skill to explain Jinkō's shared mental model and vocabulary. Keep answ
 
 Jinkō project navigation behaves much like working in a Git repository, but for scientific modeling artifacts instead of source-code files.
 
-- A **Project** is like the repository: it is the boundary for a concrete scientific modeling effort, including sources, data, models, protocols, trials, reports, and collaboration history.
+- A **Project** is like the repository: it is the boundary for a concrete scientific modeling effort, including references, data, models, protocols, trials, reports, and collaboration history.
 - **Folders** are like repository directories: they organize related project items by workflow, experiment, disease area, evidence package, or analysis thread. The folder API is an organizational surface; a folder is not a Project Item.
-- **Project Items** are like tracked files or domain objects in the repository: each item has an SID and represents a Jinkō artifact such as a model, protocol, trial, data table, source, output set, or document.
+- **Project Items** are like tracked files or domain objects in the repository: each item has an SID and represents a Jinkō artifact such as a model, protocol, trial, data table, reference, output set, or document.
 - **Snapshots** are immutable states exposed by versioned Jinkō core-item APIs. The latest state is head. Do not assume every Project Item type exposes snapshots; use the resource's SDK/API surface to determine whether snapshot identity exists.
 
 This Git-like structure makes Jinkō easier for agents to navigate because agents can separate three questions:
@@ -41,7 +41,7 @@ Use `Project`, `Project Item`, and `Snapshot` rather than generic words like wor
 ## Domain Language
 
 **Project**:
-A concrete scientific modeling effort with its own sources, data, modeling artifacts, and reports.
+A concrete scientific modeling effort with its own References, data, modeling artifacts, and reports.
 Avoid: workspace, case, study folder.
 
 **Folder**:
@@ -49,20 +49,24 @@ An organizational container inside a project used to group related project items
 Avoid: Project Item or directory when speaking to end users unless making the Git analogy.
 
 **Project Item**:
-A named Jinkō object inside a project, such as a source, model, protocol, trial, data table, output set, or document. Its SID is the preferred user-facing identity. Versioned types can retain that identity across versions.
+A named Jinkō object inside a project, such as a Reference, model, protocol, trial, data table, output set, or document. Its SID is the preferred user-facing identity. Versioned types can retain that identity across versions.
 Avoid: file, asset, object when precision matters.
 
 **Snapshot**:
 An immutable state of a Jinkō model, protocol, trial, or other resource whose core-item API exposes snapshots. It enables exact version access; it is not a universal property of folders or every Project Item type.
 Avoid: revision, save, version, commit except when explaining the analogy.
 
-**Source**:
-An immutable scientific input, usually a paper PDF, used as evidence for extraction and modeling.
-Avoid: document, file, upload.
+**Reference**:
+A Project Item that holds a source PDF, usually a scientific paper, and its bibliography metadata, such as the DOI. It is the evidence for extraction and modeling. The Jinkō API type name of this item is `Source`.
+Avoid: source, document, file, upload. Use `Source` only for the API type name.
 
 **Extract**:
-A structured piece of information derived from a source, such as a parameter value, clinical endpoint, experimental condition, mechanism statement, data series, or assumption. Extracts should stay linked to the source evidence that justifies them.
+A Project Item that holds one selected textual, rectangular, formula, or data-table object from one Reference. It can carry a formulation that states the evidence, such as a parameter value, clinical endpoint, or mechanism statement, and a classification (Statement, Hypothesis, or Data).
 Avoid: note, snippet, untracked fact.
+
+**Highlight**:
+A located piece of evidence inside an Extract. It links to its position in the Reference PDF. A Highlight is not a Project Item.
+Avoid: annotation, quote.
 
 **Model**:
 A Jinkō-compatible executable representation of the biological or pharmacological mechanism being modeled.
@@ -88,12 +92,12 @@ Avoid: free parameter, tuned knob.
 A generated population of parameterized virtual subjects used for in-silico trial execution.
 Avoid: cohort, sample.
 
-**Reference**:
-The trace from a model, dataset, or report assertion back to the source evidence or assumptions that justify it.
-Avoid: citation, provenance.
+**Traceability Link**:
+The link from a model, dataset, or report assertion back to the Extract, Reference, or explicit assumption that justifies it.
+Avoid: reference (that term names the Project Item), citation, provenance.
 
 **Modeling Context**:
-The full scientific, protocol, trial, source, and artifact background needed to build or refine a Jinkō Model.
+The full scientific, protocol, trial, Reference, and artifact background needed to build or refine a Jinkō Model.
 Avoid: extraction catalog, model input bundle.
 
 ## Relationships
@@ -102,15 +106,16 @@ Avoid: extraction catalog, model input bundle.
 - A **Folder** organizes Project Items within a Project.
 - Some versioned **Project Items** expose **Snapshots** through their core-item APIs.
 - A **Snapshot** captures one immutable core-item state; consult the resource API rather than assuming one exists.
-- A **Source** supports one or more **Extracts**.
-- An **Extract** should retain a **Reference** to its Source evidence.
+- A **Reference** supports one or more **Extracts**.
+- An **Extract** comes from one **Reference** and holds its evidence as one or more **Highlights**.
+- A **Highlight** links to its position in the Reference PDF.
 - A **Model** represents executable biological or pharmacological mechanisms.
 - A **Protocol** defines arms, interventions, and timing used by a Trial.
 - A **Trial** uses a **Protocol**, a **Model**, output sets or measures, and optional transformed data overlays.
 - A **Calibration** uses selected evidence and outputs to adjust Calibration Candidates.
 - A **Virtual Population** provides parameterized virtual subjects for Trial execution.
-- A **Reference** links Project Items, Model components, Trial outputs, data tables, and reports back to Sources or explicit assumptions.
-- A **Modeling Context** gathers the relevant Sources, Extracts, References, Models, Protocols, Trials, and reports needed to make a modeling decision.
+- A **Traceability Link** connects Project Items, Model components, Trial outputs, data tables, and reports back to Extracts, References, or explicit assumptions.
+- A **Modeling Context** gathers the relevant References, Extracts, Traceability Links, Models, Protocols, Trials, and reports needed to make a modeling decision.
 
 ## Response Guidance
 
@@ -119,4 +124,4 @@ Avoid: extraction catalog, model input bundle.
 - Distinguish stable SID identity from immutable snapshot identity where that resource exposes snapshots.
 - Use head/latest only when the user wants the current state; name snapshots when exact reproducibility matters.
 - When the user needs to inspect, create, or change folders, read `references/folder-management.md` and use its bundled script or the SDK calls it names rather than improvising API calls.
-- Route implementation tasks to the relevant skill: `jinko-model`, `jinko-protocol`, `jinko-trial`, `jinko-vpop`, `jinko-data-table`, or `jinko-sdk-setup`.
+- Route implementation tasks to the relevant skill: `jinko-reference`, `jinko-model`, `jinko-protocol`, `jinko-trial`, `jinko-vpop`, `jinko-data-table`, or `jinko-sdk-setup`.

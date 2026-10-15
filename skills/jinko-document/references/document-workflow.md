@@ -35,12 +35,39 @@ Never overwrite a canonical local markdown file with `document.content()` output
 
 ## Jinkō rendering rules
 
-- An SDK-provided Jinkō project-item URL for a `cm-...`, `so-...`, `as-...`, or `do-...` item renders best when it is the only content in its paragraph.
+- An SDK-provided Jinkō project-item URL for a `cm-...`, `so-...`, or `do-...` item renders best when it is the only content in its paragraph. For extracts (`as-...`), see "Extracts in documents".
 - A markdown link with custom text is still a normal link, not a project-item card.
 - A bare URL prefixed by a bullet is not alone in its paragraph and must not be assumed to render as a card.
 - A revision-specific reference must be a normal link containing `?revision=n`; do not render it as a card.
 - A Jinkō image URL can be inserted with standard markdown image syntax: `![alt](https://.../file-manager/<uuid>)`.
 - A public external image URL can also be used directly if Jinkō can reach it.
+
+## Extracts in documents
+
+The importer reads extract (`as-...`) URLs line by line:
+
+| Markdown line | Result |
+| --- | --- |
+| URL alone on its line | The highlighted PDF text (or the figure), then the extract badge |
+| `Sentence. <URL>` | The sentence, then the badge |
+| `Sentence. <URL-A> <URL-B>` | The sentence, then both badges side by side |
+| `[label](<URL>)` | A plain link, no badge |
+
+To reword an extract sentence in a document, edit the sentence text and keep
+the bare URL at the end of the same line. To merge extracts, write one sentence
+and put all their URLs at its end, separated by spaces. Do not re-create
+extracts for this.
+
+To change the formulation stored on the extract itself, use
+`extract.set_description(text)` (see `jinko-reference`). It does not change the
+text of existing documents or the text that a URL alone inserts.
+
+To keep the badges intact:
+
+- Keep each sentence and its URLs on one line. A line break before a URL splits
+  the paragraph, and a URL alone on its line inserts the highlighted text again.
+- `document.content()` exports side-by-side badges on separate lines. Put those
+  URLs back on the sentence line before you send the markdown again.
 
 ## Local inputs and preview
 

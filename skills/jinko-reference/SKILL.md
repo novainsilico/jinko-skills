@@ -15,7 +15,7 @@ compatibility: >-
   `jinko-sdk[pdf]` and a PDF with a searchable native text layer.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 
@@ -56,10 +56,12 @@ traceable from a model or report to its source.
    and existing extracts, then reuse it. If only bibliographic metadata is
    available, require a verified stable identifier such as DOI; title alone is
    insufficient.
-2. Create a Reference with `client.create_reference_from_doi(doi)` for a verified
-   DOI, or upload a user-supplied PDF with `client.create_reference_from_pdf`.
-   For a PDF, provide exactly one of `pdf_file_path` or `pdf_content`. Check that
-   the project does not already contain the Reference.
+2. When the DOI is known, call `client.find_references_by_doi(doi)` before you
+   create a Reference. Reuse a match to prevent a duplicate. If there are several
+   matches, ask the user which SID to use. If there is no match, create a
+   Reference with `client.create_reference_from_doi(doi)` for a verified DOI, or
+   upload a user-supplied PDF with `client.create_reference_from_pdf`. For a PDF,
+   provide exactly one of `pdf_file_path` or `pdf_content`.
 3. Use `create_extract_from_pdf_quote` for textual passages. It is the preferred
    method because it finds anchors automatically; give one-based `page_hints`
    when known.

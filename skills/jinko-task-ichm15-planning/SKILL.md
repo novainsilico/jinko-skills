@@ -6,7 +6,7 @@ compatibility: >-
   Jinkō upload requires jinko-document, jinko-sdk-setup, and project write access.
 metadata:  
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 

@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas. Drawing plots requires matplotlib and pandas in the active Python environment.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 

@@ -30,6 +30,11 @@
       "id": 6,
       "prompt": "Add a bibliography entry for a paper titled Study 2024. I do not know whether the project already contains it, but use any same-title Reference you find or upload papers/study.pdf if needed.",
       "expected_output": "Does not reuse a Reference by title and does not create one from the document workflow. It requires an explicit Reference SID or resource URL, or routes PDF creation to jinko-reference and then uses the returned identity."
+    },
+    {
+      "id": 7,
+      "prompt": "In my Jinkō document do-AbCd-1234 I pasted my extracts for a knowledge model. Each one shows the raw PDF text with line breaks and hyphens, then the extract box. Rewrite each one as a clean sentence and keep its extract box at the end. Two of them state the same fact, so merge them into one sentence with both boxes.",
+      "expected_output": "Reads the document with `document.content()`, rewrites each raw insertion as one sentence on a single line ending with the bare `as-...` extract URL, puts both URLs at the end of the merged sentence line separated by a space, does not use labeled links, does not re-create extracts, and previews the update with the structural check before applying it with the approval digest."
     }
   ]
 }

@@ -1,0 +1,7 @@
+interface:
+  display_name: "ICH M15 planning"
+  short_description: "Plan model-informed drug development under ICH M15"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-ichm15-planning to plan my model-informed drug development work under ICH M15."
+policy:
+  allow_implicit_invocation: true

@@ -15,7 +15,7 @@ compatibility: >-
   Excel component import is a Model Builder action.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 

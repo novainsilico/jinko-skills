@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.15.0 (2026-10-15)
+
+### Highlights
+
+- Combining two models no longer leaves you stuck: the SDK reads the conflicts of a combined model and resolves them, and `jinko-model` explains the whole flow.
+
+### Skills
+
+#### Added
+
+- Every published Jinkō skill now ships display metadata for the OpenAI plugin, so each skill shows a display name, a short description, and a starting prompt.
+- `jinko-task-export-to-matlab` and `jinko-task-ichm15-planning` now carry this plugin metadata too, and the agent can call them without an explicit mention.
+- `jinko-model`: a new "Model combination and conflicts" reference covers `combine_with`, how to record the snapshot to roll back to, how to read differing and identical conflicts, how to resolve them one by one or in bulk, and how to validate the combined model.
+
+#### Changed
+
+- `jinko-context`: the folder management reference now shows how to delete a folder by ID with `client.delete_folder(folder_id)`, next to `folder.delete()`.
+- `jinko-reference`: the knowledge curation reference now states that `extract.set_description(text)` sets both the description and the formulation.
+- `jinko-reference`: the skill now looks up the DOI with `client.find_references_by_doi(doi)` before it creates a Reference. It reuses a single match, asks you which SID to use when there are several matches, and creates a Reference only when there is no match.
+- `jinko-document`: a new "Extracts in documents" reference explains how each line form renders. Cite an extract with its bare URL at the end of the sentence line, reword or merge extract sentences without creating new extracts, and keep the badges intact through `document.content()` round trips.
+- The Jinkō plugin manifest now follows the open Agent Plugins schema, and it also defines a dark-mode brand color and dark icons.
+- The Jinkō plugin now points to the SDK and skills documentation as its support page.
+- Installing the Jinkō plugin now starts with `jinko-sdk-setup` as the onboarding skill, so you configure and verify your connection first.
+- `jinko-context`: the domain language now says "Reference" for the project item that holds a source PDF and its bibliography metadata, names `Source` only as the API type, defines Highlight, and calls the trace back to evidence a "Traceability Link."
+- `jinko-model`: step 6 now puts new References in the folder that the project's folder convention gives, instead of a fixed literature subfolder.
+
+### SDK
+
+#### Added
+
+- `JinkoClient.delete_folder(folder)` deletes a folder, its descendant folders, and every project item they contain. Pass a `Folder` or a folder ID; use it when you only hold the ID.
+- `JinkoClient.find_references_by_doi(doi)` returns the non-deleted references of the project with that DOI, or an empty list. The comparison ignores case, surrounding whitespace, a `doi:` prefix, and a `doi.org` or `dx.doi.org` URL prefix. The lookup reads each reference of the project, so call it once per DOI and keep the result.
+- `Model.conflicts` returns the unresolved collisions that `combine_with` creates on the model head. Filter the view with `differing()`, `identical()`, `for_kind(...)`, `by_kind()`, `ids()`, and `get(id)`, and read each side of a collision through `from_` and `to`.
+- `model.conflicts.resolve(...)` settles conflicts and returns the model at the new snapshot. Pass one strategy for the whole view, `"AcceptCurrent"`, `"AcceptIncoming"`, or `"AcceptBoth"`, or a mapping keyed by component id. Keeping both versions takes `incoming_new_name`, and optionally `current_new_name`.
+- `Model.snapshot_before_combine()` returns the snapshot the model was on before its last combination, or `None` when it was never combined.
+
+#### Changed
+
+- The check for a newer `jinko-sdk` release on PyPI now runs once a day instead of once a week, so the upgrade notice appears sooner.
+- `jinko check-jinko-connection` no longer calls PyPI itself. It reports the installed version, and the version notice comes from the single check that runs when you import the SDK.
+
+#### Fixed
+
+- `Extract.set_description()` now sets the description instead of raising `NotImplementedError`. The API also copies the text into the extract formulation, so `formulation` returns the new text after the call.
+- `Extract.rename()` and `Extract.move_to_folder()` now work instead of raising `NotImplementedError`. A name you set by hand is kept, because automatic naming only replaces the default `Untitled` name.
+- `jinko check-markdown-structure` now counts bare Jinkō project item URLs, such as an extract badge at the end of a sentence. A dropped URL is reported as a loss; moving a URL to another line is not.
+
+Skills in this release require `jinko-sdk>=1.15,<2.0`.
+
 ## 1.14.0 (2026-10-12)
 
 ### Highlights

@@ -1,12 +1,12 @@
 ---
 name: jinko-model
 description: >-
-  Build or edit a Jinkō computational model (QSP/PK-PD) via the jinko-sdk: parameters, categorical parameters, compartments, species, ODEs, reactions, dosing events, algebraic rules, baseline checks, solving options, units, and component tags. Use this skill whenever the user wants to create a model from scratch, create an empty model, edit an existing model, add or modify components, apply input/source/output tags, configure unit checking, define model-level dosing events, validate diagnostics, or debug model sanity or simple_solve errors. Prefer editing existing models over recreating them. Do not use this skill for running trials; use jinko-trial for trial execution.
+  Build or edit a Jinkō computational model (QSP/PK-PD) via the jinko-sdk: parameters, categorical parameters, compartments, species, ODEs, reactions, dosing events, algebraic rules, baseline checks, solving options, units, and component tags. Use this skill whenever the user wants to create a model from scratch, create an empty model, edit an existing model, add or modify components, apply input/source/output tags, configure unit checking, define model-level dosing events, combine two models and resolve their conflicts, validate diagnostics, or debug model sanity or simple_solve errors. Prefer editing existing models over recreating them. Do not use this skill for running trials; use jinko-trial for trial execution.
 compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Model creation/editing requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 
@@ -42,7 +42,7 @@ Use this skill for technical model construction and editing through the SDK. Kee
    for a model meant to be single-arm and deterministic.
    `python -m jinko.cli.validate_model_readiness --model-sid cm-...` runs these
    three checks by default.
-6. Attach a traceability link to every value-bearing input tagged `s::knowledge`. Prefer, in this order: the Extract that holds the value, the Reference that holds the Extract, then any other project item that produced the value. Use an external DOI or URL only when the project holds no such item, and report every external link for review. Use the `jinko-reference` skill to upload a missing source and to create its extracts in a dedicated literature subfolder before you link.
+6. Attach a traceability link to every value-bearing input tagged `s::knowledge`. Prefer, in this order: the Extract that holds the value, the Reference that holds the Extract, then any other project item that produced the value. Use an external DOI or URL only when the project holds no such item, and report every external link for review. Use the `jinko-reference` skill to upload a missing source PDF as a Reference and to create its Extracts before you link. Put them in the folder that the project's folder convention gives for References.
 7. Optionally attach scientific scoped tags for model navigation and visualization:
    - `granularity::*` for biological or spatial scale; tag color `#0cd95e`.
    - `phenomenon::*` for the represented physical or biological process; tag color `#f87171`.
@@ -70,4 +70,5 @@ For transparent ISO 8601 duration conversions, use `from jinko.iso8601 import Du
 - Read `references/model-components.md` for component batching, tags, events, formulas, and algebraic rules.
 - Read `references/unit_docs.md` for unit semantics and conversion behavior.
 - Read `references/model-validation.md` for diagnostics and readiness checks.
+- Read `references/model-combination.md` before `combine_with`, and to read or resolve `model.conflicts`.
 - Read `references/scientific-scoped-tags.md` when selecting optional scale, phenomenon, module, or readout tags. It includes a broad, extensible catalog of QSP, PBPK, and PK/PD examples.

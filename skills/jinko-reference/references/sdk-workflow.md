@@ -30,6 +30,20 @@ filter by kind or classification when reviewing a large collection.
 
 ## Create a Reference
 
+Look up the DOI before you create a Reference. `client.find_references_by_doi`
+ignores case, a `doi:` prefix, and a `https://doi.org/` prefix. It does not
+return deleted References or References without a DOI. It reads each Reference
+of the project, so call it once per DOI and keep the result.
+
+```python
+matches = client.find_references_by_doi("https://doi.org/10.1000/EXAMPLE")
+if len(matches) == 1:
+    reference = matches[0]
+```
+
+Ask the user which SID to use when there are several matches. Create a new
+Reference only when the list is empty.
+
 Use `create_reference_from_pdf` with exactly one of `pdf_file_path` or
 `pdf_content` to upload a PDF.
 

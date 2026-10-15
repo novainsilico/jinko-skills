@@ -12,7 +12,7 @@ compatibility: >-
   access to the target Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.14,<2.0"
+  requires_sdk: ">=1.15,<2.0"
 license: MIT
 ---
 
@@ -38,7 +38,8 @@ surface whenever possible.
 - Treat markdown as the current supported authoring format. Do not promise DOCX, PDF, or notebook conversion unless the user explicitly asks for a custom preprocessing step.
 - Format inline mathematical expressions with single dollar signs and display equations with a fenced `mathBlock` block; see `references/document-workflow.md` for syntax and examples.
 - If the user wants project-item cards, place each Jinkō project-item URL alone in its own paragraph.
-- A URL in a bullet, table cell, sentence, or labeled markdown link is not a project-item card. Use a normal markdown link in those contexts.
+- A URL in a bullet, table cell, sentence, or labeled markdown link is not a project-item card. Use a normal markdown link in those contexts, except for extracts.
+- Cite an extract (`as-...`) with its bare URL at the end of the sentence line. A labeled link drops the extract badge. Read "Extracts in documents" in `references/document-workflow.md` before you reword or merge extract sentences.
 - Do not put backticks inside a Jinkō markdown-link label. Prefer `[cm-example](<resource.url>)` over ``[`cm-example`](...)`` because exported markdown can turn code-styled labels into code-wrapped, non-clickable link text.
 - When a reference targets a specific project-item revision, use the resource's configured app URL with `?revision=n`, preferably via `resource.url_with_fixed_revision(n)`. Do not use a card for a revision-specific reference.
 - Keep the exact markdown payload used for creation or update as the durable local mirror. Mirror the upload payload, not a subsequent `document.content()` response.

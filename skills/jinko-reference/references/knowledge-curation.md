@@ -16,6 +16,7 @@ SIDs and Jinkō links in the handoff.
   its source Reference.
 - `extract.formulation` is the stored wording, if present. Retain a distinction
   between that formulation and what was selected in the original PDF.
+  `extract.set_description(text)` sets both the description and the formulation.
 
 ## Human Review and Classification
 

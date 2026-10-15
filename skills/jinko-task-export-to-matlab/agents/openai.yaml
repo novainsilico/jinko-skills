@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō to MATLAB"
+  short_description: "Export Jinkō models to MATLAB and SimBiology"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-export-to-matlab to export my Jinkō model to MATLAB or SimBiology."
+policy:
+  allow_implicit_invocation: true

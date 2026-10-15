@@ -40,6 +40,11 @@
       "id": 8,
       "prompt": "Run the model readiness script without any --require-tag options and tell me whether the model is fully ready.",
       "expected_output": "Checks diagnostics and simple_solve but states that the tag policy was not checked, rather than claiming full model readiness."
+    },
+    {
+      "id": 9,
+      "prompt": "I combined cm-456 into my model cm-123 and Jinkō now says the model is conflicted. Most clashes look identical, but k_clearance and dTumor differ. Keep my k_clearance, and keep both versions of dTumor. Clear everything so I can run trials again.",
+      "expected_output": "Reads model.conflicts and reports the differing ones, resolves k_clearance with AcceptCurrent and dTumor with AcceptBoth plus an incoming_new_name, resolves the identical conflicts too because the model stays conflicted until all are resolved, re-reads model.conflicts to confirm it is empty, then checks diagnostics and simple_solve. Does not pick one strategy for every differing conflict on its own."
     }
   ]
 }
