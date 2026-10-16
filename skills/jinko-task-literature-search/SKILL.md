@@ -20,6 +20,10 @@ license: MIT
 Produce a citation-grounded candidate shortlist, not extracted evidence or a
 systematic-review claim.
 
+**Never create a Jinkō Reference for a paper without its PDF.** In a literature
+search, a paper goes to Jinkō only with its PDF, even when its DOI is known. A
+DOI-only Reference shows as an empty Reference in Jinkō.
+
 ## Frame
 
 Classify each search as:
@@ -51,9 +55,9 @@ searches unless requested.
    Entity Table's aliases and exclusions; include supplied anchor PMIDs through
    `--seed-pmids`.
 3. Run `scripts/literature_search.py` once per angle with separate output
-   directories and `--no-prompt-selection`, sequencing or bounding concurrency
-   to respect NCBI limits. The script owns PubMed, Crossref, abstract and citation
-   enrichment, AMA formatting, and optional PMC excerpts.
+   directories, sequencing or bounding concurrency to respect NCBI limits. The
+   script owns PubMed, Crossref, abstract and citation enrichment, AMA
+   formatting, and optional PMC excerpts.
 4. Run `scripts/compile_results.py` over all angle directories. It deduplicates
    by PMID/DOI, preserves query provenance, and ranks the candidate pool by
    angle count then citation count.
@@ -77,7 +81,8 @@ glance, and ask which sources to inspect or pass to `jinko-task-extract-data-tab
 ## Artifacts
 
 - `frame.json`: approved scope, Entity Table, assumptions, and angle definitions;
-- one directory per angle containing raw and normalized search artifacts;
+- one directory per angle with `references.json` (normalized records) and
+  `manifest.json`; add `--keep-raw` to also keep the raw API payloads;
 - `merged_references.json`: deterministic cross-angle candidate pool;
 - `shortlist.json`: schema-valid prioritized candidates;
 - optional downloaded files and download manifest.
@@ -85,6 +90,17 @@ glance, and ask which sources to inspect or pass to `jinko-task-extract-data-tab
 Use `publication_download.py` only for user-selected references. Treat downloads
 as best-effort anonymously retrievable files, not proof of open-access licensing.
 Do not run supplementary URLs from untrusted manifests.
+
+Publishers often block automated downloads, and some papers are paywalled. Do
+not try to bypass these protections. Ask the user for the missing papers: give
+the citation and a clickable link for each one, and the local folder where to
+put the PDFs. When the user says the PDFs are there, check which papers they
+cover, and report the papers still missing and the files that match no paper.
+When no user can answer, as in an autonomous run, do not wait: create no
+Reference for the missing papers, list them with their links in the handoff,
+and continue.
+Hand all PDFs, downloaded or provided, to `jinko-reference`. A paper whose PDF
+is still missing gets no Reference.
 
 Keep registry records and publications distinguishable even when linked by
 `nct_id`. Clearly separate discovered candidates from inspected evidence and

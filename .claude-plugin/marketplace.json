@@ -9,30 +9,12 @@
   "renames": {
     "jinko-skills": "jinko"
   },
+  "version": "1.15.1",
   "plugins": [
     {
       "name": "jinko",
-      "displayName": "Jinkō",
-      "license": "MIT",
       "source": "./",
       "description": "Skills for quantitative systems pharmacology using Jinkō platform. Support the full modeling workflow: gathering evidence and observed data, building and calibrating models, estimating uncertainty, running sensitivity analyses, creating virtual populations, simulating clinical  trials, visualizing results, and producing analysis.",
-      "author": {
-        "name": "Nova In Silico",
-        "email": "oss@novainsilico.ai",
-        "url": "https://www.novainsilico.ai/"
-      },
-      "keywords": [
-        "jinko",
-        "AI-assisted modeling",
-        "trial simulation and optimization",
-        "virtual patients",
-        "digital twins",
-        "QSP",
-        "MIDD",
-        "in-silico trials"
-      ],
-      "homepage": "https://www.novainsilico.ai",
-      "repository": "https://github.com/novainsilico/jinko-skills",
       "category": "Healthcare",
       "tags": [
         "ai-assisted-modeling",
@@ -53,36 +35,7 @@
             "jinko.ai"
           ]
         }
-      },
-      "strict": false,
-      "version": "1.15.0",
-      "skills": [
-        "./skills/jinko",
-        "./skills/jinko-calibration-cmaes",
-        "./skills/jinko-calibration-subsampling",
-        "./skills/jinko-context",
-        "./skills/jinko-data-table",
-        "./skills/jinko-document",
-        "./skills/jinko-model",
-        "./skills/jinko-output-set",
-        "./skills/jinko-protocol",
-        "./skills/jinko-reference",
-        "./skills/jinko-sdk-setup",
-        "./skills/jinko-solution-and-product-guide",
-        "./skills/jinko-task-cmaes",
-        "./skills/jinko-task-define-param-to-calibrate",
-        "./skills/jinko-task-extract-data-table",
-        "./skills/jinko-task-export-to-matlab",
-        "./skills/jinko-task-from-nonmem",
-        "./skills/jinko-task-ichm15-planning",
-        "./skills/jinko-task-literature-search",
-        "./skills/jinko-task-paper2model",
-        "./skills/jinko-task-trial-data-scoping",
-        "./skills/jinko-trial-viz",
-        "./skills/jinko-trial",
-        "./skills/jinko-vpop"
-      ]
+      }
     }
-  ],
-  "version": "1.15.0"
+  ]
 }

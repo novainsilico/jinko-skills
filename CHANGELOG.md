@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.15.1 (2026-10-16)
+
+### Highlights
+
+- `jinko-task-literature-search` no longer creates empty Jinkō References: a paper reaches Jinkō only with its PDF, and the agent asks you for the PDFs it cannot download.
+
+### Skills
+
+#### Changed
+
+- `jinko-task-literature-search`: each angle directory now holds `references.json` and `manifest.json` only. Add `--keep-raw` to also write the raw PubMed and Crossref payloads.
+- `jinko-task-literature-search`: a paper goes to Jinkō only with its PDF. When a download fails, the agent lists the missing papers with their citation and link, asks you to put the PDFs in a local folder, then reports the papers still missing and the files that match no paper. In an autonomous run it skips the missing papers and continues instead of waiting.
+- `jinko-reference`: states both ways to create a Reference, from a PDF or from a verified DOI. After a PDF upload it compares the DOI that Jinkō detected with the expected DOI, and on a mismatch it gives you the Reference URL and the DOI to set.
+
+#### Fixed
+
+- The Claude Code marketplace entry and the plugin manifest are now separate files, so the plugin installs and lists correctly.
+
+#### Removed
+
+- `jinko-task-literature-search`: the interactive selection prompt, the `--enable-publication-download` option, and the `summary_table.json`, `selected_references.json`, `references_ama.txt`, and per-angle `README.md` files. Download the references you selected with `publication_download.py`.
+
+Skills in this release require `jinko-sdk>=1.15,<2.0`.
+
 ## 1.15.0 (2026-10-15)
 
 ### Highlights

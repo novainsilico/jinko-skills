@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "jinko",
+  "description": "Skills for quantitative systems pharmacology using Jinkō platform. Support the full modeling workflow: gathering evidence and observed data, building and calibrating models, estimating uncertainty, running sensitivity analyses, creating virtual populations, simulating clinical  trials, visualizing results, and producing analysis.",
+  "author": {
+    "name": "Nova In Silico",
+    "email": "oss@novainsilico.ai",
+    "url": "https://www.novainsilico.ai/"
+  },
+  "homepage": "https://www.novainsilico.ai",
+  "repository": "https://github.com/novainsilico/jinko-skills",
+  "license": "MIT",
+  "keywords": [
+    "jinko",
+    "AI-assisted modeling",
+    "trial simulation and optimization",
+    "virtual patients",
+    "digital twins",
+    "QSP",
+    "MIDD",
+    "in-silico trials"
+  ],
+  "version": "1.15.1",
+  "displayName": "Jinkō",
+  "icon": "./assets/icon.png",
+  "documentationUrl": "https://doc.jinko.ai/docs/agentic/sdk-and-skills/",
+  "supportUrl": "https://doc.jinko.ai/docs/agentic/sdk-and-skills/",
+  "privacyPolicyUrl": "https://www.novainsilico.ai/data-policy/",
+  "termsOfServiceUrl": "https://jinko.ai/terms-of-use"
+}

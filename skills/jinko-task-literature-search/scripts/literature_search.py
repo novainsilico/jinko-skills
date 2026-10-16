@@ -20,7 +20,6 @@ try:
         require_requests,
         write_json,
     )
-    from publication_download import download_publications
 except ImportError:  # pragma: no cover
     from .common import (
         display_path,
@@ -31,9 +30,15 @@ except ImportError:  # pragma: no cover
         require_requests,
         write_json,
     )
-    from .publication_download import download_publications
 
 ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+RAW_PAYLOAD_FILES = (
+    "esearch.json",
+    "esearch_seed.json",
+    "esummary.json",
+    "crossref.json",
+    "efetch_abstracts.xml",
+)
 ESUMMARY_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
 EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 CROSSREF_WORKS_URL = "https://api.crossref.org/works"
@@ -322,176 +327,10 @@ def _apply_reference_ranking(
     )
 
 
-def _source_link(reference: dict[str, Any]) -> str:
-    doi = str(reference.get("doi", "")).strip()
-    if doi:
-        return f"https://doi.org/{doi}"
-    pmcid = str(reference.get("pmcid", "")).strip()
-    if pmcid:
-        return f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
-    pmid = str(reference.get("pmid", "")).strip()
-    if pmid:
-        return f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-    return ""
-
-
-def _to_year(reference: dict[str, Any]) -> str:
-    published = str(reference.get("published_date", "")).strip()
-    if len(published) >= 4 and published[:4].isdigit():
-        return published[:4]
-    return ""
-
-
-def _relative_link(base_dir: Path, path_value: str) -> str:
-    normalized = path_value.strip()
-    if not normalized:
-        return ""
-    path = Path(normalized)
-    absolute = path if path.is_absolute() else (Path.cwd() / path).resolve()
-    try:
-        return str(absolute.relative_to(base_dir.resolve()))
-    except ValueError:
-        return display_path(absolute)
-
-
-def _write_readme_summary(
-    *,
-    output_dir: Path,
-    selected_references: list[dict[str, Any]],
-    downloads_manifest_path: Path | None,
-) -> None:
-    download_by_key: dict[tuple[str, str], dict[str, Any]] = {}
-    if downloads_manifest_path is not None and downloads_manifest_path.exists():
-        raw_manifest = json.loads(downloads_manifest_path.read_text(encoding="utf-8"))
-        records = (
-            raw_manifest.get("downloads", []) if isinstance(raw_manifest, dict) else []
-        )
-        if isinstance(records, list):
-            for record in records:
-                if not isinstance(record, dict):
-                    continue
-                doi = str(record.get("doi", "")).strip().lower()
-                pmid = str(record.get("pmid", "")).strip()
-                download_by_key[(doi, pmid)] = record
-
-    header = [
-        "# Literature Search",
-        "",
-        "## Download Summary",
-        "",
-        "| Year | Article | Title | Ranking | Citations | Journal | PDF | "
-        "Source | Supplements | PMCID |",
-        "|---|---|---|---:|---:|---|---|---|---|---|",
-    ]
-
-    rows: list[str] = []
-    for reference in selected_references:
-        doi = str(reference.get("doi", "")).strip()
-        pmid = str(reference.get("pmid", "")).strip()
-        key = (doi.lower(), pmid)
-        download = download_by_key.get(key, {})
-
-        article_id = pmid or doi or ""
-        title = str(reference.get("title", "")).strip().replace("|", "\\|")
-        ranking = str(reference.get("ranking_score", "")).strip()
-        citations = str(int(reference.get("is_referenced_by_count", 0) or 0))
-        journal = str(reference.get("journal_title", "")).strip().replace("|", "\\|")
-
-        pdf_value = ""
-        main_pdf_raw = download.get("downloaded_main_file", "")
-        main_pdf = str(main_pdf_raw).strip() if main_pdf_raw is not None else ""
-        if main_pdf and main_pdf.lower() != "none":
-            rel = _relative_link(output_dir, main_pdf)
-            pdf_value = f"[{Path(rel).name}]({rel})"
-
-        source_url = _source_link(reference)
-        source_value = f"[link]({source_url})" if source_url else ""
-
-        supp_paths = (
-            download.get("supplementary_files", [])
-            if isinstance(download, dict)
-            else []
-        )
-        supplements: list[str] = []
-        if isinstance(supp_paths, list):
-            for supp in supp_paths:
-                if not isinstance(supp, str) or not supp:
-                    continue
-                rel = _relative_link(output_dir, supp)
-                supplements.append(f"[{Path(rel).name}]({rel})")
-        supplements_value = ", ".join(supplements)
-
-        pmcid = str(reference.get("pmcid", "") or "")
-        rows.append(
-            "| "
-            + " | ".join([
-                _to_year(reference),
-                article_id.replace("|", "\\|"),
-                title,
-                ranking,
-                citations,
-                journal,
-                pdf_value,
-                source_value,
-                supplements_value,
-                pmcid,
-            ])
-            + " |"
-        )
-
-    (output_dir / "README.md").write_text(
-        "\n".join(header + rows + [""]), encoding="utf-8"
-    )
-
-
-def _print_reference_candidates(references: list[dict[str, Any]]) -> None:
-    print("Candidate publications:")
-    for index, reference in enumerate(references, start=1):
-        title = str(reference.get("title", "")).strip() or "Untitled"
-        pmid = str(reference.get("pmid", "")).strip() or "N/A"
-        doi = str(reference.get("doi", "")).strip() or "N/A"
-        print(f"  [{index}] PMID {pmid} | DOI {doi} | {title}")
-
-
-def _select_references_human_in_loop(
-    references: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    if not references:
-        return []
-    _print_reference_candidates(references)
-    prompt = "Select publications to keep (all, none, or comma-separated indices like 1,3,5): "
-    while True:
-        answer = input(prompt).strip().lower()
-        if answer == "all":
-            return references
-        if answer in {"none", ""}:
-            return []
-        tokens = [token.strip() for token in answer.split(",") if token.strip()]
-        if not tokens:
-            print("Invalid selection. Enter all, none, or valid indices.")
-            continue
-        indices: list[int] = []
-        valid = True
-        for token in tokens:
-            if not token.isdigit():
-                valid = False
-                break
-            value = int(token)
-            if value < 1 or value > len(references):
-                valid = False
-                break
-            if value not in indices:
-                indices.append(value)
-        if not valid:
-            print("Invalid selection. Enter all, none, or valid indices.")
-            continue
-        return [references[index - 1] for index in indices]
-
-
 def _fetch_abstracts_via_efetch(
     pmids: list[str],
     base_params: dict[str, str],
-    output_dir: Path,
+    output_dir: Path | None,
 ) -> dict[str, str]:
     """Fetch abstract text for each PMID via PubMed efetch. Returns {pmid: abstract}.
 
@@ -518,7 +357,8 @@ def _fetch_abstracts_via_efetch(
         xml_text = response.text
     except Exception:
         return {}
-    (output_dir / "efetch_abstracts.xml").write_text(xml_text, encoding="utf-8")
+    if output_dir is not None:
+        (output_dir / "efetch_abstracts.xml").write_text(xml_text, encoding="utf-8")
     abstracts: dict[str, str] = {}
     try:
         root = ET.fromstring(xml_text)
@@ -674,14 +514,13 @@ def run_literature_search(
     query: str,
     output_dir: Path,
     retmax: int = 50,
-    enable_prompt_selection: bool = True,
-    enable_publication_download: bool = False,
     enable_ranking: bool = False,
     objective_keywords: str = "",
     compartment_keywords: str = "",
     seed_pmids: list[str] | None = None,
     fetch_pmc_fulltext: bool = False,
     sort: str = "relevance",
+    keep_raw: bool = False,
 ) -> dict[str, Any]:
     """Run the standalone literature search pipeline and persist artifacts."""
     load_env_file(Path(".env"))
@@ -703,7 +542,8 @@ def run_literature_search(
             "term": query,
         },
     )
-    write_json(output_dir_abs / "esearch.json", esearch_payload)
+    if keep_raw:
+        write_json(output_dir_abs / "esearch.json", esearch_payload)
 
     id_list = esearch_payload.get("esearchresult", {}).get("idlist", [])
     pmids = (
@@ -728,7 +568,8 @@ def run_literature_search(
                     "term": seed_query,
                 },
             )
-            write_json(output_dir_abs / "esearch_seed.json", seed_payload)
+            if keep_raw:
+                write_json(output_dir_abs / "esearch_seed.json", seed_payload)
             seed_ids = seed_payload.get("esearchresult", {}).get("idlist", []) or []
             for sid in seed_ids:
                 sid_str = str(sid).strip()
@@ -748,7 +589,8 @@ def run_literature_search(
                 "id": ",".join(pmids),
             },
         )
-    write_json(output_dir_abs / "esummary.json", esummary_payload)
+    if keep_raw:
+        write_json(output_dir_abs / "esummary.json", esummary_payload)
 
     result_block = (
         esummary_payload.get("result", {}) if isinstance(esummary_payload, dict) else {}
@@ -774,7 +616,8 @@ def run_literature_search(
                 "rows": len(summary_by_doi),
             },
         )
-    write_json(output_dir_abs / "crossref.json", crossref_payload)
+    if keep_raw:
+        write_json(output_dir_abs / "crossref.json", crossref_payload)
 
     crossref_by_doi = _crossref_doi_map(crossref_payload)
     references: list[dict[str, Any]] = []
@@ -814,7 +657,9 @@ def run_literature_search(
             seen_pmids.add(pmid)
 
     # Enrich: abstracts via efetch + citation counts via iCite (always on)
-    abstracts_by_pmid = _fetch_abstracts_via_efetch(pmids, base_params, output_dir_abs)
+    abstracts_by_pmid = _fetch_abstracts_via_efetch(
+        pmids, base_params, output_dir_abs if keep_raw else None
+    )
     icite_by_pmid = _fetch_icite_citations(pmids)
     _enrich_references(references, abstracts_by_pmid, icite_by_pmid)
 
@@ -838,63 +683,18 @@ def run_literature_search(
             compartment_keywords=compartment_keywords,
         )
 
-    selected_references = (
-        _select_references_human_in_loop(references)
-        if enable_prompt_selection
-        else references
-    )
-
     write_json(output_dir_abs / "references.json", references)
-    write_json(output_dir_abs / "selected_references.json", selected_references)
-    write_json(output_dir_abs / "summary_table.json", references)
-    (output_dir_abs / "references_ama.txt").write_text(
-        "\n".join(
-            item.get("citation_ama", "")
-            for item in references
-            if item.get("citation_ama")
-        )
-        + ("\n" if references else ""),
-        encoding="utf-8",
-    )
 
-    download_summary: dict[str, Any] | None = None
-    download_manifest_path: Path | None = None
-    if enable_publication_download and selected_references:
-        download_output_dir = output_dir_abs / "downloads"
-        download_summary = download_publications(
-            selected_references_path=output_dir_abs / "selected_references.json",
-            output_dir=download_output_dir,
-        )
-        download_manifest_path = download_output_dir / "downloads_manifest.json"
-
-    artifacts = {
-        "esearch.json": display_path(output_dir_abs / "esearch.json"),
-        "esummary.json": display_path(output_dir_abs / "esummary.json"),
-        "crossref.json": display_path(output_dir_abs / "crossref.json"),
-        "references.json": display_path(output_dir_abs / "references.json"),
-        "references_ama.txt": display_path(output_dir_abs / "references_ama.txt"),
-        "selected_references.json": display_path(
-            output_dir_abs / "selected_references.json"
-        ),
-        "summary_table.json": display_path(output_dir_abs / "summary_table.json"),
-        "README.md": display_path(output_dir_abs / "README.md"),
-    }
-    if (output_dir_abs / "efetch_abstracts.xml").exists():
-        artifacts["efetch_abstracts.xml"] = display_path(
-            output_dir_abs / "efetch_abstracts.xml"
-        )
-    if seed_pmid_set and (output_dir_abs / "esearch_seed.json").exists():
-        artifacts["esearch_seed.json"] = display_path(
-            output_dir_abs / "esearch_seed.json"
-        )
-    if download_manifest_path is not None:
-        artifacts["downloads_manifest.json"] = display_path(download_manifest_path)
+    artifacts = {"references.json": display_path(output_dir_abs / "references.json")}
+    if keep_raw:
+        for name in RAW_PAYLOAD_FILES:
+            if (output_dir_abs / name).exists():
+                artifacts[name] = display_path(output_dir_abs / name)
     manifest = {
         "stage": "jinko-task-literature-search-standalone",
         "query": query,
         "retmax": safe_retmax,
         "sort": safe_sort,
-        "selection_mode": "prompt" if enable_prompt_selection else "non_interactive",
         "status": "completed",
         "counts": {
             "pmids": len(pmids),
@@ -904,22 +704,11 @@ def run_literature_search(
             "icite_enriched": len(icite_by_pmid),
             "pmc_fulltext_enriched": pmc_enriched_count,
             "seeded_anchors": len(seed_pmid_set),
-            "selected": len(selected_references),
-            "downloaded": (
-                int(download_summary.get("downloaded_count", 0))
-                if download_summary is not None
-                else 0
-            ),
         },
         "artifacts": artifacts,
     }
     manifest_path = output_dir_abs / "manifest.json"
     write_json(manifest_path, manifest)
-    _write_readme_summary(
-        output_dir=output_dir_abs,
-        selected_references=selected_references,
-        downloads_manifest_path=download_manifest_path,
-    )
 
     return {
         "status": "completed",
@@ -929,8 +718,6 @@ def run_literature_search(
         "pmids": len(pmids),
         "doi_candidates": len(summary_by_doi),
         "crossref_matches": len(references),
-        "selected": len(selected_references),
-        "download": download_summary,
         "artifacts": artifacts,
     }
 
@@ -968,16 +755,6 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "--no-prompt-selection",
-        action="store_true",
-        help="Disable interactive candidate selection prompt.",
-    )
-    parser.add_argument(
-        "--enable-publication-download",
-        action="store_true",
-        help="Download selected publications immediately after selection.",
-    )
-    parser.add_argument(
         "--enable-ranking",
         action="store_true",
         help="Enable score-based ranking using query/objective/compartment overlaps.",
@@ -1013,6 +790,11 @@ def _build_parser() -> argparse.ArgumentParser:
             "`pmc_text_excerpt`."
         ),
     )
+    parser.add_argument(
+        "--keep-raw",
+        action="store_true",
+        help="Also write the raw PubMed and Crossref payloads, for debugging.",
+    )
     return parser
 
 
@@ -1026,14 +808,13 @@ def main() -> None:
         query=args.query,
         output_dir=args.output_dir,
         retmax=args.retmax,
-        enable_prompt_selection=not args.no_prompt_selection,
-        enable_publication_download=args.enable_publication_download,
         enable_ranking=args.enable_ranking,
         objective_keywords=args.objective_keywords,
         compartment_keywords=args.compartment_keywords,
         seed_pmids=seed_pmids_list,
         fetch_pmc_fulltext=args.fetch_pmc_fulltext,
         sort=args.sort,
+        keep_raw=args.keep_raw,
     )
     print(json.dumps(summary, indent=2))
 
