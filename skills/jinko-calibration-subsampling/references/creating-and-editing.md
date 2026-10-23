@@ -50,6 +50,10 @@ Use raw dicts only when the typed builder cannot express an API field.
 | Target moments/ranges | `scalar.summary_statistic(...)`; `design.summary_statistics` |
 | Scalar retained for review | `ObservableBuilder` or a descriptor/id; `design.observables` |
 
+`scalar.log_normal(mean=..., standard_deviation=..., base=...)` takes `mean` and `standard_deviation` on the `log_base(value)` scale, not physical values. A target median of 1e-3 with `base=10` is `mean=-3`. Compute the values with `math.log(value, base)` and state the physical median back before you create the design. The same rule applies to the `LogUniform` `lowBound` and `highBound` of the source Vpop design: they are `log_base(min)` and `log_base(max)` (`jinko-vpop`).
+
+`scalar.mixture(...)` component `weight` values are relative weights, not probabilities. They do not have to sum to 1. Use positive round integers, for example `2` and `1` for a 2:1 split, not `0.6666667` and `0.3333333`.
+
 Validate the concrete design with `design.diagnostics` before running a subsampling.
 
 ## Safe edits and reuse

@@ -6,13 +6,13 @@ compatibility: >-
    Check set-up with the `jinko-sdk-setup` skill. Creating vpops or vpop designs requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.15,<2.0"
+  requires_sdk: ">=1.16,<2.0"
 license: MIT
 ---
 
 # Jinkō Vpop SDK Workflows
 
-Use this skill for technical vpop and vpop-design workflows through the SDK. Keep distribution guidance minimal; use the allowed distribution shapes in `assets/distrib.json` and defer deeper distribution design to a dedicated distribution skill when available.
+Use this skill for technical vpop and vpop-design workflows through the SDK. Use the allowed distribution shapes in `assets/distrib.json` and defer deeper distribution design to a dedicated distribution skill when available.
 
 > **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
 > SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
@@ -33,7 +33,7 @@ Use this skill for technical vpop and vpop-design workflows through the SDK. Kee
 - Require explicit confirmation or script `--apply` before creating or updating project items.
 - Descriptor IDs in CSV headers and marginal designs must match real model component IDs when the vpop will be used with that model.
 - Reject duplicate descriptor IDs in marginal lists; converting duplicates to a mapping would otherwise silently discard earlier entries.
-- Log-scale distributions mix two conventions. See "Log-scale distributions" below before you write a `LogUniform`, `LogNormal`, or `LogNormalTruncated` payload.
+- Follow "Log-scale distributions" below for every `LogUniform`, `LogNormal`, or `LogNormalTruncated` payload, and "Mixture distributions" for `Mixture` weights.
 
 ## Project Folder Hygiene
 
@@ -97,17 +97,50 @@ The script converts this list to the SDK mapping expected by `create_vpop_design
 
 ## Log-scale distributions
 
-`assets/distrib.json` defines numeric fields but does not describe their scale:
+Agents often put the physical min and max of a descriptor into `LogUniform` `lowBound` and `highBound`. Jinkō then samples between `base**min` and `base**max`. For a physical range of 0.001 to 10 with `base: 10`, that gives values between about 1 and 1e10. The design diagnostics accept this payload, so the error shows up only in the generated Vpop.
 
-- `LogUniform`: `lowBound` and `highBound` are exponents of `base`. For a range of approximately 9.5e-8 to 8.55e-7 with `base: 10`, pass `-7.02` and `-6.07`.
-- `LogNormal` and `LogNormalTruncated`: `mean` and `stdev` are the mean and standard deviation of the base logarithm of the value. With `base: 10`, `mean: -6` gives an untruncated median of 1e-6.
-- `LogNormalTruncated`: `posLowBound` and `posHighBound` bound the value itself. For a range of 1e-7 to 1e-5, pass those positive numbers directly.
+| Field | Scale | Physical range 1e-4 to 1e-2, `base: 10` |
+| --- | --- | --- |
+| `LogUniform` `lowBound`, `highBound` | `log_base(value)` | `-4`, `-2` |
+| `LogNormal`, `LogNormalTruncated` `mean`, `stdev` | `log_base(value)` | median 1e-3: `mean: -3` |
+| `LogNormalTruncated` `posLowBound`, `posHighBound` | physical value | `1e-4`, `1e-2` |
 
-Value-scale numbers passed as log-scale parameters can produce a Vpop at the wrong order of magnitude without a diagnostic error. After generating a Vpop with a log-scale marginal, read back the descriptor statistics before using it:
+Write each log-scale payload in this order:
+
+1. Write down the physical range or median in the descriptor unit, from the source.
+2. Compute the log-scale parameters with code, not by hand: `math.log(value, base)`. For `base: 10`, use `math.log10(value)`. A physical bound of 0 or less has no logarithm: use a positive lower bound or a different distribution.
+3. Convert back and state the physical result in your reply before you create the design: "`LogUniform(lowBound=-4, highBound=-2, base=10)` samples 1e-4 to 1e-2."
+4. Stop if the round trip does not give the source range. A typical sign of physical values in log fields: `lowBound` and `highBound` are both positive for a parameter smaller than 1.
+
+```json
+[
+  {"id": "k_on", "distribution": {"tag": "LogUniform", "lowBound": -4, "highBound": -2, "base": 10}},
+  {"id": "k_elim", "distribution": {"tag": "LogNormalTruncated", "mean": -1, "stdev": 0.3, "posLowBound": 0.01, "posHighBound": 1, "base": 10}}
+]
+```
+
+The `k_on` entry samples 1e-4 to 1e-2. The `k_elim` entry has a median of 0.1 before truncation and keeps values between 0.01 and 1.
+
+Other Jinkō objects use other conventions. A CMA-ES calibration with `log_transform=True` takes `mean` and `std` in `log10(x)` but `min_bound` and `max_bound` as physical values (`jinko-calibration-cmaes`). Do not copy bounds between a calibration prior and a vpop design without conversion.
+
+After generating a Vpop with a log-scale marginal, read back the descriptor statistics and compare the minimum, maximum, and median with the physical range from step 1:
 
 ```bash
 python -m jinko.cli.inspect_vpop --vpop-sid vp-... --statistics
 ```
+
+## Mixture distributions
+
+Each `mixture` item is a `[weight, distribution]` pair. The weights are relative weights, not probabilities. They do not have to sum to 1: Jinkō normalizes them. Use positive round integers that are easy to read. For a 2:1 split, write `2` and `1`, not `0.6666667` and `0.3333333`. For a published 13.5% subgroup, write `27` and `173`, or round to `1` and `6` if that precision is enough.
+
+```json
+{"id": "k_elim", "distribution": {"tag": "Mixture", "mixture": [
+  [2, {"tag": "LogNormal", "mean": -1, "stdev": 0.2, "base": 10}],
+  [1, {"tag": "LogNormal", "mean": -0.5, "stdev": 0.2, "base": 10}]
+]}}
+```
+
+The `k_elim` entry puts two thirds of the patients in the first component. Each component follows its own scale rules, including the log-scale rules above.
 
 ## Reference Routing
 

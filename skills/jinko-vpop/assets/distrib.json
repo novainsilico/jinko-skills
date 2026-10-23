@@ -10,11 +10,13 @@
         "properties": {
           "highBound": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Physical value."
           },
           "lowBound": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Physical value."
           },
           "tag": {
             "enum": [
@@ -34,15 +36,18 @@
       {
         "properties": {
           "base": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Base of the logarithm used by lowBound and highBound, for example 10."
           },
           "highBound": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Log scale: log_base(physical max), not the physical max. Physical 1e-2 with base 10 is -2."
           },
           "lowBound": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Log scale: log_base(physical min), not the physical min. Physical 1e-4 with base 10 is -4."
           },
           "tag": {
             "enum": [
@@ -88,11 +93,13 @@
         "properties": {
           "highBound": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Physical value."
           },
           "lowBound": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Physical value."
           },
           "mean": {
             "format": "double",
@@ -121,14 +128,17 @@
       {
         "properties": {
           "base": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Base of the logarithm used by mean and stdev, for example 10."
           },
           "mean": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Log scale: mean of log_base(value). The median of the value is base**mean."
           },
           "stdev": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Log scale: standard deviation of log_base(value)."
           },
           "tag": {
             "enum": [
@@ -149,20 +159,25 @@
       {
         "properties": {
           "base": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Base of the logarithm used by mean and stdev, for example 10."
           },
           "mean": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "Log scale: mean of log_base(value) before truncation. The untruncated median is base**mean."
           },
           "posHighBound": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Physical value, not log scale: highest value kept."
           },
           "posLowBound": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Physical value, not log scale: lowest value kept."
           },
           "stdev": {
-            "$ref": "#/components/schemas/PositiveDouble"
+            "$ref": "#/components/schemas/PositiveDouble",
+            "description": "Log scale: standard deviation of log_base(value) before truncation."
           },
           "tag": {
             "enum": [
@@ -309,7 +324,8 @@
               "minItems": 2,
               "type": "array"
             },
-            "type": "array"
+            "type": "array",
+            "description": "List of [weight, distribution] pairs. The weight is a relative weight, not a probability: weights do not have to sum to 1 and Jinkō normalizes them. Use positive round integers, for example [[2, {...}], [1, {...}]] for a 2:1 split."
           },
           "tag": {
             "enum": [

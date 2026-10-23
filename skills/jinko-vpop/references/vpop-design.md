@@ -42,7 +42,7 @@ design = client.create_vpop_design_from_design(
 
 Read `assets/distrib.json` before adding or changing distribution payloads.
 
-`assets/distrib.json` gives the shapes, not the parameter scale. For `LogUniform`, `lowBound` and `highBound` are exponents of `base`. For `LogNormal` and `LogNormalTruncated`, `mean` and `stdev` describe the base logarithm of the value. The `LogNormalTruncated` bounds `posLowBound` and `posHighBound` apply to the value itself. See "Log-scale distributions" in `SKILL.md`.
+Follow "Log-scale distributions" in `SKILL.md` before you write or edit a log-scale marginal, including through `design.descriptors`.
 
 ## Checking Design Sanity
 

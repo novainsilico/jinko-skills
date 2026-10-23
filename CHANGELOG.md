@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.16.0 (2026-10-23)
+
+### Highlights
+
+- `jinko-vpop` and `jinko-calibration-subsampling` now state which distribution parameters are on the log scale and which are physical values, so generated Vpops land at the right order of magnitude.
+
+### Skills
+
+#### Changed
+
+- `jinko-vpop`: states the scale of every log-scale distribution parameter. `LogUniform` bounds and `LogNormal` mean and standard deviation are `log_base(value)`; only the `LogNormalTruncated` bounds `posLowBound` and `posHighBound` are physical values. The skill gives a step-by-step procedure to compute the parameters, state the physical range back, and check the result, plus examples and new evaluations. `assets/distrib.json` carries the same information in its field descriptions.
+- `jinko-vpop`: documents that `Mixture` weights are relative weights that do not have to sum to 1, with round integers such as `2` and `1` for a 2:1 split.
+- `jinko-calibration-subsampling`: states that `scalar.log_normal` takes its mean and standard deviation on the log scale, that the source Vpop design `LogUniform` bounds are log values, and that `scalar.mixture` weights are relative weights.
+
+Skills in this release require `jinko-sdk>=1.16,<2.0`.
+
 ## 1.15.1 (2026-10-16)
 
 ### Highlights

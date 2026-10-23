@@ -25,6 +25,26 @@
       "id": 5,
       "prompt": "Create a Vpop design from a marginal list that contains Dose twice with different distributions.",
       "expected_output": "Rejects the duplicate Dose marginal ID before creating any project item rather than silently keeping the last distribution."
+    },
+    {
+      "id": 6,
+      "prompt": "Add k_on to vd-123 as a log-uniform marginal between 0.0001 and 0.01 (base 10).",
+      "expected_output": "Writes LogUniform with lowBound -4, highBound -2, base 10 (not 0.0001 and 0.01), computes them with math.log10, states that the payload samples 1e-4 to 1e-2 before the edit, and checks post-edit diagnostics."
+    },
+    {
+      "id": 7,
+      "prompt": "Here is my marginal list: {\"id\": \"Kd\", \"distribution\": {\"tag\": \"LogUniform\", \"lowBound\": 0.001, \"highBound\": 10, \"base\": 10}}. Kd should range from 1 nM to 10 uM, in uM. Create the design.",
+      "expected_output": "Detects that lowBound and highBound are physical values, explains that this payload samples about 1 to 1e10, and proposes lowBound -3 and highBound 1 before creating anything."
+    },
+    {
+      "id": 8,
+      "prompt": "Create a vpop design where CL is lognormal with median 2 L/h, log10 SD 0.2, truncated to 0.5 to 8 L/h.",
+      "expected_output": "Writes LogNormalTruncated with mean log10(2) of about 0.301, stdev 0.2, base 10, and posLowBound 0.5 and posHighBound 8 as physical values, and states the physical median and bounds back."
+    },
+    {
+      "id": 9,
+      "prompt": "Make k_elim a mixture: 13.5% of patients are fast metabolizers (lognormal, median 0.3) and the rest normal (lognormal, median 0.1), both with log10 SD 0.2.",
+      "expected_output": "Writes a Mixture with round integer relative weights (for example 27 and 173), not probabilities such as 0.135 and 0.865, explains that weights do not have to sum to 1, and writes each LogNormal mean as log10 of the median (about -0.52 and -1)."
     }
   ]
 }
