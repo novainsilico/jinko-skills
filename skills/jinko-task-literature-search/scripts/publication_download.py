@@ -6,13 +6,16 @@ import argparse
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urljoin, urlparse
 
 try:
     from common import (
         display_path,
+        get_json,
+        load_env_file,
         looks_like_pdf,
+        require_ncbi_params,
         require_requests,
         safe_reference_slug,
         write_json,
@@ -21,7 +24,10 @@ try:
 except ImportError:  # pragma: no cover
     from .common import (
         display_path,
+        get_json,
+        load_env_file,
         looks_like_pdf,
+        require_ncbi_params,
         require_requests,
         safe_reference_slug,
         write_json,
@@ -29,6 +35,8 @@ except ImportError:  # pragma: no cover
     from .pmc_open_access import build_pdf_url, list_pmc_revisions
 
 DOWNLOADABLE_SUFFIXES = (".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt")
+EUROPE_PMC_SEARCH_URL = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+UNPAYWALL_URL = "https://api.unpaywall.org/v2"
 
 
 def resolve_doi_to_pmc_url(doi: str) -> str:
@@ -145,6 +153,7 @@ def _download_pmc_assets_with_validation(
             })
 
     return {
+        "landing_url": pmc_url,
         "main_pdf": main_pdf,
         "supplementary_files": supplementary_files,
         "supplementary_urls": [
@@ -154,13 +163,7 @@ def _download_pmc_assets_with_validation(
     }
 
 
-def _download_from_pmc_s3(
-    *,
-    pmcid: str,
-    item_output_dir: Path,
-    doi: str,
-    pmid: str,
-) -> dict[str, Any]:
+def _download_from_pmc_s3(*, pmcid: str, item_output_dir: Path) -> dict[str, Any]:
     revisions = list_pmc_revisions(pmcid)
     if not revisions:
         raise RuntimeError(f"No revision found for {pmcid}")
@@ -172,21 +175,10 @@ def _download_from_pmc_s3(
             main_pdf = _download_pdf_with_validation(
                 pdf_url, item_output_dir / "main.pdf"
             )
-            pmc_version_id = f"{pmcid}.{revision}"
             return {
-                "status": "downloaded",
-                "strategy": "pmc_s3",
-                "doi": doi,
-                "pmid": pmid,
-                "pmcid": pmcid,
-                "pmc_version_id": pmc_version_id,
+                "pmc_version_id": f"{pmcid}.{revision}",
                 "landing_url": pdf_url,
-                "downloaded_main_file": display_path(main_pdf),
-                "local_file": str(main_pdf.resolve()),
-                "supplementary_files": [],
-                "supplementary_urls": [],
-                "pmc_attempts": attempts,
-                "rejected_files": [],
+                "main_pdf": main_pdf,
             }
         except Exception as exc:  # noqa: BLE001
             attempts.append({"revision": revision, "url": pdf_url, "error": str(exc)})
@@ -194,61 +186,72 @@ def _download_from_pmc_s3(
     raise RuntimeError(f"No downloadable PDF revision found for {pmcid}: {attempts}")
 
 
-def _download_via_doi_landing(
-    reference: dict[str, Any], output_dir: Path
-) -> dict[str, Any]:
-    doi = str(reference.get("doi", "")).strip()
-    if not doi:
-        return {
-            "status": "error",
-            "strategy": "doi_landing",
-            "error": "missing_doi",
-            "downloaded_main_file": None,
-            "supplementary_files": [],
-            "supplementary_urls": [],
-            "rejected_files": [],
-        }
-    try:
-        requests = require_requests()
-        landing_response = requests.get(f"https://doi.org/{doi}", timeout=120)
-        landing_response.raise_for_status()
-        landing_url = str(landing_response.url)
-        pdf_url = _extract_pdf_link_from_html(landing_url, landing_response.text)
-        if not pdf_url:
-            return {
-                "status": "error",
-                "strategy": "doi_landing",
-                "error": "no_pdf_link_found",
-                "landing_url": landing_url,
-                "downloaded_main_file": None,
-                "supplementary_files": [],
-                "supplementary_urls": [],
-                "rejected_files": [],
-            }
+def _download_first_pdf(urls: list[str], item_output_dir: Path) -> dict[str, Any]:
+    """Download the first URL that serves a valid PDF."""
+    errors: list[str] = []
+    for url in dict.fromkeys(urls):
+        try:
+            main_pdf = _download_pdf_with_validation(url, item_output_dir / "main.pdf")
+            return {"landing_url": url, "main_pdf": main_pdf}
+        except Exception as exc:  # noqa: BLE001
+            errors.append(str(exc))
+    if not errors:
+        raise RuntimeError("no_pdf_link_found")
+    raise RuntimeError("; ".join(errors))
 
-        slug = safe_reference_slug(reference, 0)
-        main_path = output_dir / slug / "main.pdf"
-        _download_pdf_with_validation(pdf_url, main_path)
-        return {
-            "status": "downloaded",
-            "strategy": "doi_landing",
-            "landing_url": landing_url,
-            "downloaded_main_file": display_path(main_path),
-            "local_file": str(main_path.resolve()),
-            "supplementary_files": [],
-            "supplementary_urls": [],
-            "rejected_files": [],
-        }
-    except Exception as exc:  # noqa: BLE001
-        return {
-            "status": "error",
-            "strategy": "doi_landing",
-            "error": str(exc),
-            "downloaded_main_file": None,
-            "supplementary_files": [],
-            "supplementary_urls": [],
-            "rejected_files": [],
-        }
+
+def europe_pmc_pdf_urls(*, pmcid: str, pmid: str, doi: str) -> list[str]:
+    """List the free full-text PDF links Europe PMC knows for one article."""
+    if pmcid:
+        query = f"PMCID:{pmcid}"
+    elif pmid:
+        query = f"EXT_ID:{pmid} AND SRC:MED"
+    else:
+        query = f'DOI:"{doi}"'
+    payload = get_json(
+        EUROPE_PMC_SEARCH_URL,
+        params={"query": query, "resultType": "core", "format": "json"},
+    )
+    results = payload.get("resultList", {}).get("result", [])
+    if not results:
+        raise RuntimeError(f"No Europe PMC record for {query}")
+    links = results[0].get("fullTextUrlList", {}).get("fullTextUrl", [])
+    return [
+        str(link["url"])
+        for link in links
+        if link.get("documentStyle") == "pdf"
+        and link.get("availabilityCode") in {"OA", "F"}
+        and link.get("url")
+    ]
+
+
+def unpaywall_pdf_urls(doi: str) -> list[str]:
+    """List Unpaywall open-access PDF links for a DOI, best location first."""
+    email = require_ncbi_params()["email"]
+    payload = get_json(f"{UNPAYWALL_URL}/{doi}", params={"email": email})
+    locations = [payload.get("best_oa_location"), *payload.get("oa_locations", [])]
+    return [
+        str(location["url_for_pdf"])
+        for location in locations
+        if isinstance(location, dict) and location.get("url_for_pdf")
+    ]
+
+
+def _download_via_doi_landing(doi: str, item_output_dir: Path) -> dict[str, Any]:
+    requests = require_requests()
+    landing_response = requests.get(f"https://doi.org/{doi}", timeout=120)
+    landing_response.raise_for_status()
+    landing_url = str(landing_response.url)
+    pdf_url = _extract_pdf_link_from_html(landing_url, landing_response.text)
+    if not pdf_url:
+        raise RuntimeError(f"no_pdf_link_found at {landing_url}")
+    main_pdf = _download_pdf_with_validation(pdf_url, item_output_dir / "main.pdf")
+    return {"landing_url": landing_url, "main_pdf": main_pdf}
+
+
+def _pmcid_from_url(url: str) -> str:
+    match = re.search(r"/articles/(?:PMC)?(\d+)", url, re.IGNORECASE)
+    return f"PMC{match.group(1)}" if match else ""
 
 
 def _download_single_reference(
@@ -256,72 +259,83 @@ def _download_single_reference(
     output_dir: Path,
     index: int,
 ) -> dict[str, Any]:
-    slug = safe_reference_slug(reference, index)
-    item_output_dir = output_dir / slug
-
-    pmcid_raw = reference.get("pmcid")
-    doi_raw = reference.get("doi")
-    pmcid = str(pmcid_raw).strip() if pmcid_raw else ""
-    doi = str(doi_raw).strip() if doi_raw else ""
-    pmc_error = ""
+    """Try each download strategy in order and record every failed attempt."""
+    item_output_dir = output_dir / safe_reference_slug(reference, index)
+    pmcid = str(reference.get("pmcid") or "").strip()
+    pmid = str(reference.get("pmid") or "").strip()
+    doi = str(reference.get("doi") or "").strip()
+    attempts: list[dict[str, str]] = []
 
     pmc_url = ""
     if pmcid:
-        try:
-            return _download_from_pmc_s3(
-                pmcid=pmcid,
-                item_output_dir=item_output_dir,
-                doi=doi,
-                pmid=str(reference.get("pmid", "")).strip(),
-            )
-        except Exception as exc:  # noqa: BLE001
-            pmc_error = f"pmc_s3_failed: {exc}"
         pmc_url = f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
     elif doi:
         try:
             pmc_url = resolve_doi_to_pmc_url(doi)
-        except Exception:  # noqa: BLE001
-            pmc_url = ""
-
-    if pmc_url:
-        try:
-            downloaded = _download_pmc_assets_with_validation(
-                pmc_url=pmc_url,
-                item_output_dir=item_output_dir,
-            )
-            main_pdf = downloaded.get("main_pdf")
-            return {
-                "status": "downloaded",
-                "strategy": "pmc",
-                "doi": doi,
-                "pmid": str(reference.get("pmid", "")).strip(),
-                "pmcid": pmcid or None,
-                "landing_url": pmc_url,
-                "downloaded_main_file": (
-                    display_path(main_pdf) if isinstance(main_pdf, Path) else None
-                ),
-                "local_file": str(main_pdf.resolve())
-                if isinstance(main_pdf, Path)
-                else "",
-                "supplementary_files": downloaded.get("supplementary_files", []),
-                "supplementary_urls": downloaded.get("supplementary_urls", []),
-                "rejected_files": downloaded.get("rejected_files", []),
-            }
+            pmcid = _pmcid_from_url(pmc_url)
         except Exception as exc:  # noqa: BLE001
-            if pmc_error:
-                pmc_error = f"{pmc_error}; pmc_html_failed: {exc}"
-            else:
-                pmc_error = f"pmc_html_failed: {exc}"
-    else:
-        pmc_error = pmc_error or "no_pmc_resolution"
+            attempts.append({"strategy": "pmc_resolution", "error": str(exc)})
 
-    doi_result = _download_via_doi_landing(reference, output_dir)
-    return {
+    strategies: list[tuple[str, Callable[[], dict[str, Any]]]] = []
+    if pmcid:
+        strategies.append((
+            "pmc_s3",
+            lambda: _download_from_pmc_s3(pmcid=pmcid, item_output_dir=item_output_dir),
+        ))
+    if pmc_url:
+        strategies.append((
+            "pmc",
+            lambda: _download_pmc_assets_with_validation(
+                pmc_url=pmc_url, item_output_dir=item_output_dir
+            ),
+        ))
+    if pmcid or pmid or doi:
+        strategies.append((
+            "europe_pmc",
+            lambda: _download_first_pdf(
+                europe_pmc_pdf_urls(pmcid=pmcid, pmid=pmid, doi=doi), item_output_dir
+            ),
+        ))
+    if doi:
+        strategies.append((
+            "unpaywall",
+            lambda: _download_first_pdf(unpaywall_pdf_urls(doi), item_output_dir),
+        ))
+        strategies.append((
+            "doi_landing",
+            lambda: _download_via_doi_landing(doi, item_output_dir),
+        ))
+
+    record: dict[str, Any] = {
         "doi": doi,
-        "pmid": str(reference.get("pmid", "")).strip(),
+        "pmid": pmid,
         "pmcid": pmcid or None,
-        "pmc_error": pmc_error,
-        **doi_result,
+        "downloaded_main_file": None,
+        "supplementary_files": [],
+        "supplementary_urls": [],
+        "rejected_files": [],
+        "attempts": attempts,
+    }
+    for strategy, download in strategies:
+        try:
+            downloaded = download()
+        except Exception as exc:  # noqa: BLE001
+            attempts.append({"strategy": strategy, "error": str(exc)})
+            continue
+        main_pdf = downloaded.pop("main_pdf")
+        return {
+            **record,
+            **downloaded,
+            "status": "downloaded",
+            "strategy": strategy,
+            "downloaded_main_file": display_path(main_pdf),
+            "local_file": str(main_pdf.resolve()),
+        }
+    return {
+        **record,
+        "status": "error",
+        "strategy": None,
+        "error": attempts[-1]["error"] if attempts else "missing_identifier",
     }
 
 
@@ -397,6 +411,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     """Run publication download workflow from CLI."""
     args = _build_parser().parse_args()
+    load_env_file()
     summary = download_publications(
         selected_references_path=args.selected_references,
         output_dir=args.output_dir,

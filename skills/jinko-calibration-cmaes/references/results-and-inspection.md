@@ -36,14 +36,45 @@ status plus performance) before attributing causality.
 | Method | Kwargs | Notes |
 | --- | --- | --- |
 | `.errors(...)` | `iteration`, `scalar_id`, `arm_id=None` | per-patient errors for one iteration/scalar |
-| `.sorted_patients(...)` | `sort_by` | `sort_by` forwarded as-is to the API |
+| `.sorted_patients(...)` | `sort_by` | bare scalar id; returns patient ids, best first, without values |
 | `.augment_data_tables(...)` | `patient_id`, `iteration` | |
 | `.timeseries_per_patient(...)` | `patient_id`, `select`, `iteration` | `select` is a list of series ids |
 | `.scalars_per_patient(...)` | `patient_number`, `scalars`, `arms`, `iteration` | |
 
 ```python
-calibration.results.sorted_patients(sort_by="optimizationWeightedScore desc")
+calibration.results.sorted_patients(sort_by="optimizationWeightedScore")
 calibration.results.errors(iteration=5, scalar_id="auc")
+```
+
+### Sorting
+
+`sorted_patients` returns `{"iteration", "patientNumber", "scenarioArm"}`
+entries in descending order of the scalar, best first, and no values. On a
+completed 150-iteration run it returned 1200 of the 20880 simulated patients.
+`sort_by` takes a bare scalar id: the API has no sort-direction argument yet.
+It rejects `"optimizationWeightedScore desc"` and returns an empty list for
+`"optimizationWeightedScore:desc"` or `":asc"`.
+
+Sort after the download for any other order, or when the values are needed:
+
+```python
+ranked = calibration.results.sorted_patients(sort_by="optimizationWeightedScore")
+scores = []
+for patient in ranked[:50]:
+    raw = calibration.results.scalars_per_patient(
+        patient_number=patient["patientNumber"],
+        scalars=["optimizationWeightedScore"],
+        arms=["crossArms"],
+        iteration=int(patient["iteration"]),
+    )
+    value = next(
+        r["value"]
+        for o in raw["outputs"]
+        for r in o["res"]
+        if r["id"] == "optimizationWeightedScore"
+    )
+    scores.append((value, patient))
+scores.sort(key=lambda item: item[0])  # ascending: worst first
 ```
 
 ## Not exposed

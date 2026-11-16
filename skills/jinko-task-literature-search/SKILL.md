@@ -8,7 +8,8 @@ description: >-
   ClinicalTrials.gov-only scoping, systematic reviews, quantitative extraction,
   curve digitization, calibration, or model implementation.
 compatibility: >-
-  Requires network access, requests, and USER_EMAIL in .env for NCBI identity.
+  Requires network access, requests, and USER_EMAIL in .env for NCBI and
+  Unpaywall identity.
   NCBI_API_KEY is optional.
 metadata:
   author: Nova In Silico
@@ -73,8 +74,14 @@ excerpts. For each retained candidate, assign the fields required by
 verification evidence, priority rationale, and query provenance. Do not infer
 quantitative availability from a title alone.
 
-Run `scripts/validate_shortlist.py` before presenting `shortlist.json`. Present a
-concise Markdown view grouped by intent, citing each publication as
+Copy publication identifiers, titles, and citations from `merged_references.json`,
+never from memory. Report retrieval failures rather than inventing references.
+A retrieved citation confirms source identity; scientific claims still require
+inspected source text.
+
+Run `scripts/validate_shortlist.py --shortlist shortlist.json --references merged_references.json`
+before presenting `shortlist.json`. Present a concise Markdown view grouped by
+intent, citing each publication as
 `Author (Year) [PMID]` (or `[DOI]` when no PMID exists) so it's identifiable at a
 glance, and ask which sources to inspect or pass to `jinko-task-extract-data-table`.
 

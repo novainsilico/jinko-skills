@@ -1,10 +1,10 @@
 ---
 name: jinko-sdk-setup
-description: Authenticate and configure access to a Jinkō project via the jinko-sdk. Use this skill whenever the user wants to connect to Jinkō, install the SDK, set up credentials or a .env file, verify API access, fail-fast check that a JINKO_API_KEY or JINKO_SESSION_CODE and JINKO_PROJECT_ID work, obtain a session code from the Jinko MCP get_session_code tool, tell a project key from an organization key, choose between JinkoClient and JinkoOrgClient, or debug ConfigurationError, AuthenticationError, or AuthorizationError from the SDK. Do not use this skill for creating models, vpops, protocols, output sets, or trials.
+description: Authenticate and configure access to a Jinkō project via the jinko-sdk. Use this skill whenever the user wants to connect to Jinkō, install the SDK, set up credentials or a .env file, verify API access, fail-fast check that a JINKO_API_KEY (preferred) or a JINKO_SESSION_CODE works, choose the JINKO_PROJECT_ID when the key reaches several projects, obtain a session code from the Jinko MCP get_session_code tool when no API key is set, tell a project key from an organization key, choose between JinkoClient and JinkoOrgClient, or debug ConfigurationError, AuthenticationError, or AuthorizationError from the SDK. Do not use this skill for creating models, vpops, protocols, output sets, or trials.
 compatibility: Requires Python 3.11+ and network access. The validation script diagnoses missing or outdated SDK installations, credentials, and optional python-dotenv support.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -16,14 +16,25 @@ BE CAREFUL: the right package is `jinko-sdk` that export a `jinko` module. `jink
 
 ## Credentials
 
-Do this before the connection check. A missing `.env` is expected when a Jinko MCP server is connected. Do not stop to create one.
+Do this before the connection check. `JinkoClient()` reads credentials from the environment only. The SDK commands (`python -m jinko.cli.*`) also load a local `.env` when `python-dotenv` is installed, except `create_document_from_markdown`. `python-dotenv` is not a dependency of `jinko-sdk`. For that command or your own script, export the variables of `.env` first (`set -a; source .env; set +a`), or install `python-dotenv` and call `from dotenv import load_dotenv; load_dotenv()` before `JinkoClient()`.
 
-`JinkoClient()` reads credentials from the environment. Export both of these for every SDK command:
+### Choose the credential
 
-1. `JINKO_PROJECT_ID` — the id of the project the user is working in. Always set this. Do not invent one.
-2. One credential. Prefer `JINKO_SESSION_CODE` when the Jinko MCP tool `get_session_code` is available. Use `JINKO_API_KEY` only when that tool is not available. When both are set, `JINKO_SESSION_CODE` is the one to use.
+1. If `JINKO_API_KEY` is set in the environment or `.env`, use it. Do not call `get_session_code`. An API key serves every SDK process for the whole session, so it needs no per-command approval.
+2. Use a session code only when no `JINKO_API_KEY` is available and a Jinko MCP server exposes `get_session_code`.
+3. If neither is available, ask the user to add `JINKO_API_KEY` to `.env` (see `assets/.env.example`). Do not ask the user to paste a key into chat.
 
-### Session code
+When both `JINKO_API_KEY` and `JINKO_SESSION_CODE` are set, the SDK uses the session code. Do not export a session code when an API key is available.
+
+### Choose the project
+
+An API key can be an organization key that reaches several projects, so `JINKO_PROJECT_ID` is not always set.
+
+1. If `JINKO_PROJECT_ID` is set, or the user named a project, use it.
+2. Otherwise, run `python -m jinko.cli.check_jinko_connection` without `JINKO_PROJECT_ID`. It lists the projects the key can see. Show the list and ask the user which project to use. Do not guess a project.
+3. Export the chosen id as `JINKO_PROJECT_ID` for the SDK processes of the task. For work across several projects, use `JinkoOrgClient` and `org.project(project_id)` instead (see "Choosing a client").
+
+### Session code (only without an API key)
 
 A session code can be exchanged only once. Call `get_session_code` immediately before each SDK process, including the connection check and every later command. Do not reuse a code that was already passed to a process.
 
@@ -33,11 +44,7 @@ A session code can be exchanged only once. Call `get_session_code` immediately b
 4. Inside that process the SDK exchanges the code once, keeps the bearer in `JINKO_API_TOKEN`, and drops `JINKO_SESSION_CODE`. A new process does not see that bearer. Fetch a new code for it.
 5. Also call `get_session_code` again after `expiresAt`, or when the SDK reports an authentication failure.
 
-If `get_session_code` fails and `JINKO_API_KEY` is already configured, continue with the API key and say that the session code was unavailable.
-
-### API key
-
-Use `JINKO_API_KEY` from the environment or a local `.env` only when no Jinko MCP `get_session_code` tool is available. Do not ask the user to paste the key into chat.
+Because each SDK process needs a new code, a multi-step workflow on session codes produces one tool call per process. Recommend adding `JINKO_API_KEY` to `.env` when the user runs many SDK commands.
 
 ## Workflow
 
@@ -55,7 +62,7 @@ The script:
 
 - Loads `.env` when `python-dotenv` is installed.
 - Redacts sensitive values when showing configuration.
-- Requires `JINKO_API_KEY`, which holds either a project key or an organization key or `JINKO_SESSION_CODE`. When both credential variables are set, `JINKO_SESSION_CODE` is used.
+- Requires `JINKO_API_KEY` (a project key or an organization key) or, when no key is available, `JINKO_SESSION_CODE`. When both credential variables are set, `JINKO_SESSION_CODE` is used, so do not export a session code next to a key.
 - Without `JINKO_PROJECT_ID`, lists the projects visible to the key with `JinkoOrgClient().list_projects()`. This list does not show the key scope, so the script does not report the key type.
 - With `JINKO_PROJECT_ID`, constructs `JinkoClient()`, calls `client.auth_check()`, then `client.search(limit=1, show_table=False, show_table_hint=False)` to prove minimal read-only project-item access.
 - Prints minimal output on success, including the key type when `JINKO_PROJECT_ID` is set.

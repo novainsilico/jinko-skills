@@ -6,7 +6,7 @@ compatibility: >-
   Jinkō upload requires jinko-document, jinko-sdk-setup, and project write access.
 metadata:  
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -124,9 +124,10 @@ Using /references/map.md, generate a Model Analysis Plan (MAP) document.
 
 > **PREREQUISITE:** Creating Jinkō documents needs an initialized `jinko-sdk`
 > connection satisfying this skill's `metadata.requires_sdk` range. Run the
-> `jinko-sdk-setup` skill and proceed only once its check passes. A session code
-> can be exchanged only once, so call `get_session_code` again before this
-> upload. If that skill is not found, install it from `novainsilico/jinko-skills`.
+> `jinko-sdk-setup` skill and proceed only once its check passes. Use
+> `JINKO_API_KEY` when it is set. Only without a key, call `get_session_code`
+> again before this upload, because a session code can be exchanged only once.
+> If that skill is not found, install it from `novainsilico/jinko-skills`.
 > This prerequisite
 > applies only to this optional upload step — the planning guidance above needs
 > no SDK access.

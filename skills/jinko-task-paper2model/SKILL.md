@@ -1,12 +1,12 @@
 ---
 name: jinko-task-paper2model
 description: >-
-  Reconstruct a published mechanistic, QSP, PK/PD, or ODE model in Jinkō from papers, supplements, equations, diagrams, tables, and optional source code. Use whenever the requested result is an executable paper reproduction, including when no code exists or a scanned PDF needs OCR. Produces a validated Jinkō model when evidence is sufficient, or a documented blocked or failed outcome, and always produces a reproduction report with explicit fidelity, confidence, assumptions, discrepancies, and numerical comparison where the paper supplies a target. Use jinko-task-from-nonmem when NONMEM is the primary implementation source.
+  Reconstruct a published mechanistic, QSP, PK/PD, or ODE model in Jinkō from papers, supplements, equations, diagrams, tables, and optional source code. Use whenever the requested result is an executable paper reproduction, including when no code exists or a scanned PDF needs OCR. Produces a validated Jinkō model when evidence is sufficient, or a documented blocked or failed outcome, and always produces a reproduction report, published as a Jinkō document next to the model, with explicit fidelity, confidence, assumptions, discrepancies, and numerical comparison where the paper supplies a target. Use jinko-task-import-model when NONMEM is the primary implementation source.
 compatibility: >-
   Requires Jinkō project write access and an initialized jinko-sdk connection. Scanned documents require an approved OCR service or a provider-neutral OCR packet. Source-code execution requires explicit authorization.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -48,11 +48,18 @@ and report what remains uncertain.
   subject or cell-line variability and explicit deterministic grids,
   `jinko-trial` for trials, `jinko-task-extract-data-table` for figure
   or table values, `jinko-reference` for project evidence, and `jinko-document`
-  only when the user wants the report published.
+  to publish the reproduction report in Jinkō.
 - Re-fetch each applied model version. Require no error diagnostics and a measured
   solve before calling it executable. A skipped check is unavailable, not passed.
 - Always generate `reproduction-report.md`, including for blocked and failed work.
   Fidelity to one paper scenario does not establish general biological validity.
+- Deliver the report in Jinkō by default: publish the `--profile jinko` render as
+  a Jinkō document in the folder that holds the model, with `jinko-document`.
+  Publish a first version as soon as the specification validates, with targets
+  marked pending, and update the same document as results arrive. A local
+  markdown file alone does not complete the workflow. Skip publication only when
+  the user asks for a local-only report or no Jinkō write access exists; then
+  state the reason in the delivery note and in `limitations`.
 - In a planning-only handoff, label hashes, retrievals, and execution checks as
   pending unless a supplied receipt proves completion. Proposed actions are not
   completed evidence.
@@ -119,7 +126,7 @@ and report what remains uncertain.
     If results justify another interpretation, start a new recorded decision and
     comparison round. Keep prior results and record targets used in selection.
     Report raw and transformed comparisons when a reporting convention changes.
-9. **Render and review the report.** Populate outcomes in the specification and
+9. **Render, publish, and review the report.** Populate outcomes in the specification and
    run:
 
    ```bash
@@ -152,6 +159,11 @@ and report what remains uncertain.
     independence only from the inherited target record. If it is not supplied,
     omit the label or write `unknown`; a passed solve, failed target, or missing
     measurement cannot establish independence or qualitative agreement.
+    Publish the `--profile jinko` render with `jinko-document` in the model's
+    folder (preview, then `--apply --confirm-digest`). For later rounds, update
+    the same document with `--document-sid` instead of creating a new one.
+    Record the document `.url` in `project_items`, open the rendered document
+    to check cards and images, and give its link first in the delivery note.
     End the delivery note with the local audit location or its pending status.
 
 Read `references/workflow.md` for gates and artifact layout. Read

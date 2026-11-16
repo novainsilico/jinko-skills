@@ -81,7 +81,7 @@ def main() -> int:
     parser.add_argument(
         "--event-update",
         action="append",
-        default=["Dose=120"],
+        default=["Drug=Drug + Dose"],
         help="Event update as COMPONENT=FORMULA. May be repeated.",
     )
     parser.add_argument("--reaction-id", default="binding")

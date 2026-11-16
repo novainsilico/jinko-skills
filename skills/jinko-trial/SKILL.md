@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas. Drawing plots requires matplotlib and pandas in the active Python environment.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -14,12 +14,13 @@ license: MIT
 
 Use this skill for trial setup, sanity checks, run/poll, and result download. Keep creation of upstream assets in their dedicated skills: `jinko-model`, `jinko-vpop`, `jinko-protocol`, `jinko-data-table`, and `jinko-output-set` (simple and advanced output sets).
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Minimum Trial
 
@@ -55,6 +56,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 
 - Create simple output set: `client.create_simple_output_set(model, model.time_dependent_ids())` unless explicit output ids were requested. See `jinko-output-set` for measure shapes and advanced output sets (constraints/scalars/objectives).
 - Create trial: `client.create_trial(model, data_tables=..., vpop=..., protocol=..., simple_output_set=..., advanced_output_set=...)`.
+- Point an existing trial to edited components with `trial.set_components(model=..., protocol=..., vpop=..., simple_output_set=..., advanced_output_set=..., data_tables=..., version="...")`. A trial keeps the exact Snapshot of each component, so an edit of the model or protocol does not reach the trial until you call this method. It saves a new trial version on the same SID. Components that you do not give stay unchanged; `data_tables` replaces the complete list. Run `trial.sanity()` and `trial.run()` again after the update.
 - Edit solving options after creation with `trial.edit_solving_options({...})`, passing only the options to change. Partial `solving_*` arguments at creation raise `ValueError`. Use `trial.get_solving_options()` to inspect raw ISO 8601 duration strings, or `trial.get_solving_options(duration_format="timedelta")` for `timedelta` values. For focused edits, use `trial.set_solving_times(t_max=timedelta(days=28), t_step="P1D")` with either representation.
 - Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
@@ -65,7 +67,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 - Download scalars as pandas when available: `trial.results.scalars([...]).to_dataframe()`.
 - Without pandas, use `TabularDownload.raw_bytes`; result payloads may be CSV or zipped CSV.
 - Calculated plot data, read-only and typed: `trial.results.aggregate_scalars(...)`, `aggregate_timeseries(...)`, `tornado_sensitivity(...)`, `survival_analysis(...)`, `scalars_per_population(...)` (scatter). Filters and groups both come from the descriptor handles (`age.gte(18)`, `sex.in_levels([...])`, `auc.group_by_quantiles(4)`, `sex.group_by_levels()`), plus `trial.results.group_by_arm()`. No import beyond `JinkoClient` is needed. Query the trial directly and do not create a TrialVisualization just to read data. Each response has a `to_dataframe()` method (requires pandas) that returns a tidy frame. By default, draw the frames with the Jinkō plot style (`jinko.plotting`; requires matplotlib and pandas in the active Python environment), which matches the web app plots: see `references/trial-plots.md`. The same filter and group vocabulary configures a stored visualization in `jinko-trial-viz`.
-- Ignore every time series and scalar whose id starts with `__jinko`. These are platform telemetry, such as `__jinkoSolvingTime`, `__jinkoAllocationMiB`, and `__jinkoNumSteps`. They differ between any two runs of the same trial and carry no scientific meaning, so exclude them before comparing results, reporting agreement, or computing any metric.
+- Keep time series and scalars starting with `__jinko` for solver-performance diagnosis. They are not scientific outputs: exclude them from endpoint calculations, calibration, and scientific trajectory comparisons. They may differ between equivalent runs. `__jinkoAllocationMiB` measures cumulative allocation, not peak RAM.
 
 When data tables are attached, pass them through the supported `data_tables=` argument. Require each data table to report `metadata.public.validForFitnessFunction is True` before creating the trial; reject `False`, missing, and malformed values.
 
@@ -80,6 +82,7 @@ When data tables are attached, pass them through the supported `data_tables=` ar
 
 - For one user request, keep one named local setup script and update it rather than creating `run_v2.py`, `run_v3.py`, and similar copies.
 - When a trial or output set fails validation, inspect and repair the existing item first. Re-run `trial.sanity()` after the repair.
+- When you iterate on the same experiment (a model fix, a protocol change, corrected data), edit the upstream item, then call `trial.set_components(...)` on the existing trial with a version name. Do not create a new trial for each model or protocol version. Earlier trial versions keep their results for comparison.
 - Create a new trial or output set only when the user requests an independent scenario, the existing item is immutable/incompatible, or a repair would destroy a result the user asked to preserve. State the reason when creating a replacement.
 
 ## SDK Scripts
@@ -88,7 +91,7 @@ These are on `PATH` as console scripts once the SDK is installed, and also
 runnable via `python -m` as shown below.
 
 - `jinko.cli.find_completed_trial_results`: lists trials, finds the first completed one, prints its summary, and downloads TimeSeries and Scalar results to pandas DataFrames.
-- `jinko.cli.setup_and_run_trial`: creates a simple output set, creates a trial from model plus optional assets, sanity-checks, optionally runs, polls, and optionally downloads results.
+- `jinko.cli.setup_and_run_trial`: creates a simple output set, creates a trial from model plus optional assets, sanity-checks, optionally runs, polls, and optionally downloads results. With `--trial-sid`, it saves a new version of the existing trial with the given components (named with `--version-name`), keeps the trial's simple output set, and replaces its measures only when `--output-id` is given.
 
 Examples:
 
@@ -97,6 +100,7 @@ python -m jinko.cli.find_completed_trial_results --limit 20 --output-dir trial-r
 python -m jinko.cli.setup_and_run_trial --model-sid cm-...
 python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug
 python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug --folder 2026-06-15-trial-run --create-folder --apply --run
+python -m jinko.cli.setup_and_run_trial --trial-sid tr-... --model-sid cm-... --version-name "model v3: fixed dosing timing" --apply --run
 python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug --vpop-sid vp-... --protocol-design-sid pd-... --data-table-sid dt-... --apply --run --download-results
 ```
 
@@ -105,3 +109,13 @@ python -m jinko.cli.setup_and_run_trial --model-sid cm-... --output-id Drug --vp
 - Read `references/trial-setup.md` for trial creation, the safe pre-launch sanity-check workflow, and troubleshooting `ADVANCED_OUTPUTS_ERRORS`/"The following advanced outputs have errors".
 - Read `references/trial-results.md` for completed-trial discovery and result downloads.
 - Read `references/trial-plots.md` to draw plot data as figures in the Jinkō style: time series, scalar distributions, tornado, survival, and scatter.
+
+## Patient and arm solving errors
+
+Use `jinko-task-debug-solving-errors` for slow runs, timeouts, or a subset of
+failed patients/arms. `trial.results.errors()` returns the patientId, armId,
+and error CSV through `TabularDownload`. A running trial may have incomplete
+errors. `python -m jinko.cli.debug_solving --trial-sid tr-... --telemetry
+--out <new-directory>` collects pinned context, raw errors, failure groups,
+and advertised telemetry without starting a trial. Failed subjects may have
+no telemetry. Preserve the original failure inventory and successful controls.

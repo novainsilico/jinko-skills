@@ -6,7 +6,8 @@ description: >-
   upload a paper or source PDF to a Jinkō project, retrieve a reference PDF
   already in the project so it can be read, create textual highlights from a
   quoted passage, create rectangular or formula extracts, inspect a paper's
-  bibliography or existing extracts, or use a project reference while
+  bibliography or existing extracts, rename, move, reclassify, or delete an
+  extract, or use a project reference while
   reproducing a publication. Do not use it for literature search, model
   authoring, or data-table creation.
 compatibility: >-
@@ -15,7 +16,7 @@ compatibility: >-
   `jinko-sdk[pdf]` and a PDF with a searchable native text layer.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -25,12 +26,13 @@ Use this skill for reference-PDF and extract mechanics through the typed SDK.
 References are Jinkō `Source` project items: preserve their SID so evidence stays
 traceable from a model or report to its source.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Core Rules
 
@@ -64,18 +66,21 @@ traceable from a model or report to its source.
    `client.create_reference_from_doi(doi)` for a verified DOI. Jinkō sometimes
    detects no DOI or a wrong DOI in an uploaded PDF: compare `reference.doi`
    with the expected DOI, and on a mismatch give the user the Reference `.url`
-   and the DOI to set in its properties.
+   and the DOI to set in its properties. When the user wants figure or table
+   extracts, pass `auto_extract_from_ocr=True` at creation.
 3. Use `create_extract_from_pdf_quote` for textual passages. It is the preferred
    method because it finds anchors automatically; give one-based `page_hints`
    when known.
 4. Use manually validated anchors only for a rectangular selection, a scanned
-   PDF, or when quote matching cannot identify one location.
+   PDF, or when quote matching cannot identify one location. List the existing
+   rectangular extracts first: do not duplicate an extract that Jinkō created
+   automatically.
 5. Report the Reference and created Extract SIDs or Jinkō URLs in the handoff.
 
 ## Resource Routing
 
 - Read [SDK workflow](references/sdk-workflow.md) before uploading/downloading a
-  PDF, creating an extract, or diagnosing a quote-matching failure.
+  PDF, creating or editing an extract, or diagnosing a quote-matching failure.
 - Read [knowledge curation](references/knowledge-curation.md) when reviewing
   evidence, applying a classification, inspecting highlights, or connecting an
   extract to transparent model or document documentation.

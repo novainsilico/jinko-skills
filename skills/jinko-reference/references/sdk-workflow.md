@@ -65,6 +65,11 @@ For a DOI-only Reference, use
 `client.create_reference_from_doi("10.1000/example")`. The API fetches its
 bibliography from Crossref; no PDF is needed.
 
+Pass `auto_extract_from_ocr=True` to either method to let Jinkō create figure
+and table extracts from the PDF. These are rectangular extracts. List them with
+`reference.list_extracts(kind="Rectangular")` before you create a manual one,
+and reuse a match instead of a duplicate.
+
 `save_content_to_file` creates missing parent directories, but its destination
 must be a file path, not a directory.
 
@@ -112,6 +117,15 @@ Quote matching can also create a formula, data-table, or rectangular extract:
 pass `latex` (with optional `mathjs`), `data_table`, or `kind="Rectangular"`.
 Provide at most one of `text`, `latex`, and `data_table`.
 
+## Edit an Extract
+
+Use `extract.rename(name)`, `extract.move_to_folder(folder)`, and
+`extract.delete()`. `extract.set_description(text)` also replaces the
+formulation. `extract.set_classification(classification_type,
+classification_level=None)` changes the classification; see
+[knowledge curation](knowledge-curation.md) for the values. The API cannot change
+the highlighted text of an existing extract.
+
 ## Failure Handling
 
 - **Missing PDF extra:** install `jinko-sdk[pdf]` in the environment that runs
@@ -122,7 +136,3 @@ Provide at most one of `text`, `latex`, and `data_table`.
   not choose an occurrence arbitrarily.
 - **Scanned PDF:** quote matching cannot OCR it. Obtain user-approved anchors or
   use a separately approved OCR workflow.
-- **Figure/table crop:** create a rectangular extract with a validated anchor.
-  Jinkō may supply automatic image extraction separately. Inspect existing
-  rectangular extracts first, but do not promise or invoke that background UI
-  capability from this SDK workflow.

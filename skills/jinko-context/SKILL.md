@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Folder creation requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -14,12 +14,13 @@ license: MIT
 
 Use this skill to explain Jinkō's shared mental model and vocabulary. Keep answers practical: the goal is to help a user or agent navigate Jinkō artifacts without confusing project organization, scientific content, and immutable versions.
 
-> **PREREQUISITE:** The folder-management example needs an initialized `jinko-sdk`
-> connection and an SDK satisfying its `metadata.requires_sdk` range. Run the
-> `jinko-sdk-setup` skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once
-> its check passes. A session code can be exchanged only once, so call
-> `get_session_code` again before this skill's own SDK process. If that skill
-> is not found, install it from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** The folder-management example needs an initialized `jinko-
+> sdk` connection and an SDK satisfying its `metadata.requires_sdk` range. Run
+> the `jinko-sdk-setup` skill (`../jinko-sdk-setup/SKILL.md`) and proceed only
+> once its check passes. Use `JINKO_API_KEY` when it is set. Only without a key,
+> call `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Navigation and Version Management
 
@@ -37,6 +38,17 @@ This Git-like structure makes Jinkō easier for agents to navigate because agent
 - Which exact state of a versioned artifact matters? Use its explicit version or snapshot surface, or use head when the user wants the latest state.
 
 Use `Project`, `Project Item`, and `Snapshot` rather than generic words like workspace, file, upload, save, version, revision, or commit unless you are explicitly making the Git analogy.
+
+## Iterate on the same project item
+
+When you refine the same experiment, edit the existing Project Item and save a named version, like a Git commit on the same file. Do not create a second item for each attempt. Earlier versions stay available, so the version history shows each iteration.
+
+- Create a new Project Item only for the first creation, an independent scenario that the user asks for, or a type that cannot be edited (for example, a generated Vpop).
+- Give each version a short name with the `version=` argument, for example `version="fix dosing event timing"`.
+- A Trial or Calibration keeps the exact Snapshot of each component that it was given. After you edit a model, protocol, output set, vpop, or data table, call `set_components(...)` on the Trial or Calibration that uses it. This saves a new version that uses the latest Snapshot. Then run it again.
+- Before you create an item, state why an edit of the existing item is not possible.
+
+Read `references/iteration.md` for the update method of each Project Item type.
 
 ## Domain Language
 
@@ -122,6 +134,7 @@ Avoid: extraction catalog, model input bundle.
 - Translate user language into Jinkō language when it improves precision.
 - Preserve the Git analogy for orientation, but do not imply Jinkō is literally Git.
 - Distinguish stable SID identity from immutable snapshot identity where that resource exposes snapshots.
+- When the user iterates on the same experiment, recommend a new named version of the existing item, not a new item. See "Iterate on the same project item".
 - Use head/latest only when the user wants the current state; name snapshots when exact reproducibility matters.
 - When the user needs to inspect, create, or change folders, read `references/folder-management.md` and use its bundled script or the SDK calls it names rather than improvising API calls.
 - Route implementation tasks to the relevant skill: `jinko-reference`, `jinko-model`, `jinko-protocol`, `jinko-trial`, `jinko-vpop`, `jinko-data-table`, or `jinko-sdk-setup`.

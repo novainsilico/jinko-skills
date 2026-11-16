@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from typing import Any
 
 try:
@@ -82,9 +83,22 @@ def report_diagnostics(model: Any) -> bool:
 
 
 def report_simple_solve(model: Any, timeseries_id: str) -> bool:
+    start = time.monotonic()
     result = model.simple_solve(timeseries_ids=[timeseries_id])
+    elapsed = time.monotonic() - start
+    if elapsed >= 15.0:
+        print(
+            f"simple_solve request took {elapsed:.2f} seconds. "
+            "A request of 15 seconds or more warrants investigation; wall time includes overhead. "
+            "Use jinko-task-debug-solving-errors to inspect solver settings and available __jinko telemetry.",
+            file=sys.stderr,
+        )
     if result.error:
         print(f"simple_solve failed: {result.error}", file=sys.stderr)
+        print(
+            "Use jinko-task-debug-solving-errors to inspect solver settings and available __jinko telemetry.",
+            file=sys.stderr,
+        )
         return True
     series = next((item for item in result.results if item.id == timeseries_id), None)
     if series is None:

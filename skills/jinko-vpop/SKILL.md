@@ -6,7 +6,7 @@ compatibility: >-
    Check set-up with the `jinko-sdk-setup` skill. Creating vpops or vpop designs requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -14,12 +14,13 @@ license: MIT
 
 Use this skill for technical vpop and vpop-design workflows through the SDK. Use the allowed distribution shapes in `assets/distrib.json` and defer deeper distribution design to a dedicated distribution skill when available.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Core Rules
 

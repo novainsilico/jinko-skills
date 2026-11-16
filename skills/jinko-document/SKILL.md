@@ -12,7 +12,7 @@ compatibility: >-
   access to the target Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -21,14 +21,15 @@ license: MIT
 Use this skill for SDK-backed document creation and updates. Stay on the typed SDK
 surface whenever possible.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. When a
-> Jinko MCP server is connected, do that with a fresh `JINKO_SESSION_CODE` from
-> `get_session_code` and `JINKO_PROJECT_ID` set to the current project. A code can
-> be exchanged only once, so call `get_session_code` again before each SDK process.
-> A missing `.env` is expected on that path. If that skill is not found, install it from
-> `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, use a fresh
+> `JINKO_SESSION_CODE` from `get_session_code` for each SDK process, because a
+> code can be exchanged only once. Set `JINKO_PROJECT_ID` to the current
+> project, or ask the user when it is not set. A missing `.env` is expected on
+> that path. If that skill is not found, install it from `novainsilico/jinko-
+> skills`.
 
 ## Core Rules
 
@@ -39,6 +40,7 @@ surface whenever possible.
 - Format inline mathematical expressions with single dollar signs and display equations with a fenced `mathBlock` block; see `references/document-workflow.md` for syntax and examples.
 - If the user wants project-item cards, place each Jinkō project-item URL alone in its own paragraph.
 - A URL in a bullet, table cell, sentence, or labeled markdown link is not a project-item card. Use a normal markdown link in those contexts, except for extracts.
+- For a list inside a table cell, write `- item<br/>- item`: Jinkō renders it as a bullet list. Use `<br/>` for a plain line break. Do not put other HTML in a table cell (`<ul>`, `<table>`): Jinkō shows it as literal text.
 - Cite an extract (`as-...`) with its bare URL at the end of the sentence line. A labeled link drops the extract badge. Read "Extracts in documents" in `references/document-workflow.md` before you reword or merge extract sentences.
 - Do not put backticks inside a Jinkō markdown-link label. Prefer `[cm-example](<resource.url>)` over ``[`cm-example`](...)`` because exported markdown can turn code-styled labels into code-wrapped, non-clickable link text.
 - When a reference targets a specific project-item revision, use the resource's configured app URL with `?revision=n`, preferably via `resource.url_with_fixed_revision(n)`. Do not use a card for a revision-specific reference.
@@ -52,7 +54,7 @@ surface whenever possible.
 
 ## Default Workflow
 
-1. Load credentials and construct `JinkoClient()`. When a Jinko MCP server is connected, call `get_session_code` immediately before this process and export that code as `JINKO_SESSION_CODE`. A code can be exchanged only once, including by an earlier connection check. `JINKO_PROJECT_ID` is the current project id.
+1. Load credentials and construct `JinkoClient()`. Use `JINKO_API_KEY` when it is set. Only without a key, call `get_session_code` immediately before this process and export that code as `JINKO_SESSION_CODE`; a code can be exchanged only once, including by an earlier connection check. `JINKO_PROJECT_ID` is the current project id; ask the user when it is not set.
 2. Resolve one destination folder when the user wants the document organized under a specific Jinkō folder.
 3. Read the markdown when its content must be edited or reviewed; for an unchanged upload, prefer the deterministic script below without copying the full document into chat output.
 4. Rewrite local image paths to uploaded Jinkō image URLs when needed.

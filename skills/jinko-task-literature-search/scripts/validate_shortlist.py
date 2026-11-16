@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate shortlist candidates against the bundled JSON Schema subset."""
+"""Validate shortlist structure and publication citations against retrieved records."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
+
+from common import normalize_doi
 
 TYPE_MAP = {
     "object": dict,
@@ -51,9 +53,42 @@ def validate(value: Any, schema: dict[str, Any], path: str) -> list[str]:
     return errors
 
 
+def validate_publication(
+    candidate: dict[str, Any],
+    references: list[dict[str, Any]] | None,
+    path: str,
+) -> list[str]:
+    pmid = str(candidate.get("pmid") or "").strip()
+    doi = normalize_doi(candidate.get("doi"))
+    if not pmid and not doi:
+        if candidate.get("nct_id"):
+            return []  # Registry-only records keep their existing schema checks.
+        return [f"{path}: publication requires a PMID or DOI"]
+    if references is None:
+        return [f"{path}: publication validation requires --references"]
+
+    if any(
+        (not pmid or pmid == str(record.get("pmid") or "").strip())
+        and (not doi or doi == normalize_doi(str(record.get("doi") or "")))
+        and all(
+            candidate[field] == record.get(field)
+            for field in ("title", "citation_ama")
+            if field in candidate
+        )
+        for record in references
+    ):
+        return []
+    return [f"{path}: citation does not match a retrieved record"]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shortlist", type=Path, required=True)
+    parser.add_argument(
+        "--references",
+        type=Path,
+        help="Retrieved merged_references.json; required for publication candidates.",
+    )
     parser.add_argument(
         "--schema",
         type=Path,
@@ -68,9 +103,20 @@ def main() -> int:
             raise ValueError("Shortlist must be a JSON array")
         if not isinstance(schema, dict):
             raise ValueError("Schema must be a JSON object")
+        references = None
+        if args.references:
+            references = load_json(args.references)
+            if not isinstance(references, list) or any(
+                not isinstance(record, dict) for record in references
+            ):
+                raise ValueError("References must be a JSON array of objects")
         errors = []
         for index, candidate in enumerate(shortlist):
-            errors.extend(validate(candidate, schema, f"$[{index}]"))
+            path = f"$[{index}]"
+            candidate_errors = validate(candidate, schema, path)
+            errors.extend(candidate_errors)
+            if not candidate_errors:
+                errors.extend(validate_publication(candidate, references, path))
         if errors:
             for error in errors:
                 print(error, file=sys.stderr)

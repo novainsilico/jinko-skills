@@ -20,19 +20,20 @@ orchestration; resource skills own reusable Jinkō SDK/API mechanics.
 
 ## Routing Map
 
-- Connection and credentials: `jinko-sdk-setup` (`JINKO_API_KEY`, or a single-use `JINKO_SESSION_CODE` from the Jinko MCP `get_session_code` tool).
+- Connection and credentials: `jinko-sdk-setup` (`JINKO_API_KEY` when set; otherwise a single-use `JINKO_SESSION_CODE` from the Jinko MCP `get_session_code` tool).
 - Terminology and navigation: `jinko-context`.
 - Product capabilities and model-library discovery: `jinko-solution-and-product-guide`.
 - Publication discovery: `jinko-task-literature-search`.
 - ClinicalTrials.gov discovery: `jinko-task-trial-data-scoping`.
 - Reference PDFs and source extracts: `jinko-reference`.
 - Evidence-to-table extraction: `jinko-task-extract-data-table`.
-- MATLAB/SimBiology export and solver parity: `jinko-task-export-to-matlab`.
-- NONMEM model and trial conversion: `jinko-task-from-nonmem`.
+- Model export to SBML, SimBiology, Julia, or nlmixr2, with a numerical check: `jinko-task-export-model`.
+- Model import from SBML, SimBiology, Monolix, or NONMEM, with its checks: `jinko-task-import-model`.
 - Data-table mechanics: `jinko-data-table`.
 - Model mechanics: `jinko-model`.
+- Slow solves, timeouts, and patient/arm solving failures: `jinko-task-debug-solving-errors`.
 - Calibration-input classification: `jinko-task-define-param-to-calibrate`.
-- Confirmed CMA-ES execution: `jinko-task-cmaes`; SDK mechanics: `jinko-calibration-cmaes`.
+- Confirmed CMA-ES execution, and the optional post-calibration uncertainty qualification: `jinko-task-cmaes`; SDK mechanics: `jinko-calibration-cmaes`.
 - Protocol mechanics: `jinko-protocol`.
 - Virtual-population mechanics: `jinko-vpop`.
 - Trial mechanics: `jinko-trial`.

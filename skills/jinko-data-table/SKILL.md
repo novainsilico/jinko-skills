@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating data tables requires write access to the Jinkō project. DataFrame creation requires pandas.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -14,12 +14,13 @@ license: MIT
 
 Use this skill for data-table mechanics through the SDK. Data tables can support trial overlays and calibration objectives; the row schema is the same, and fitness-function compatibility is reported by metadata when available.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Scope
 
@@ -27,8 +28,19 @@ Use this skill for data-table mechanics through the SDK. Data tables can support
 - Use `client.create_data_table_from_sqlite()` for SQLite files or bytes.
 - Use `client.create_data_table_from_dataframe()` for pandas DataFrames.
 - Inspect existing data tables with `get_data_table()`, `content()`, `summary()`, `validate()`, and `export()`.
+- Update an existing data table with `data_table.replace_csv(...)`, `data_table.replace_sqlite(...)`, or `data_table.update_mappings(...)`. See "Update an existing data table".
 - Check `metadata.public.validForFitnessFunction` after creation or inspection when available if the data table needs to be attached through trial/calibration `dataTableDesigns`.
 - For trial workflows that attach data tables through `jinko-trial`, use a data table with `validForFitnessFunction: True`; point-value overlay tables may upload successfully but fail trial launch sanity.
+
+## Update an existing data table
+
+When you correct or extend the observed data of the same experiment, update the existing data table. Do not create a new data table for each attempt.
+
+- `data_table.replace_csv(csv_text, version="<short name>")` replaces the data with new CSV content. `replace_sqlite(sqlite_bytes, version=...)` does the same for SQLite. The SID, mappings, and earlier versions stay.
+- `data_table.update_mappings(mappings, version=...)` changes only the mappings.
+- Check `metadata.public.validForFitnessFunction` again after the update.
+- A Trial or Calibration keeps the data-table Snapshot that it was given. Call `trial.set_components(data_tables=[data_table], version=...)` or the same method on the Calibration to use the new version. `data_tables` replaces the complete list.
+- Create a new data table only for a different dataset, for example another study or endpoint.
 
 ## Project Folder Hygiene
 
@@ -62,6 +74,9 @@ runnable via `python -m` as shown below.
 - `jinko.cli.create_data_table`: dry-run-validates every CSV row and creates a
   data table with `--apply`; use `--allowed-obs-id`, `--require-unit`,
   `--require-experiment-ref`, and `--require-fitness` for calibration inputs.
+- `jinko.cli.create_data_table --data-table-sid dt-...`: replaces the data of
+  an existing data table and saves a new version named with `--version-name`.
+  It runs the same row checks.
 - `jinko.cli.inspect_data_table`: inspects existing data tables and can enforce
   fitness compatibility with `--require-fitness`.
 
@@ -73,6 +88,7 @@ python -m jinko.cli.create_data_table --source extracted.csv --allowed-obs-id Dr
 python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --apply
 python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_ranges.csv --method csv --folder 2026-06-15-fit-data --create-folder --apply
 python -m jinko.cli.create_data_table --source skills/jinko-data-table/assets/toy_data_table_values.csv --method dataframe --apply
+python -m jinko.cli.create_data_table --source corrected.csv --data-table-sid dt-... --version-name "fix Drug units" --require-fitness --apply
 python -m jinko.cli.inspect_data_table --data-table-sid dt-... --fitness --validate
 ```
 

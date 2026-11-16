@@ -4,15 +4,19 @@ description: >-
   Execute a CMA-ES calibration from confirmed Jinkō inputs: assemble the model,
   protocol, output sets, fitness data tables, parameter priors, and optimizer
   options; create and run the Calibration; and return the supported results.
-  Use when the user wants to perform a CMA-ES calibration, not when they need
+  Optionally, on request, qualify the parameter uncertainty of a completed
+  CMA-ES calibration: identifiability, compensations, and prediction bands, in
+  a Jinkō document. Use when the user wants to perform a CMA-ES calibration, or
+  to check which calibrated parameters the data identify, not when they need
   to choose a calibration strategy, infer priors, design objectives, or decide
   whether results are acceptable.
 compatibility: >-
   Check set-up with jinko-sdk-setup. Creating and running calibrations requires
-  write and run permissions.
+  write and run permissions. The optional uncertainty qualification needs
+  numpy, scipy, pandas, and matplotlib.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -21,12 +25,13 @@ license: MIT
 Execute a confirmed calibration specification. Do not invent objectives,
 constraints, parameter priors, optimizer options, or acceptance criteria.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Inputs
 
@@ -56,13 +61,24 @@ Jinkō object mechanics.
 3. Return the created calibration SID, revision, snapshot, URL, and effective
    options for confirmation.
 4. Use the lower-level run script to perform pre-launch sanity, launch, and wait
-   for a terminal state. Do not relaunch a terminal snapshot; create or update a
-   configuration so the intended change has a new snapshot.
+   for a terminal state. Do not relaunch a terminal snapshot. Update the existing
+   calibration (for example with `calibration.set_components(...)` from
+   `jinko-calibration-cmaes`) so the intended change has a new snapshot; create
+   a calibration only for an independent configuration.
 5. Use the lower-level inspection interfaces to collect the final status,
    stopping reason, performance, results summary, objective weights, and the
    patient sorted first by `optimizationWeightedScore` when available. Fetch
    per-patient scalars, timeseries, errors, or augmented data tables only when
    their required selectors are present in the result metadata.
+
+## Optional uncertainty qualification
+
+After a completed run, offer the user a post-calibration uncertainty
+qualification, and run it only when the user accepts or asks for it. It also
+applies to a completed calibration that the user names. Ask the user for the
+explored range: a factor (best / f to best x f, default f = 2), ranges per
+parameter, or the prior bounds. Then follow
+`references/uncertainty-qualification.md`.
 
 ## Return
 

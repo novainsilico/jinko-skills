@@ -12,7 +12,7 @@
 | `measureDesignId` | no | simple output set ref |
 | `coreVersion` | no | engine version pin — **no typed kwarg, use raw creation** |
 | `calibrationOptions` | no (practically required) | `CalibrationOptions` |
-| `calibrationOptionsOverride` | no | `CalibrationOptionsJson`, all-nullable — **no typed kwarg, use raw creation** |
+| `calibrationOptionsOverride` | no | `CalibrationOptionsOverride`, all-nullable — **no typed kwarg, use raw creation** |
 | `solvingOptions` | no | `SolvingOptions` |
 | `solvingOptionsOverride` | no | `SolvingOptions` — **no typed kwarg, use raw creation** |
 

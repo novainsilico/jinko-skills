@@ -34,7 +34,7 @@ mutable (`constant=False`); setting it constant prevents assignment by an event.
 Use an explicit time unit in every time trigger. Set `record=True` when the
 discontinuity must be visible in solver or trial results.
 
-Example event pattern:
+Example event pattern, with `Dose` and `Drug` in `mol`:
 
 ```python
 batch.create_event(
@@ -47,10 +47,21 @@ batch.create_event(
 
 Recurrent event pattern (here for weekly treatment). The dose amount, the first
 dose time, the dose interval, and the number of doses are parameters tagged
-`i::protocol`, so a protocol design can vary the regimen without a model edit:
+`i::protocol`, so a protocol design can vary the regimen without a model edit.
+The dose and the species are in `mg`. The species `molar_mass` lets Jinkō
+convert it to `mol`, and the update divides the dose by the same `MW`
+parameter:
 
 ```python
 with model.components.batch(version="dosing") as batch:
+    batch.create_parameter(id="MW", formula="450", unit="g/mol")
+    batch.create_species(
+        id="Drug",
+        compartment="central",
+        initial_condition=0,
+        unit="mg",
+        molar_mass="MW",
+    )
     batch.create_parameter(
         id="dose_amount", formula="10", unit="mg", tags=["i::protocol"]
     )
@@ -63,7 +74,7 @@ with model.components.batch(version="dosing") as batch:
     batch.create_parameter(id="dose_number", formula="6", tags=["i::protocol"])
     batch.create_event(
         id="weekly_dose",
-        updates={"Drug": "Drug + dose_amount"},
+        updates={"Drug": "Drug + dose_amount / MW"},
         time_trigger_first_time="dose_start",
         time_trigger_every="dose_interval",
         time_trigger_count="dose_number",
@@ -89,6 +100,7 @@ contains the expected value before and after the trigger.
 ## Event Safety
 
 - Write the dosing schedule as model parameters tagged `i::protocol`: the dose amount, the first dose time, the dose interval, and the number of doses. Do not write them as literals in the event. A protocol design overrides parameters, so a literal schedule cannot be compared across arms and forces a model edit for each new regimen. A trigger field accepts a parameter name as well as a number.
+- In the default unit mode, a species inside a formula, event updates included, is an amount in the extent unit (`mol`), whatever its declared unit. The species `molar_mass` converts a species in `mg` to `mol`, but it does not convert the dose: `Drug + dose_amount` with `dose_amount` in `mg` fails the unit check. Divide the dose by the parameter that the species uses as `molar_mass`, as in the weekly dose example.
 - An event may update a parameter, compartment, or species. A parameter targeted by an event must be created or edited with `constant=False`; a constant parameter cannot be altered by an event.
 - Express a numeric time trigger with an explicit time dimension, for example `7 * u(h)` and `24 * u(h)`. Do not rely on a bare number being interpreted in the intended time unit. A parameter used in a trigger carries its own declared unit.
 - Set `record=True` when users need to inspect the discontinuity in `simple_solve` or trial output. This records the state immediately before and after the event.
@@ -146,6 +158,31 @@ methods on the object returned by `batch.edit_*` or `batch.create_*` inside a
 
 - Piecewise: `condition ? value_if_true : value_if_false`
 - Categorical switch: `case route of { iv -> 1; po -> 0.5; _ -> 1 }`
+
+### Keep piecewise outputs continuous
+
+A piecewise formula that jumps where its condition flips turns solver noise
+into large output differences. A concentration that is zero in theory (before
+dosing, or on an arm without the drug) is about ±1e-12 in a solve; its sign
+then picks the branch. Two solvers, or two tolerances, give different curves.
+
+Flag a formula whose two branches differ where the condition flips. A common
+case is a log floor:
+
+```text
+c <= 0 ? -5 : log10(c)                          # jumps from -5 to about -12
+```
+
+Name the floor and make both branches meet:
+
+```text
+log10ConcentrationFloor = -5                    # parameter, dimensionless
+c < 10 ^ log10ConcentrationFloor ? log10ConcentrationFloor : log10(c)
+```
+
+The threshold is `10 ^ floor` for `log10`, and `exp(floor)` for `log`.
+Report each such formula with the fix to the person, and change it only with
+their consent: it changes the output for concentrations below the floor.
 
 ## Algebraic Rules
 

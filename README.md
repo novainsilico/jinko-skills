@@ -137,12 +137,13 @@ trials and analyzing results.
 | [`jinko-reference`](./skills/jinko-reference/SKILL.md) | Create, inspect, download, and extract evidence from reference PDFs. |
 | [`jinko-sdk-setup`](./skills/jinko-sdk-setup/SKILL.md) | Authenticate and configure access to a Jinkō project. |
 | [`jinko-solution-and-product-guide`](./skills/jinko-solution-and-product-guide/SKILL.md) | Guidance on Jinkō solutions and product features. |
-| [`jinko-task-cmaes`](./skills/jinko-task-cmaes/SKILL.md) | Execute a confirmed CMA-ES calibration from prepared Jinkō inputs. |
+| [`jinko-task-cmaes`](./skills/jinko-task-cmaes/SKILL.md) | Execute a confirmed CMA-ES calibration from prepared Jinkō inputs, and optionally qualify the uncertainty of its parameters. |
+| [`jinko-task-debug-solving-errors`](./skills/jinko-task-debug-solving-errors/SKILL.md) | Investigate slow solves, timeouts, and patient- or arm-specific solving failures. |
 | [`jinko-task-define-param-to-calibrate`](./skills/jinko-task-define-param-to-calibrate/SKILL.md) | Classify model inputs and assign them to calibration steps. |
+| [`jinko-task-export-model`](./skills/jinko-task-export-model/SKILL.md) | Export a Jinkō model to SBML, SimBiology, Julia, or nlmixr2, and check it against Jinkō. |
 | [`jinko-task-extract-data-table`](./skills/jinko-task-extract-data-table/SKILL.md) | Extract traceable evidence into readable or Jinkō-ready tables. |
-| [`jinko-task-export-to-matlab`](./skills/jinko-task-export-to-matlab/SKILL.md) | Export a Jinkō model to SimBiology and compare MATLAB simulations with Jinkō results. |
-| [`jinko-task-from-nonmem`](./skills/jinko-task-from-nonmem/SKILL.md) | Convert a NONMEM run into a validated Jinkō model and trial setup. |
 | [`jinko-task-ichm15-planning`](./skills/jinko-task-ichm15-planning/SKILL.md) | Get recommendations on preparing the documentation related to ICHM15 planning phase. |
+| [`jinko-task-import-model`](./skills/jinko-task-import-model/SKILL.md) | Import an SBML, SimBiology, Monolix, or NONMEM model into Jinkō, and check it against the source tool. |
 | [`jinko-task-literature-search`](./skills/jinko-task-literature-search/SKILL.md) | Discover and prioritize biomedical publications from PubMed. |
 | [`jinko-task-paper2model`](./skills/jinko-task-paper2model/SKILL.md) | Reconstruct a published mechanistic model in Jinkō and report its fidelity and confidence. |
 | [`jinko-task-trial-data-scoping`](./skills/jinko-task-trial-data-scoping/SKILL.md) | Discover and prioritize ClinicalTrials.gov registry records. |

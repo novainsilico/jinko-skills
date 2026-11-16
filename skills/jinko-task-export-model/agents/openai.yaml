@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō model export"
+  short_description: "Export Jinkō models to SBML, SimBiology, Julia, or nlmixr2 and check them"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-export-model to export my Jinkō model and check it against Jinkō."
+policy:
+  allow_implicit_invocation: true

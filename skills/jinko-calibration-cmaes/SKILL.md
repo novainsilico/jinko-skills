@@ -18,7 +18,7 @@ compatibility: >-
   write and run permissions.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -31,12 +31,13 @@ license: MIT
 The calibration manager API is CMA-ES only — no type/method discriminator exists. "Subsampling" is an unrelated VPop-generator feature, not a calibration type.
 This skill is pure SDK mechanics: no defaults, no diagnostics, no when-to-calibrate guidance.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Minimum Calibration
 
@@ -90,6 +91,8 @@ See `references/creating-a-calibration.md` for full field tables.
 
 Solving times can be set post-creation with `calibration.set_solving_times(t_max=timedelta(days=28), t_step="P1D")`; each duration may be a `timedelta` or ISO 8601 string.
 
+A calibration keeps the exact Snapshot of each component. After you edit the model, protocol, output sets, or data tables, update the existing calibration with `calibration.set_components(model=..., protocol=..., simple_output_set=..., advanced_output_set=..., data_tables=..., version="...")` and run it again. This saves a new calibration version on the same SID. Components that you do not give stay unchanged; `data_tables` replaces the complete list. Do not create a new calibration for each component version.
+
 ## Run & Poll
 
 ```python
@@ -107,8 +110,8 @@ calibration.performance()  # raw dict
 calibration.results_summary()  # raw dict
 calibration.objective_weights()  # raw dict, {objective_id: weight}
 calibration.results.sorted_patients(
-    sort_by="optimizationWeightedScore desc"
-)  # raw, low-level
+    sort_by="optimizationWeightedScore"
+)  # raw: patient ids, best first
 ```
 
 All results accessors return unparsed dicts today. See `references/results-and-inspection.md`.

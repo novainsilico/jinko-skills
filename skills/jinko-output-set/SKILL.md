@@ -19,7 +19,7 @@ compatibility: >-
   plain text without them.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.16,<2.0"
+  requires_sdk: ">=1.17,<2.0"
 license: MIT
 ---
 
@@ -28,12 +28,13 @@ license: MIT
 Use this skill for output-set mechanics through the SDK: creating, validating, inspecting, and incrementally editing simple and advanced output sets.
 Keep trial attachment in `jinko-trial`, calibration attachment in `jinko-calibration-cmaes`, and data tables in `jinko-data-table`.
 
-> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and an
-> SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup` skill
-> (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes. A
-> session code can be exchanged only once, so call `get_session_code` again
-> before this skill's own SDK process. If that skill is not found, install it
-> from `novainsilico/jinko-skills`.
+> **PREREQUISITE:** This skill needs an initialized `jinko-sdk` connection and
+> an SDK satisfying its `metadata.requires_sdk` range. Run the `jinko-sdk-setup`
+> skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
+> Use `JINKO_API_KEY` when it is set. Only without a key, call
+> `get_session_code` again before this skill's own SDK process, because a
+> session code can be exchanged only once. If that skill is not found, install
+> it from `novainsilico/jinko-skills`.
 
 ## Core Concepts
 
@@ -128,7 +129,7 @@ A calibration needs at least one fitness-function source: a data table with `val
 These are on `PATH` as console scripts once the SDK is installed, and also
 runnable via `python -m` as shown below.
 
-- `jinko.cli.create_simple_output_set`: dry-run by default, creates a simple output set with `--apply`.
+- `jinko.cli.create_simple_output_set`: dry-run by default, creates a simple output set with `--apply`. With `--output-set-sid`, it replaces the measures of an existing simple output set and saves a new version named with `--version-name`. Prefer this mode when you iterate on the same trial.
 - `jinko.cli.create_advanced_output_set`: dry-run by default, creates an advanced output set with `--apply`.
 - `jinko.cli.inspect_output_set`: inspects an existing simple or advanced output set.
 - `jinko.cli.edit_advanced_output_set`: adds constraints/scalars/objectives to an existing advanced output set.
@@ -136,6 +137,7 @@ runnable via `python -m` as shown below.
 ```bash
 python -m jinko.cli.create_simple_output_set --model-sid cm-... --output-id Drug
 python -m jinko.cli.create_simple_output_set --model-sid cm-... --output-id Drug --folder 2026-07-07-output-sets --create-folder --apply
+python -m jinko.cli.create_simple_output_set --model-sid cm-... --output-set-sid md-... --output-id Drug --output-id Metabolite --version-name "add Metabolite" --apply
 python -m jinko.cli.create_advanced_output_set --constraint "adults:age >= 18" --scalar "auc:auc(Drug)" --name "PK scoring"
 python -m jinko.cli.create_advanced_output_set --from-json skills/jinko-output-set/assets/advanced_output_set_example.json --apply
 python -m jinko.cli.inspect_output_set --kind advanced --sid sc-... --diagnostics

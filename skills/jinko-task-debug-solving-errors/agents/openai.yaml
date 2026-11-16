@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō solving diagnostics"
+  short_description: "Investigate slow solves and patient or arm failures"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-debug-solving-errors to investigate my slow model or failed trial patients."
+policy:
+  allow_implicit_invocation: true

@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.17.0 (2026-11-16)
+
+### Highlights
+
+- Import a model from another tool into Jinkō with the new `jinko-task-import-model` skill: SBML, SimBiology, Monolix, and NONMEM. Each import is checked numerically: against the source tool for SBML and SimBiology, against a CSV of results for Monolix, and against an independent reference solve for NONMEM.
+- Export a Jinkō model to SBML, SimBiology, Julia, or nlmixr2 with `jinko-task-export-model`, and check the export point by point against Jinkō.
+- `jinko-task-cmaes` now offers a post-calibration uncertainty qualification: slice and joint intervals per parameter, pass/fail gates, and a Jinkō document with plots.
+- Breaking: two skills are replaced. Use `jinko-task-import-model` instead of `jinko-task-from-nonmem`, and `jinko-task-export-model` instead of `jinko-task-export-to-matlab`.
+
+### Skills
+
+#### Added
+
+- `jinko-task-import-model`: import a model from SBML, SimBiology XLSX, Monolix, or NONMEM into Jinkō, then check the import against the source tool (libRoadRunner, MATLAB, or a CSV of reference values) and write an optional comparison report.
+- `jinko-task-cmaes`: offer an uncertainty qualification after a completed CMA-ES run. It explores the parameter space around the best patient in one trial, then reports a verdict with gates on reproduction, simulations, optimum, priors, bounds, identifiability, and correlations, with slice and joint intervals per parameter. The report is published as a Jinkō document with plots and cards for the linked project items.
+- `jinko-task-debug-solving-errors`: investigate a failing solve, with inspection helpers for models and trials.
+- `jinko-model`: `references/unit-pitfalls.md` lists unit errors that pass creation and fail later, and `scripts/sync_model_to_target.py` syncs an existing model to a declarative JSON target, committing only real changes.
+- `jinko-model`: import a model file (SBML, SimBiology XLSX, Monolix structural model), import a Monolix project as a trial, and replace an existing model's content from such a file.
+- `jinko-reference`: create figure and table extracts automatically from a PDF with `auto_extract_from_ocr=True`, and rename, move, delete, describe, or reclassify an extract.
+- `jinko-task-literature-search`: validate shortlist citations against the retrieved records.
+- `jinko-context`: a reference table of the update path for each project item type, and the rule to iterate on the same item with named versions.
+- `jinko-data-table`: update an existing data table in place, with `replace_csv` or the `--data-table-sid` mode of the creation script.
+
+#### Changed
+
+- `jinko-task-export-model` replaces `jinko-task-export-to-matlab`. It exports to SBML, SimBiology code, SimBiology XLSX, Julia, and nlmixr2, checks each export against Jinkō with a point-wise tolerance, and writes an optional comparison report with plots.
+- All skills: prefer `JINKO_API_KEY` for the SDK connection. A session code is used only when no API key is available, which removes one `get_session_code` call per SDK command. When `JINKO_PROJECT_ID` is not set, the skills ask which project to use.
+- `jinko-task-paper2model`: publish the reproduction report as a Jinkō document in the model folder by default, first once the specification validates and then updated as results arrive.
+- `jinko-trial`, `jinko-calibration-cmaes`, `jinko-task-cmaes`: after an upstream edit, update the existing trial or calibration with `set_components` instead of creating a new one.
+- `jinko-document`: how to write a list inside a table cell.
+- `jinko-calibration-cmaes`: `sorted_patients` takes a bare scalar id and returns patient ids without values; the reference shows how to download the scores and sort them locally.
+- `jinko-model`: the dosing examples now use the species molar mass, so they pass the unit check under the default unit mode.
+- `jinko-model`: a new section, "Keep piecewise outputs continuous," explains how a `?:` formula that jumps where its condition flips turns solver noise into large output differences, with the log floor as the worked example and the fix.
+
+#### Fixed
+
+- `jinko-sdk-setup`: the credentials page said that `JinkoClient()` reads a local `.env`. It reads the environment only. The SDK commands load a local `.env` when `python-dotenv` is installed, except `create_document_from_markdown`. The page now shows how to export the variables of `.env`, or how to call `load_dotenv()` before `JinkoClient()` in your own script.
+
+#### Removed
+
+- Breaking: `jinko-task-export-to-matlab` is removed. Use `jinko-task-export-model`, which also exports to MATLAB with SimBiology.
+- Breaking: `jinko-task-from-nonmem` is removed. Its NONMEM conversion now lives in `jinko-task-import-model`. The upload of the simulated population as data tables with its trial overlay, and the converter's own document publisher, are gone; publish the report with `jinko-document`.
+
+### SDK
+
+#### Added
+
+- `jinko2julia` exports a whole trial, with its model, virtual population, protocol arms, output set, and solving options, to a standalone Julia program: `pip install "jinko-sdk[jinko2julia]"`, then `python -m jinko2julia fetch|export|run|check|report`. The bundle runs with Julia 1.11 or later and no access to Jinkō, and writes its time series and scalars in the format of the SDK result downloads. `check` runs the bundle and compares each patient and arm with the Jinkō results, with a tight-tolerance solve for the pairs the strict gate does not resolve, and `report` writes a reproduction report with plots.
+- The exported Julia code is readable on its own: each parameter, compartment, species, categorical parameter, reaction, ODE state, and event carries a comment with its Jinkō id, display name, description, tags, links, unit, and role in the code, and each event says which triggers it has. Unit conversions are named constants in `src/model/units.jl`, each with its source and target units and the exact ratio it comes from. The bundle header names the model, the trial, their revisions, and the generator version, and the README explains how to read the code. Two exports of the same trial give the same files, byte for byte.
+- Each exported Julia bundle ships a `README.md` with prerequisites, pinned dependency versions, run instructions, and the folder tree, plus a `LICENCE`. Choose the terms with `--license all-rights-reserved|mit|nc|source` (`export_trial(..., license_type=...)` in Python); `source` keeps the original model's terms and attribution.
+- `client.create_model_from_file()` creates a model from an SBML, SimBiology XLSX, or Monolix structural model file, and `model.replace_from_file()` replaces an existing model's content from such a file.
+- `client.import_monolix_project()` imports a Monolix project as a trial, with its model and a simple output set.
+- `Extract.set_classification()` changes the type and level of an existing extract.
+- `Model.download_as_zip(cm_in_simbiology_code=True)` adds the SimBiology code, a MATLAB script that builds and simulates the model.
+- `SimpleSolveOutput.compare()` compares series from another solver with the Jinkō results.
+- `Trial.set_components()` and `Calibration.set_components()` point an existing trial or calibration to newer component snapshots, on the same SID. `DataTable.replace_csv()` and `DataTable.replace_sqlite()` replace a data table's content.
+- Update modes in the CLIs: `setup_and_run_trial --trial-sid`, `create_data_table --data-table-sid`, and `create_simple_output_set --output-set-sid`, each with `--version-name`.
+- `jinko.plotting.comparison_figure` and `jinko.comparison_report` draw and render a comparison between a Jinkō solve and another solver's.
+- Inspection helpers for debugging a failing solve, with the `jinko.cli.debug_solving` command.
+- `python -m nonmem2jinko convert|check` is the converter's own command line.
+
+#### Changed
+
+- `download_as_zip` now names the exported model after the model itself, instead of a placeholder, when no name is given. It also emits conversion warnings as Python warnings and raises when a requested format cannot be converted.
+- Refreshed the API contract: trial sanity checks accept four new codes, and a pop calibration without a model or data table now loads. In `jinko.openapi_types`, `CalibrationOptionsJson` is renamed `CalibrationOptionsOverride`, and `Void` is removed.
+
+#### Fixed
+
+- A protocol design keeps its linked model when its arms change.
+- A constant series from `simple_solve` is expanded before a comparison instead of failing.
+- A Monolix project file (`.mlxtran`) passed to `create_model_from_file` now raises a clear error pointing to `import_monolix_project`.
+
+#### Removed
+
+- `nonmem2jinko`: the modules `platform.data_tables`, `platform.documents`, and `emit.data_tables` are removed, with the upload of the simulated population as data tables. Publish reports with `jinko.cli.create_document_from_markdown`. `validate.local.Comparison` is removed; use `jinko.types.SimpleSolveOutput.compare()`.
+
+Skills in this release require `jinko-sdk>=1.17,<2.0`.
+
 ## 1.16.0 (2026-10-23)
 
 ### Highlights

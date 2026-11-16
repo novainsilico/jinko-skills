@@ -11,7 +11,7 @@
 | Specification | Symbols resolve, identifiers are unique, locators exist, and comparison rules are frozen | Correct the specification |
 | Model | Applied revision has no error diagnostics and solves requested outputs | Report `failed_validation` |
 | Reproduction | Every required target has a measured result | Report pass, failure, or unavailable evidence |
-| Delivery | Artifacts and fixed Jinkō revisions are recorded; report is rendered | Workflow is incomplete |
+| Delivery | Artifacts and fixed Jinkō revisions are recorded; report is rendered and published as a Jinkō document, or the user declined publication | Workflow is incomplete |
 
 ## Artifact layout
 

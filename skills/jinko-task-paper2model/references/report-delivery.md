@@ -67,12 +67,21 @@ python scripts/paper2model_report.py render --spec reproduction-spec.json \
 python scripts/paper2model_report.py render --spec reproduction-spec.json \
   --profile jinko --out reproduction-report.md
 python -m jinko.cli.create_document_from_markdown \
-  --name "Paper reproduction" --markdown-file reproduction-report.md \
-  --output-markdown reproduction-report.upload.md
+  --name "Reproduction report: <paper short title>" \
+  --markdown-file reproduction-report.md \
+  --output-markdown reproduction-report.upload.md \
+  --folder <model-folder-id> --asset-root .
 ```
 
 The document command previews only: no images uploaded, no hosted URLs returned.
-Repeat with `--apply --confirm-digest <preview-digest>` after review.
+Repeat with `--apply --confirm-digest <preview-digest>` after review. Publication
+is the default deliverable, not an optional extra. For a later comparison round,
+pass `--document-sid do-...` and `--baseline-markdown` set to the last retained
+upload payload, so the same document keeps one history. Write each upload payload
+to a new `--output-markdown` path; the command refuses to overwrite one.
+
+Publish early: once `validate` passes, publish the report with pending targets.
+A long run or an interrupted session then still leaves a report in Jinkō.
 
 ## Blocked reports
 
