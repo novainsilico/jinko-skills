@@ -1,6 +1,6 @@
 interface:
   display_name: "Jinkō model import"
-  short_description: "Import SBML, SimBiology, or Monolix models into Jinkō and check them"
+  short_description: "Import SBML, SimBiology, Monolix, NONMEM, or Heta models into Jinkō and check them"
   brand_color: "#232349"
   default_prompt: "Use $jinko-task-import-model to import my model file into Jinkō and check it."
 policy:

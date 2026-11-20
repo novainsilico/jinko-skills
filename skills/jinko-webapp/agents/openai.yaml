@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō Web Apps"
+  short_description: "Push files and web apps to Jinkō"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-webapp to push my web app to a Jinkō project and give me its link."
+policy:
+  allow_implicit_invocation: true

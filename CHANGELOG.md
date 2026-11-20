@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.18.0 (2026-11-20)
+
+### Highlights
+
+- Push a local file or a web app to a Jinkō project as a raw file, and run a zip bundle as an embedded application.
+
+### Skills
+
+#### Added
+
+- `jinko-task-import-model`: imports a Heta platform into Jinkō, with a check of the imported model against HetaSimulator.jl.
+- `jinko-task-export-trial`: now published. Exports a whole Jinkō trial to a standalone program (Julia and Heta for now), runs it, and checks that it reproduces the Jinkō results.
+- `jinko-task-ichm15-evidence-submission`: now published. Evaluates model outcomes and writes the Model Analysis Report for the ICH M15 evidence submission stage.
+- `jinko-webapp`: new skill that pushes a local file or a web app (one HTML file, a directory, or a zip archive) to a Jinkō project as a raw file, pushes a new version of an existing raw file, sets how Jinkō displays it, and returns the Jinkō link. It bundles a web app as an embedded application with its manifest, corrects root-absolute links in the copy it writes, applies the Jinkō checks and the 210 MB limit, and asks for a yes before each device or data permission.
+
+#### Changed
+
+- `jinko-task-export-model`: the comparison reads its tolerance, its floor, and its time match from the shared Jinkō gate, so model imports, model exports, and trial exports apply one rule.
+- `jinko-task-export-trial`: adds the Heta target, names the patient verdicts of the check, and follows the new check options.
+- `jinko-task-export-trial`: a model with `delay(...)` now exports to the Julia target. The Heta target refuses it, says that the Heta runtime has no state history, and points to the Julia target.
+- `jinko`: routes whole-trial export to `jinko-task-export-trial`, and ICH M15 work to `jinko-task-ichm15-planning` for the planning stage and to `jinko-task-ichm15-evidence-submission` once model outcomes exist.
+- `jinko`: routes raw files and web apps pushed to Jinkō (HTML report, app, image, video, any other file) to `jinko-webapp`.
+
+### SDK
+
+#### Added
+
+- `jinko2heta`: export a Jinkō trial to a Heta platform and check it against the Jinkō results.
+- `heta2jinko`: convert a Heta platform to a Jinkō computational model, and check the imported model against HetaSimulator.jl.
+- `jinko_trial_check`: the trial comparison, the agreement metrics, and the report, shared by the export targets.
+- `jinko2julia`: models that use `delay(expression, duration)` now export and solve, with the state history of the Jinkō core: linear interpolation, constant values outside the history, separate left and right values at events, and delayed rules evaluated at the delayed time. A delay written directly inside another delay merges with it, and each duration is checked once per patient and arm, so a negative duration fails that patient. `rateOf` and delays in event schedules stay unsupported.
+- `jinko2heta`: a model that uses `delay` is refused with its reason, that the Heta runtime does not implement the state history of the Jinkō core.
+
+#### Changed
+
+- The exported Julia bundle is reproducible and traceable: the copyright year comes from the trial run, `data/trial.json` and the bundle README record the generator version and the id, name, revision, and snapshot of each Jinkō input, and the runtime pins Julia 1.13.1.
+- A trial time series is accepted on its integrated agreement: the area of the absolute difference over the area of the Jinkō curve, at most 1e-4. Above it, the same ratio applies to the two tight solves. Point-wise and signed-AUC values stay as diagnostics.
+- `jinko2julia check` solves the suspect pairs again at tight tolerances in both tools: Julia, and Jinkō through a temporary copy of the trial that the check deletes after use. An item above the strict gate passes only when the two tight solves agree.
+- `jinko2julia run`: `--arm` can be repeated to solve several arms in one run, `--resume` keeps the patients that an interrupted run into the same folder completed, and the runtime refuses to resume or to reuse saved arms from another bundle, tolerance mode, or arm selection.
+- `jinko2julia check --stop-above inf` replaces `--no-stop`: it compares every patient and never stops, not even on a structural difference.
+- A run fails loudly: a run that fails in the solver goes to `errors.csv` and the other runs go on, counted in `failed_runs`; any other error stops the run with a non-zero exit code.
+- The runtime follows the core more closely for `round`, powers, logarithms in a base, trigonometric functions at infinity, and the roots of the floor, ceil, mod, and round switches.
+- `Duration` is declared as an ISO 8601 duration in the OpenAPI spec, so calibrations and trials take and return durations in that form.
+- `client.create_raw_file(...)` creates a raw file from a file path or from bytes, with a name, a folder, a description, and a version name. `raw_file.replace_content(...)` saves a new version on the same SID and URL. The content type defaults to the type that the file name extension indicates.
+- `raw_file.settings()`, `raw_file.update_settings({...})`, and `raw_file.reset_settings()` read and change how Jinkō displays a raw file, for example to run a zip raw file as an embedded application.
+
+#### Fixed
+
+- A scalar unit that does not convert, a vpop or protocol column that is not a model input, and a `--julia` path that does not exist are now errors instead of silent fallbacks.
+- The result files are assembled in patient-id order, by the runtime alone.
+- Python and Julia give the same folder name to a patient, for every patient id.
+
+Skills in this release require `jinko-sdk>=1.18,<2.0`.
+
 ## 1.17.0 (2026-11-16)
 
 ### Highlights

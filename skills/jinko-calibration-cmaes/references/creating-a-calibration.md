@@ -59,7 +59,7 @@ between the physical bounds and that calibration sanity has no
 | `options.label` | sbml-id, names the generated fitness function |
 | `options.weight` | default 1, ≥0 |
 | `options.logTransformWideBounds` | observable id list |
-| `options.timeTolerance` | date/duration string |
+| `options.timeTolerance` | ISO 8601 duration string, such as `PT2H` |
 
 `logTransformWideBounds` is the API field behind the UI's **Scale bounds**
 option. For a fitness data table, populate it with every distinct `obsId` in

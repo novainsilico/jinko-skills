@@ -3,27 +3,27 @@ name: jinko-task-import-model
 description: >-
   Import a model built in another modeling tool into Jinkō, check that Jinkō
   accepts and solves it, and, when the user asks, check it numerically against
-  the source tool. Sources: SBML, SimBiology XLSX, a Monolix structural model,
-  a Monolix project (.mlxtran), and a NONMEM run (.mod, .ctl, .lst, .ext,
-  .phi, data set), which becomes a model, vpop, protocol design, output set,
-  and trial checked against a declared reference. Routes a published paper to jinko-task-paper2model. Use
-  this skill whenever the user wants to import, upload, port, translate, or
-  migrate a model file or a NONMEM run into Jinkō, to bring a BioModels,
-  COPASI, SimBiology, Monolix, or NONMEM model to Jinkō, to reproduce a
-  population-PK model that exists as NONMEM code, or to check that an imported
-  model reproduces its source tool, even when the user only gives a file path.
-  Use jinko-model to author a model from scratch and jinko-task-export-model
-  to go from Jinkō to another tool.
+  the source tool. Sources: SBML, SimBiology XLSX, a Monolix structural model
+  or project (.mlxtran), a NONMEM run (.mod, .ctl, .lst, .ext, .phi, data
+  set), which becomes a checked trial, and a Heta platform, which becomes a
+  model and, with scenarios, a protocol design, output set, and trial. Routes
+  a published paper to jinko-task-paper2model. Use this skill whenever the
+  user wants to import, upload, port, or migrate a model file, a NONMEM run,
+  or a Heta platform into Jinkō, to bring a BioModels, COPASI, SimBiology,
+  Monolix, NONMEM, or Heta model to Jinkō, or to check that an imported model
+  reproduces its source tool, even when the user only gives a file path. Use
+  jinko-model to author a model from scratch and jinko-task-export-model to go
+  from Jinkō to another tool.
 compatibility: >-
-  Check set-up with the `jinko-sdk-setup` skill. The optional comparison needs
-  pint (`pip install pint`) and the runtime of the source: libroadrunner for
-  SBML, MATLAB with SimBiology for SimBiology, or a CSV of the source tool's
-  results for Monolix and any other tool. NONMEM needs
-  `pip install "jinko-sdk[nonmem2jinko]"`, and R with `nonmem2rx` and `rxode2`
-  for its independent-parse check. The optional report needs matplotlib.
+  Check set-up with `jinko-sdk-setup`. The optional comparison needs pint and
+  the source runtime: libroadrunner for SBML, MATLAB for SimBiology, or a CSV
+  of results for other tools. NONMEM needs the SDK extra `nonmem2jinko`, and R
+  with `nonmem2rx` and `rxode2` for its parse check. Heta needs the SDK extra
+  `heta2jinko`, the Heta compiler only for .heta sources, and Julia with the
+  extra `jinko2heta` for its check. The optional report needs matplotlib.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.17,<2.0"
+  requires_sdk: ">=1.18,<2.0"
 license: MIT
 ---
 
@@ -54,6 +54,7 @@ alone.
 | Monolix structural model (Mlxtran with `[LONGITUDINAL]`, often `.txt`) | `client.create_model_from_file(..., file_format="monolix")` |
 | Monolix project (`.mlxtran`) | `client.import_monolix_project()`: it also creates a simple output set and a trial |
 | NONMEM (`.mod`, `.ctl`, `.lst`, `.ext`, `.phi`) | `python -m nonmem2jinko`. Read `references/nonmem.md` and follow it instead of the workflow below: it has its own checks |
+| Heta platform (table export of the Heta compiler, XLSX or CSV, or `.heta` sources) | `scripts/heta_import.py`. Read `references/heta.md` and follow it instead of the workflow below: it creates the model and, with scenarios, the protocol design, output set, and trial, and checks them against HetaSimulator.jl on request |
 | A paper, equations, or code with no import format | `jinko-task-paper2model` |
 
 For any other format, say that Jinkō cannot import it and list the formats

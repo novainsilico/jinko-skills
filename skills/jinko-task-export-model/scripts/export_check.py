@@ -52,7 +52,6 @@ JINKO = "jinko.json"
 OTHER = "other.json"
 ALIGNED = "aligned.json"
 SOLVE_BATCH = 9  # simple_solve takes at most 10 series, Time included
-TIME_MATCH = 1e-9
 # The other solver runs tight, so the check tests the exported equations and
 # not solver settings. Exports hold species as amounts, often tiny in mol, so
 # Jinkō's absolute tolerance would be meaningless there.
@@ -308,20 +307,26 @@ def reference(args: argparse.Namespace) -> int:
 # --------------------------------------------------------------------------- #
 
 
+def _number(value: float) -> str:
+    """A number as people write it: 1e-5, not 1e-05."""
+    return re.sub(r"e([+-])0*(\d)", r"e\1\2", f"{value:g}").replace("e+", "e")
+
+
 def _series(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {item["id"]: item for item in payload["series"]}
 
 
-def _index(times: list[float], when: float) -> int | None:
-    """Last index of ``when`` in ``times``: the state after an event."""
-    slack = TIME_MATCH * max(1.0, abs(when))
-    found = None
-    for index, value in enumerate(times):
-        if abs(value - when) <= slack:
-            found = index
-        elif value > when + slack:
-            break
-    return found
+def _value_at(times: list[float], values: list[float], when: float) -> float | None:
+    """The value at ``when``, after its event when ``times`` holds it twice.
+
+    None when no time point matches ``when``.
+    """
+    from jinko._comparison import values_at
+
+    try:
+        return values_at(times, values, [when])[0]
+    except ValueError:
+        return None
 
 
 def _align(
@@ -342,20 +347,20 @@ def _align(
     The first time point is not compared: no solver can be sampled before
     it, and Jinkō reports the state before the events of that time.
     """
+    from jinko._comparison import FLOOR_FRACTION
+
     peak = max((abs(value) for value in jinko_values), default=0.0)
-    floor = max(peak * 1e-5, 1e-300)
+    floor = max(peak * FLOOR_FRACTION, 1e-300)
     times: list[float] = []
     picked: list[float] = []
     events = 0
     for when in sorted(set(jinko_time))[1:]:
-        right = _index(other_time, when)
-        if right is None:
+        value = _value_at(other_time, values, when)
+        if value is None:
             continue
-        value = values[right]
-        left = _index(other_time, when - LEFT * max(1.0, abs(when)))
-        if left is not None:
-            jinko_value = jinko_values[_index(jinko_time, when)]
-            before = values[left]
+        before = _value_at(other_time, values, when - LEFT * max(1.0, abs(when)))
+        if before is not None:
+            jinko_value = _value_at(jinko_time, jinko_values, when)
             if abs(before - value) > tolerance * max(abs(value), abs(before), floor):
                 events += 1
                 if abs(before - jinko_value) < abs(value - jinko_value):
@@ -366,6 +371,7 @@ def _align(
 
 
 def compare(args: argparse.Namespace) -> int:
+    from jinko._comparison import FLOOR_FRACTION, values_at
     from jinko.types import SimpleSolveOutput, SolvedSeries
 
     directory = Path(args.dir).resolve()
@@ -442,9 +448,7 @@ def compare(args: argparse.Namespace) -> int:
         passed = passed and result.passes
         aligned[identifier] = {
             "times": times,
-            "jinko": [
-                reference_item["values"][_index(jinko_time, when)] for when in times
-            ],
+            "jinko": values_at(jinko_time, reference_item["values"], times),
             "other": values,
         }
         rows.append({
@@ -465,8 +469,8 @@ def compare(args: argparse.Namespace) -> int:
         "status": "PASS" if passed else "FAIL",
         "tolerance": args.tolerance,
         "rule": (
-            "max point-wise relative error against Jinkō, floor 1e-5 x Jinkō peak, "
-            "after the first time point"
+            f"max point-wise relative error against Jinkō, floor {_number(FLOOR_FRACTION)} x "
+            "Jinkō peak, after the first time point"
         ),
         "series": rows,
     }
@@ -509,6 +513,8 @@ def _interpolate(
     times: list[float], values: list[float], wanted: list[float]
 ) -> list[float]:
     """Linear interpolation, last value at a repeated time (after an event)."""
+    from jinko._comparison import TIME_MATCH
+
     picked: list[float] = []
     for when in wanted:
         index = max(
@@ -935,7 +941,9 @@ def parser() -> argparse.ArgumentParser:
 
     command = commands.add_parser("compare", help="compare other.json with jinko.json")
     command.add_argument("--dir", required=True)
-    command.add_argument("--tolerance", type=float, default=1e-3)
+    from jinko._comparison import TOLERANCE
+
+    command.add_argument("--tolerance", type=float, default=TOLERANCE)
     command.add_argument("--overwrite", action="store_true")
     command.set_defaults(handler=compare)
 

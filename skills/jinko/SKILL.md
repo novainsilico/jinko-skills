@@ -28,6 +28,7 @@ orchestration; resource skills own reusable Jinkō SDK/API mechanics.
 - Reference PDFs and source extracts: `jinko-reference`.
 - Evidence-to-table extraction: `jinko-task-extract-data-table`.
 - Model export to SBML, SimBiology, Julia, or nlmixr2, with a numerical check: `jinko-task-export-model`.
+- Whole-trial export to a standalone program (Julia and Heta languages are supported for now - contact us for mow), with a check against the Jinkō results: `jinko-task-export-trial`.
 - Model import from SBML, SimBiology, Monolix, or NONMEM, with its checks: `jinko-task-import-model`.
 - Data-table mechanics: `jinko-data-table`.
 - Model mechanics: `jinko-model`.
@@ -39,6 +40,8 @@ orchestration; resource skills own reusable Jinkō SDK/API mechanics.
 - Trial mechanics: `jinko-trial`.
 - Trial visualization mechanics: `jinko-trial-viz`.
 - Document mechanics: `jinko-document`.
+- ICH M15 documentation: `jinko-task-ichm15-planning` for the planning stage; `jinko-task-ichm15-evidence-submission` once model outcomes exist.
+- Raw files and web apps (HTML report, app, image, video, any file) pushed to Jinkō: `jinko-webapp`.
 
 If a request spans several areas, state which owner applies to the immediate
 request and let that skill determine its own prerequisites or handoffs. Do not

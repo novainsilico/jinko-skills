@@ -19,7 +19,7 @@ compatibility: >-
   matplotlib.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.17,<2.0"
+  requires_sdk: ">=1.18,<2.0"
 license: MIT
 ---
 

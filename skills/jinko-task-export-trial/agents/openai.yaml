@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jinkō trial export"
+  short_description: "Export a whole Jinkō trial to Julia or Heta and check it reproduces Jinkō"
+  brand_color: "#232349"
+  default_prompt: "Use $jinko-task-export-trial to export my Jinkō trial to Julia and check it against Jinkō."
+policy:
+  allow_implicit_invocation: true
