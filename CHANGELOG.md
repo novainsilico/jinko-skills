@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.19.0 (2026-11-23)
+
+### Highlights
+
+- Population calibrations in the SDK now report their run status and their pre-launch sanity checks, and can be waited on until the run ends.
+
+### SDK
+
+#### Added
+
+- `PopCalibration.status()` returns the run state and the number of iterations done, as a typed model.
+- `PopCalibration.get_sanity()` returns the pre-launch sanity report for the calibration, the data tables, the model, and the options.
+- `PopCalibration.diagnostics` gives a filterable, printable view over the sanity report. Call `has_errors()` before `run()`, or print the view to see every entry. `diagnostics_at(revision)` returns the same view for a past revision.
+- `PopCalibration.wait_until_completed(timeout=..., poll_interval=...)` polls the status until the run is completed, stopped, or in error, and raises `TimeoutError` when the timeout passes first.
+
+Skills in this release require `jinko-sdk>=1.19,<2.0`.
+
 ## 1.18.0 (2026-11-20)
 
 ### Highlights

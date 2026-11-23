@@ -22,7 +22,7 @@ compatibility: >-
   compiler 0.12.1 (Node.js).
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.18,<2.0"
+  requires_sdk: ">=1.19,<2.0"
 license: MIT
 ---
 
