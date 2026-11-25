@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.20.0 (2026-11-25)
+
+### Highlights
+
+- The SDK now covers a full SAEM population calibration workflow: create, run, follow, export, and plot, from the command line or from Python.
+
+### Skills
+
+#### Fixed
+
+- The Jinkō plugin for Claude now shows its icon in the plugin directory instead of a placeholder.
+
+### SDK
+
+#### Added
+
+- Four commands for SAEM population calibrations: `jinko-create-pop-calibration` creates one from a problem file, with a dry run by default and checks of the observation table against the model outputs and the output time grid; `jinko-run-pop-calibration` launches the run, follows it, logs each status, and resumes from that log; `jinko-inspect-pop-calibration` exports every result with a manifest; `jinko-plot-pop-calibration` writes the figures from the exported and prepared tables, without contacting Jinkō.
+- Population calibration objects gain `history_table()`, which returns the optimizer history as typed rows with a summary, and `export_results()`, which writes each result to a CSV file and records the error of a failed or empty one.
+- `wait_until_completed()` accepts an `on_poll` callback, `tolerate_transport_errors` to keep waiting through network, server, and rate-limit errors, and `stall_polls` to signal a run that makes no new iteration.
+- `get_pop_calibration_default_config()` returns the default optimizer settings that Jinkō applies to the settings a calibration leaves out.
+- The `plot` extra now installs scipy, used for the normal references of the residual figures.
+
+#### Fixed
+
+- A population calibration result with an empty body now reads as an empty result instead of raising a `TypeError`.
+- Trajectory plot titles name the protocol arm instead of a tuple.
+
+Skills in this release require `jinko-sdk>=1.20,<2.0`.
+
 ## 1.19.0 (2026-11-23)
 
 ### Highlights
