@@ -16,7 +16,7 @@ compatibility: >-
   numpy, scipy, pandas, and matplotlib.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.20,<2.0"
+  requires_sdk: ">=1.21,<2.0"
 license: MIT
 ---
 

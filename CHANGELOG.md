@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.21.0 (2026-11-25)
+
+### SDK
+
+#### Added
+
+- Plot SAEM convergence and residual diagnostics from in-memory results with `PopCalibration.plot_history()` and `PopCalibration.plot_residuals()`. Both methods return Matplotlib figures for display or customization.
+
+Skills in this release require `jinko-sdk>=1.21,<2.0`.
+
 ## 1.20.0 (2026-11-25)
 
 ### Highlights
