@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.22.0 (2026-11-26)
+
+### Highlights
+
+- Export a Jinkō trial to a SED-ML experiment in a COMBINE archive, run it with tellurium, and check that it reproduces the Jinkō results. A SED-ML experiment can also be previewed and imported into Jinkō.
+- An imported NONMEM model with repeated doses now gives the right number of doses. This needs Jinkō 2026.10.13 or later.
+- A Heta platform whose scenarios turn an event off now converts: each such event gets an activation parameter and an override per arm.
+
+### Skills
+
+#### Added
+
+- `jinko-task-export-trial`: SED-ML is a new trial target, next to Julia and Heta. It packages the trial as a COMBINE archive, runs it with tellurium, and compares the results with Jinkō. `references/sed-ml.md` gives the steps and every refusal.
+- `jinko-task-import-model`: preview a SED-ML experiment, an OMEX archive or a `.sedml` file with its SBML, review it, and upload only the approved items. `references/sed-ml.md` gives the steps and every refusal.
+
+#### Changed
+
+- `jinko-task-export-trial`: shorter workflow. The verdicts, the stop, and the check options moved to `references/julia.md`.
+- `jinko-task-import-model`: the Heta reference drops the ODE pair and `events_active` from the known gaps, describes the activation parameter that a switched-off event gets, and says that the check drops the Jinkō points of a switched-off time event and treats two spellings of one unit as equal.
+- `jinko-task-import-model`: the NONMEM conversion map states that the dose event carries the total dose count, the first dose included.
+- `jinko`: the routing lists the new import sources and export targets.
+
+#### Fixed
+
+- `jinko-calibration-cmaes`: the calibration reference no longer points outside the skill package. It names the advanced output set reference of the `jinko-output-set` skill instead of a link that did not resolve once installed.
+
+### SDK
+
+#### Added
+
+- SED-ML and COMBINE archive tools, installed with the `sedml` extra: package a fetched trial and the SBML export of its model as a COMBINE archive, run the archive in a pinned tellurium environment, compare the results with Jinkō, and preview an archive before an approved upload. Unsupported semantics are refused by name.
+- `heta2jinko` converts a Heta switcher that `active: false` or a scenario's `events_active` turns off. The converter adds a `<switcher>_active` parameter, gates the event on it, and sets it on every arm.
+
+#### Changed
+
+- The trial check accepts a curve whose integrated relative error is at most 1e-4 or whose largest absolute difference is at most 1e-12 in the reported output unit, per patient and arm. A larger event shift passes only with one recorded event, complete observations, and agreement of two tight runs. Data-table objectives, constraints, and weighted scores are computed in Python.
+- `jinko2julia fetch` downloads each data table without its scoring mapping only with `--original-tables`.
+- `heta2jinko` lists each ODE in the conversion report, with its left side, its right side pair, and its Heta process unit.
+
+#### Fixed
+
+- `heta2jinko` checks the right side of an ODE like a reaction rate: an undeclared symbol is now refused at conversion instead of failing on upload, and a constant or an output read only by an ODE gets the right tag.
+- `heta2jinko` gives a concentration-species override in a scenario its own unit, so the arm and the model state the value in the same unit.
+- `heta2jinko` puts every `saveat` point on the scenario grid from 0. A grid that no longer fits the 1000-point cap is refused with a message that names float noise as a likely cause, and a range such as `0:0.1:1` is expanded in exact decimals.
+- `heta2jinko check` drops the Jinkō rows that a switched-off time event adds, and compares units by quantity, so `nanomol / L` and `nmole * liter ** -1` no longer count as a mismatch. The report lists both.
+- `nonmem2jinko` emits the total dose count in the dose event, the first dose included. A converted model with repeated doses gave one dose too few on Jinkō 2026.10.13 and later.
+
+Skills in this release require `jinko-sdk>=1.22,<2.0`.
+
 ## 1.21.0 (2026-11-25)
 
 ### SDK

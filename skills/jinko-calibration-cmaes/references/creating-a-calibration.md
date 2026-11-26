@@ -105,7 +105,8 @@ defaults.
 Calibration maximizes it; its mathematical maximum is `1`, so the default
 `thresholdWeightedScore=1` is the full-score target. Calibration stops when a
 patient exceeds the configured threshold. Objective weights determine each
-objective's relative contribution; see the [advanced output set reference](../../jinko-output-set/references/advanced-output-set.md).
+objective's relative contribution. See the Advanced output set reference in
+the `jinko-output-set` skill.
 
 ## `solving_*` kwargs
 

@@ -6,7 +6,7 @@ compatibility: >-
   Requires Jinkō project write access and an initialized jinko-sdk connection. Scanned documents require an approved OCR service or a provider-neutral OCR packet. Source-code execution requires explicit authorization.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.21,<2.0"
+  requires_sdk: ">=1.22,<2.0"
 license: MIT
 ---
 

@@ -186,20 +186,13 @@ them only when the data set happened to repeat left both components unread,
 which the platform reports as `UNUSED_COMPONENT`, and silently discarded any
 arm override of either.
 
-**The trigger's count is recurrences, not occurrences.** The event fires
-`count + 1` times — the platform's own `numberOfOccurrences` reads
-`EquallySpacedCount _ count -> count + 1` — while the UI labels the field
-"Number of occurences", which is what makes this easy to get wrong. `doseCount`
-is the number of *doses*, which is what `ADDL + 1`, the protocol arms and the
-equivalence check all mean by it, so the trigger is emitted as
-`doseCount - 1`. Passing `doseCount` straight through gave one dose too many:
-an interval of 5 with a count of 3 dosed at 0, 5, 10 *and* 15.
+**The trigger's count is the number of occurrences, the first one
+included.** `doseCount` is the number of *doses*, which is what `ADDL + 1`, the
+protocol arms and the equivalence check all mean by it, so the trigger is
+emitted as `doseCount`: an interval of 24 h with a count of 3 doses at 0, 24
+and 48 h. `doseCount - 1` gives one dose too few.
 
-An interval of zero hides that off-by-one, which is why it survived a first
-round of checking: coincident occurrences collapse, so the single-dose default
-doses once either way.
-
-Each arm therefore pins all three values, an interval of zero included. The
+Each arm pins all three values, an interval of zero included. The
 model's defaults come from the first dosing record in the data set, which
 belongs to whichever arm sorts first, so an arm overriding only the amount
 would otherwise inherit that arm's repeat. Doses that are not evenly spaced are

@@ -28,8 +28,8 @@ orchestration; resource skills own reusable Jinkō SDK/API mechanics.
 - Reference PDFs and source extracts: `jinko-reference`.
 - Evidence-to-table extraction: `jinko-task-extract-data-table`.
 - Model export to SBML, SimBiology, Julia, or nlmixr2, with a numerical check: `jinko-task-export-model`.
-- Whole-trial export to a standalone program (Julia and Heta languages are supported for now - contact us for mow), with a check against the Jinkō results: `jinko-task-export-trial`.
-- Model import from SBML, SimBiology, Monolix, or NONMEM, with its checks: `jinko-task-import-model`.
+- Whole-trial export to SED-ML (run with tellurium), Julia, or Heta, with a check against the Jinkō results: `jinko-task-export-trial`.
+- Model import from SED-ML, SBML, SimBiology, Monolix, NONMEM, or Heta, with its checks: `jinko-task-import-model`.
 - Data-table mechanics: `jinko-data-table`.
 - Model mechanics: `jinko-model`.
 - Slow solves, timeouts, and patient/arm solving failures: `jinko-task-debug-solving-errors`.

@@ -71,13 +71,16 @@ If the Heta compiler is not installed, say so and ask before you install it
    components with each `heta -> Jinkō` expression pair, the protocol design
    and its arms, the warnings, "Needs a human decision", and the rows that
    produced no component. Point out these known gaps:
-   - The report has no pair for a differential equation. Read each `@Process`
-     rate against its `create_ode` entry in `jinko-model.json`.
    - A platform without a `t { units: … }` row is converted in seconds
      (`W_TIME_UNIT_ASSUMED`). Confirm the time unit: it changes every dose
      time and every scenario grid.
-   - `events_active` and `events_save` of a scenario do not convert. The
-     report lists them.
+   - `events_save` of a scenario does not convert. The report lists it.
+   - A switcher that `active: false` or a scenario's `events_active` names
+     gets a parameter `<switcher>_active` and an override per arm
+     (`W_EVENT_GATED`). The converter adds them, even when no arm turns the
+     event off. Remove them if the user needs no such switch. At 0 a time
+     switcher still fires and changes nothing, so the solver adds a time
+     point there. The check of step 6 drops those points.
 
    Then show the list of items to create, and wait for the user's yes.
 4. **Create the items.**
@@ -112,6 +115,11 @@ If the Heta compiler is not installed, say so and ask before you install it
    the grid of its Jinkō arm, and compares each arm with the Jinkō results,
    with the rules of the trial export (the SDK package `jinko_trial_check`):
    a series passes when its integrated relative difference is at most 1e-4.
+   In an arm where a time switcher is switched off, the check first drops
+   the Jinkō points of its times, and the report lists them.
+   A unit that Jinkō writes differently (`nanomol / L` for
+   `nmole * liter ** -1`) is the same unit: the check compares the
+   quantities, and the report lists each such series.
    With a trial, the trial must have run. Without scenarios, it compares one
    run of the platform as declared with a solve of the model.
    It compares the `output` series and the measured series: Heta records,
@@ -145,7 +153,9 @@ If the Heta compiler is not installed, say so and ask before you install it
 - A `@Scenario` becomes one arm. Its `parameters` become overrides, rewritten
   as the model rewrote the component, and its `tspan` and `saveat` become the
   arm's `tMax` and `tStep`. Its `observables` become the measures of the
-  output set.
-- The converter refuses `@DSwitcher`, `@CSwitcher`, `@StopSwitcher`,
+  output set. Its `events_active` becomes an override of the activation
+  parameter of each gated switcher.
+- A `@CSwitcher` becomes a model event with a condition trigger.
+- The converter refuses `@DSwitcher`, `@StopSwitcher`,
   `@ReferenceDefinition`, `@TimeScale`, explicit namespaces, a `@Process` on a
   species, and a function with no exact Jinkō equivalent.

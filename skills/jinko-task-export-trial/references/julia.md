@@ -1,5 +1,38 @@
 # Julia
 
+## Check
+
+`check` prints one line per finished patient:
+
+- PASS: every item within the gate.
+- GAP: an item above the gate, but within solver tolerance or below
+  `--stop-above` (default 0.1).
+- SUSPECT: an item above `--stop-above`; its patient-arm pairs get tight
+  solves first, in Julia and in a Jinkō trial of their own. With
+  `--no-tight`, a SUSPECT patient stops the check at once.
+- DIVERGES: a failed run, mismatched rows or units, or an item above
+  `--stop-above` that the tight solves do not explain.
+- NO JINKO RESULTS: Jinkō did not solve the patient. It is not compared, but
+  its Julia errors still count.
+
+The check stops at the first patient that diverges. The STOPPED line gives
+the reason and the results folder; a crash of the Julia run gives the path of
+`run.log`. Debug that patient from `<bundle>/results/partial/<patient>/`
+before you run again. The other patients share one Jinkō tight trial when the
+Julia run ends. A model with hundreds of states compiles for minutes before
+the first patient.
+
+When an output is undefined where it differs (for example
+`c <= 0 ? -5 : log10(c)` at a zero concentration), report the formula as a
+modeling issue (`jinko-model`, "Keep piecewise outputs continuous"). With the
+user's consent, rerun with `--exclude <series>` (repeatable), or compare only
+named series with `--select <series>`. The two are exclusive, and a scalar
+`<series>.<kind>` follows its series. The report names what was not compared.
+
+Other options: `--resume` continues with the same bundle and reference files
+(fingerprints reject changed inputs); `--no-tight` skips every tight solve;
+`--stop-above inf` never stops the run and keeps the final failing verdict.
+
 ## The bundle
 
 | Path | Content |
@@ -115,3 +148,8 @@ at tolerance level, not bit for bit. `fetch` reads data tables with the
 design has a `timeTolerance` fails in the SDK (jinko-workbench#585); reading
 one works. Read each trial component at the revision
 the trial is bound to (`fetch` does); the latest revision can differ.
+
+The text of a scoring evaluation error can differ from Jinkō's for errors
+inside time series functions (Jinkō writes the reason in the value column).
+A scoring time that depends on a model state is not added to the solve times
+(Jinkō evaluates it with the states at 0).

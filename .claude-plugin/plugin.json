@@ -20,7 +20,7 @@
     "MIDD",
     "in-silico trials"
   ],
-  "version": "1.21.0",
+  "version": "1.22.0",
   "displayName": "Jinkō",
   "icon": "./.claude-plugin/icon.png",
   "documentationUrl": "https://doc.jinko.ai/docs/agentic/sdk-and-skills/",

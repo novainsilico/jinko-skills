@@ -3,8 +3,9 @@ name: jinko-task-import-model
 description: >-
   Import a model built in another modeling tool into Jinkō, check that Jinkō
   accepts and solves it, and, when the user asks, check it numerically against
-  the source tool. Sources: SBML, SimBiology XLSX, a Monolix structural model
-  or project (.mlxtran), a NONMEM run (.mod, .ctl, .lst, .ext, .phi, data
+  the source tool. Sources: SED-ML experiments (an OMEX archive, or a .sedml
+  file with its SBML), SBML, SimBiology XLSX, a Monolix structural model or
+  project (.mlxtran), a NONMEM run (.mod, .ctl, .lst, .ext, .phi, data
   set), which becomes a checked trial, and a Heta platform, which becomes a
   model and, with scenarios, a protocol design, output set, and trial. Routes
   a published paper to jinko-task-paper2model. Use this skill whenever the
@@ -16,14 +17,15 @@ description: >-
   from Jinkō to another tool.
 compatibility: >-
   Check set-up with `jinko-sdk-setup`. The optional comparison needs pint and
-  the source runtime: libroadrunner for SBML, MATLAB for SimBiology, or a CSV
-  of results for other tools. NONMEM needs the SDK extra `nonmem2jinko`, and R
+  the source runtime: tellurium for SED-ML (SDK extra `sedml`),
+  libroadrunner for SBML, MATLAB for SimBiology, or a CSV of results for
+  other tools. NONMEM needs the SDK extra `nonmem2jinko`, and R
   with `nonmem2rx` and `rxode2` for its parse check. Heta needs the SDK extra
   `heta2jinko`, the Heta compiler only for .heta sources, and Julia with the
   extra `jinko2heta` for its check. The optional report needs matplotlib.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.21,<2.0"
+  requires_sdk: ">=1.22,<2.0"
 license: MIT
 ---
 
@@ -34,21 +36,17 @@ license: MIT
 > skill (`../jinko-sdk-setup/SKILL.md`) and proceed only once its check passes.
 > If that skill is not found, install it from `novainsilico/jinko-skills`.
 
-The user gets a Jinkō model and an honest statement of what was established.
-There are two different claims:
-
-- **Jinkō accepts and solves the model**: the sanity check. A model can solve
-  and still be wrong.
-- **The Jinkō model reproduces the source tool**: the comparison, and nothing
-  else.
-
-Say which one the user has. Never call an import verified on the sanity check
-alone.
+The user gets a Jinkō model and an honest statement of what was established:
+either **Jinkō accepts and solves the model** (the sanity check; a model can
+solve and still be wrong), or **the model reproduces the source tool** (the
+comparison, and nothing else). Say which one. Never call an import verified on
+the sanity check alone.
 
 ## Routes
 
 | Source | Route |
 | --- | --- |
+| SED-ML: an OMEX (COMBINE) archive, or a `.sedml` file (XML with a `sedML` root) with its local SBML | `python -m jinko_sedml`. Read `references/sed-ml.md` and follow it instead of the workflow below: it previews the whole experiment before any upload |
 | SBML (`.xml`, `.sbml`) | `client.create_model_from_file()` |
 | SimBiology XLSX | `client.create_model_from_file()` |
 | Monolix structural model (Mlxtran with `[LONGITUDINAL]`, often `.txt`) | `client.create_model_from_file(..., file_format="monolix")` |
@@ -57,10 +55,9 @@ alone.
 | Heta platform (table export of the Heta compiler, XLSX or CSV, or `.heta` sources) | `scripts/heta_import.py`. Read `references/heta.md` and follow it instead of the workflow below: it creates the model and, with scenarios, the protocol design, output set, and trial, and checks them against HetaSimulator.jl on request |
 | A paper, equations, or code with no import format | `jinko-task-paper2model` |
 
-For any other format, say that Jinkō cannot import it and list the formats
-above. Ask whether the source tool can export SBML. Do not translate a model
-into Jinkō by hand under this skill: an unchecked translation looks like an
-import.
+For any other format, say that Jinkō cannot import it, list the formats
+above, and ask whether the source tool can export SBML. Do not translate a
+model by hand: an unchecked translation looks like an import.
 
 ## Workflow
 
@@ -93,9 +90,8 @@ user choose:
 ## Comparison with the source tool
 
 Run it only when the user asks. `scripts/import_check.py` does the file
-handling and the maths. Use it, do not present it to the user as a tool to
-learn. One run directory holds one comparison, for example
-`imports/<cm-sid>/check/`.
+handling and the maths: run it yourself, with one directory per comparison,
+such as `imports/<cm-sid>/check/`.
 
 1. **Choose the series.** `list-series <cm>` lists the time-dependent series.
    Use the ones the user named. Otherwise propose the model outputs, or a few
@@ -113,10 +109,8 @@ learn. One run directory holds one comparison, for example
    anything without the user's consent.
 4. **Compare.** `compare --dir <dir>`. Show `comparison.md`.
 5. **Report, only when the user asks for one.** `report --dir <dir>` writes
-   `report.md` with a plot per series in `plots/` (needs matplotlib). To share
-   it, publish it next to the model with `jinko-document`
-   (`python -m jinko.cli.create_document_from_markdown`). Do not offer a report
-   for a check nobody asked for.
+   `report.md` with a plot per series (needs matplotlib). To share it, publish
+   it next to the model with `jinko-document`.
 
 ## Rules for the comparison
 

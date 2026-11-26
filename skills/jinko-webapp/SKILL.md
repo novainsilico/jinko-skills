@@ -13,7 +13,7 @@ compatibility: >-
   Python 3.11 or later and no other package.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.21,<2.0"
+  requires_sdk: ">=1.22,<2.0"
 license: MIT
 ---
 
