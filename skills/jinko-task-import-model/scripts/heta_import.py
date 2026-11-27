@@ -347,7 +347,7 @@ def sanity_check(model, series: list[str]) -> list[str]:
         return problems
     for start in range(0, len(series), SOLVE_BATCH):
         asked = series[start : start + SOLVE_BATCH]
-        result = model.simple_solve(timeseries_ids=asked)
+        result = model.simple_solve(timeseries_ids=asked, raise_on_error=False)
         if result.error:
             return [f"simple_solve: {result.error}"]
         returned = {item.id for item in result.results if item.values}

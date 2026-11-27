@@ -119,7 +119,13 @@ If this reports errors while `advanced_output_set.diagnostics` (standalone, see 
 
 ```python
 trial.run()
-status = trial.wait_until_completed(timeout=1800)
+status = trial.wait_until_completed(timeout=1800, raise_on_error=True)
 ```
 
-The default polling interval in `wait_until_completed()` is 5 seconds.
+With `raise_on_error=True`, a trial that ends in `error` raises `RunError`;
+`error.status` holds the final status dict. Use it when the next step reads
+results. A `stopped` trial returns. Without it, the wait returns the `error`
+status, so check `status["status"]` yourself. `trial.run_and_wait_until_completed()`
+takes the same argument.
+
+The default polling interval in `wait_until_completed()` is 2 seconds.

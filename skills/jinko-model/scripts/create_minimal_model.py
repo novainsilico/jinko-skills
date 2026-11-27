@@ -84,7 +84,7 @@ def report_diagnostics(model: Any) -> bool:
 
 def report_simple_solve(model: Any, timeseries_id: str) -> bool:
     start = time.monotonic()
-    result = model.simple_solve(timeseries_ids=[timeseries_id])
+    result = model.simple_solve(timeseries_ids=[timeseries_id], raise_on_error=False)
     elapsed = time.monotonic() - start
     if elapsed >= 15.0:
         print(

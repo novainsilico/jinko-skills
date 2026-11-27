@@ -1,5 +1,50 @@
 # Changelog
 
+## 1.23.0 (2026-11-27)
+
+### Highlights
+
+- `simple_solve` now raises `SimpleSolveError` when the server reports a failed solve, instead of returning an output with an error set. This is a breaking change.
+- The waits on trials and calibrations accept `raise_on_error=True` and raise `RunError` when a run ends in error, so a failed run stops the flow before you read results.
+- A simple output set measure that has a `function` now gets an `origin`, so its name appears in the trial results.
+
+### Skills
+
+#### Changed
+
+- `jinko-model`: the validation reference shows how to handle a failed solve with `SimpleSolveError`, and states the override format: a MathJS formula with units in `u(...)`, or a plain number read in the unit of the component. A component `definition` is a display string and is not a valid override.
+- `jinko-trial`: the setup reference and the workflow pass `raise_on_error=True` to `wait_until_completed()` before reading results, and the documented default polling interval is now 2 seconds.
+- `jinko-calibration-cmaes`: the running and polling reference passes `raise_on_error=True` to `wait_until_completed()` and explains what `RunError` holds.
+- `jinko-trial-viz`: the skill states what a new visualization already contains, how `data_overlay.add_table` replaces a table that is already in the overlay, and how to read data overlay warnings, including which ones are informational.
+- `jinko-output-set`: the simple output set reference explains that a measure with a `function` needs an `origin`, documents the `default_origin` argument, and shows how to dump typed content with `by_alias=True` to keep the API keys.
+- `jinko-reference`: the SDK workflow reference shows how to save the image of a highlight with `highlight.file`.
+- `jinko-task-import-model`: the NONMEM references describe the supported explicit infusions, the supplied reference table, and the residual error weights that the report identifies.
+- `jinko-document`: when no upload payload exists locally, for example on a new clone or for a document published by someone else, the skill tells you to start the local mirror from the export and what to repair first: a bare Jinkō link that came back with a label, and an image that came back with its Jinkō file URL.
+
+### SDK
+
+#### Added
+
+- `RunError`, raised by the waits on trials, calibrations, and population calibrations when you pass `raise_on_error=True` and the run ends in error. The exception holds the final status in `status`, and a stopped run still returns.
+- `default_origin` on simple output set creation, `add_measures`, and `replace_all_measures`. It fills the `origin` of each measure that has a `function` and no `origin`. Pass `None` to send the measures as given.
+- `SimpleSolveOutput.raise_for_error()`, to raise on a failed solve after you read the error yourself.
+
+#### Changed
+
+- `simple_solve` raises `SimpleSolveError` when the server reports a failed solve. The exception holds the output in `output`. Pass `raise_on_error=False` to get the output back and read `error` yourself. This is a breaking change.
+- The NONMEM import handles more control streams: explicit infusion rates in arms and per-patient slots, numeric subject IDs that match across files, and more residual error weights in the report. It refuses mixed rate modes, several infusion routes, modeled bioavailability with explicit rates, and fitted subjects with no matching data subject, with the offending rows named.
+
+#### Fixed
+
+- Saving the settings of a raw file no longer fails on the empty 204 answer of the server; the new settings are read back.
+- `data_overlay.add_table` replaces a data table that the overlay already holds, with the options of the call, instead of adding it twice. Use `set_tables` to show the same table twice.
+- Trial visualization sanity entries gain a `details` field that names the arms or outputs a data table has no data for.
+- `Highlight.file` returns a `File`, like `Reference.file`, so you can save the image with `save_content_to_file`. It returns `None` for a highlight with no image.
+- A simple output set measure that has a `function` and no `origin` is sent with `origin="OnEachArm"`. Without it, the platform read the measure as a plain output, computed no scalar, and lost its name in the trial results.
+- The `inspect_output_set`, `inspect_data_table`, `inspect_protocol_design`, and `inspect_subsampling_design` commands dump JSON with the API keys, for example `AcrossTime` instead of `AcrossTime_1`.
+
+Skills in this release require `jinko-sdk>=1.23,<2.0`.
+
 ## 1.22.0 (2026-11-26)
 
 ### Highlights

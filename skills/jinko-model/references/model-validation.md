@@ -17,10 +17,18 @@ if diagnostics:
 ## Simple Solve
 
 ```python
-result = model.simple_solve(timeseries_ids=["Drug"])
-if result.error:
-    raise RuntimeError(result.error)
+from jinko import SimpleSolveError
+
+try:
+    result = model.simple_solve(timeseries_ids=["Drug"])
+except SimpleSolveError as failure:
+    print(failure.output.error)  # the server message
+    raise
 ```
+
+A failed solve raises `SimpleSolveError`. To read the error without an exception, pass `raise_on_error=False` and check `result.error`.
+
+An override is a MathJS formula with units in `u(...)`, such as `{"k_el": "19.0 * u(1/day)"}`, or a level name for a categorical parameter. A plain number, such as `"19.0"`, is read in the unit of the component. Do not pass a component's `definition`: it is a display string, such as `"19.0 1 / day"`, and the solve fails on it.
 
 Use `python -m jinko.cli.validate_model_readiness` for a reusable check. Pass every mandatory tag as `--require-tag`; without at least one such option, the script reports only that diagnostics and solve checks passed and does not claim full readiness:
 

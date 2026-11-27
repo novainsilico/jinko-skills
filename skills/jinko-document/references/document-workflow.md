@@ -33,6 +33,8 @@ Use `document.content()` for inspection only. The returned markdown can normaliz
 
 Never overwrite a canonical local markdown file with `document.content()` output. Never feed that output back into `update_markdown()` without comparing headings, tables, equations, links, and expected result/history sections against the approved source. The durable mirror is the exact markdown payload that was sent to Jinkō.
 
+When no payload exists locally, the export is the only starting point for a mirror. Repair it before the first update from it: besides the normalizations above, a bare Jinkō link comes back as `[url](url)`, which no longer renders as a card, and an uploaded image comes back with its Jinkō file URL in place of the local path. Compare the repaired file with the rendered document, and ask the person when the intended form is not clear.
+
 ## Jinkō rendering rules
 
 - An SDK-provided Jinkō project-item URL for a `cm-...`, `so-...`, or `do-...` item renders best when it is the only content in its paragraph. For extracts (`as-...`), see "Extracts in documents".

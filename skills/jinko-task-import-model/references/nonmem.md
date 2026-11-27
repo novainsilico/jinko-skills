@@ -60,6 +60,9 @@ explicit path arguments, and an existing file is replaced only with
 
 1. Ask for `.ext`, `.phi` and the data set. Each improves the conversion; the
    control stream alone is enough to start.
+   Match companion files to the same fit. Record which engine produced the
+   estimates and predictions. An NM-TRAN stream with an nlmx fit supports an
+   nlmx comparison; its file extensions do not establish a NONMEM run.
 2. Convert dry-run. Resolve what the report raises: `--time-unit`,
    `--amount-unit`, `--volume-unit`, `--unit SYMBOL=unit`,
    `--rename NONMEM=jinkoId`.
@@ -91,12 +94,17 @@ the target `$OMEGA` covariance through ETA marginals and correlations.
 `parameters` puts marginals on the derived parameters instead: it reads better
 in the UI but is equivalent only without covariate effects.
 
-**Dosing** (`convert`). `--dosing auto` (default) uses arms when the
+**Dosing** (`convert`). With `--population phi`, the default replays each fitted subject’s own schedule. For other population modes, `--dosing auto` uses arms when the
 data set has an arm structure and per-patient slots when it does not. A study
 where every subject has an individualised history — neonatal phenobarbital,
 weight-banded single doses — has no arm structure, and `per-patient` puts each
 patient's own dose times and amounts in the vpop. Needs `--population phi` or
 `sampled`, because the schedule rides on the patient table.
+For positive `RATE`, check each arm's duration against `AMT/RATE`. Use
+per-patient dosing for irregular start times or durations that differ between subjects.
+Each fitted subject keeps their own dose times, amounts, and duration. A duration that changes within one subject or a reset event is refused with the source record.
+Switching from per-patient dosing to arms assigns every regimen to every
+subject. The default model solve checks one regimen.
 
 **Uncertainty** (`convert`). `--eps-clones N` gives a per-patient
 predictive cone. Needs `--population phi` or `sampled`. Not a VPC — see
@@ -116,9 +124,8 @@ not the forward model, so the estimates convert as given.
 **Converted with a stated approximation:** `DOSE = AMT` points at the model's
 dose parameter, so a subject whose doses differ in amount reads only the first;
 time-varying covariates keep their baseline only; a covariate selecting *which* random effect applies cannot be
-one vpop marginal; a combined error model written through a weight
-(`Y = F + W*EPS(1)`, `W = F*θ + θ`) is diagnosed with its coefficients but the
-observable is emitted without residual error.
+one vpop marginal. For a weighted residual, check which outputs the report
+lists before requesting clones. See `references/nonmem/residual-error.md`.
 
 ## References
 

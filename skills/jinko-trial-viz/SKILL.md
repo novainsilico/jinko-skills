@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating or patching trial visualizations requires write access to the Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.22,<2.0"
+  requires_sdk: ">=1.23,<2.0"
 license: MIT
 ---
 
@@ -27,7 +27,7 @@ Keep trial execution, result downloads, and calculated plot data (`trial.results
 ## Core Workflow
 
 1. Resolve the trial: `trial = client.get_trial(trial_sid)`.
-2. After explicit user confirmation, create an empty visualization bound to the trial: `viz = trial.create_empty_trial_visualization(folder=..., name=..., description=...)`.
+2. After explicit user confirmation, create a visualization with the server defaults, bound to the trial: `viz = trial.create_empty_trial_visualization(folder=..., name=..., description=...)`. Jinkō adds the trial's data tables and, once the trial has run, its default time series and scalars. Read `viz.content()` before you add to a section (see "Defaults Of A New Visualization" in the reference).
 3. Decide the plot sections needed and configure each through its typed subservice:
    - `viz.timeseries` for time-course outputs.
    - `viz.scalars` for scalar result distributions and central-location plots.
@@ -37,7 +37,7 @@ Keep trial execution, result downloads, and calculated plot data (`trial.results
    - `viz.data_overlay` / `viz.patients_overlay` when observed data or patient-level data should appear.
    - `viz.filters` / `viz.groups` for scoping and grouping.
    - `viz.set_selected_arms(...)`, `viz.set_equate_baseline(...)`, `viz.set_time_unit(...)` for top-level options.
-4. Run and print `viz.sanity` after every create or update. Return failure and fix the visualization when it reports errors.
+4. Run and print `viz.sanity` after every create or update. Return failure and fix the visualization when it reports errors. The `Details` column names the arms or outputs of a data-overlay warning; `VisualizationArmsNotFound` and `VisualizationOutputsNotFound` are informational when a table covers only some arms or outputs.
 5. Reconfigure a section at any time by calling its setter again (e.g. `viz.timeseries.set_selectors([...])`) — each call patches only that section.
 
 ## SDK Surface

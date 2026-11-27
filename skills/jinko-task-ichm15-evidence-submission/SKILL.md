@@ -16,7 +16,7 @@ compatibility: >-
   jinko-sdk-setup, and project write access.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.22,<2.0"
+  requires_sdk: ">=1.23,<2.0"
 license: MIT
 ---
 

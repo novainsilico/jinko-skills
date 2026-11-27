@@ -6,7 +6,7 @@ compatibility: >-
   Check set-up with the `jinko-sdk-setup` skill. Creating/running trials requires write and run permissions in the Jinkō project. Result DataFrame conversion requires pandas; raw ZIP/CSV download works without pandas. Drawing plots requires matplotlib and pandas in the active Python environment.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.22,<2.0"
+  requires_sdk: ">=1.23,<2.0"
 license: MIT
 ---
 
@@ -60,7 +60,7 @@ If sanity errors are reported, show them and ask whether the user wants help fix
 - Edit solving options after creation with `trial.edit_solving_options({...})`, passing only the options to change. Partial `solving_*` arguments at creation raise `ValueError`. Use `trial.get_solving_options()` to inspect raw ISO 8601 duration strings, or `trial.get_solving_options(duration_format="timedelta")` for `timedelta` values. For focused edits, use `trial.set_solving_times(t_max=timedelta(days=28), t_step="P1D")` with either representation.
 - Pre-launch sanity check (required before `run()`): `trial.sanity()` — returns a raw `dict` (the JSON response, not a typed object) with one component report per key (`model`, `protocol`, `vpop`, `outputSet` for the simple output set, `scorings` for the advanced output set, `dataTables`, `solvingTimes`), each with `["sanity"]["errors"]`/`["sanity"]["warnings"]` and `["sanity"]["componentsSanity"]` for per-component detail.
 - Run trial: `trial.run()`.
-- Poll: `trial.wait_until_completed(timeout=1800)`.
+- Poll: `trial.wait_until_completed(timeout=1800, raise_on_error=True)` before you read results. See `references/trial-setup.md`.
 - Discover time series: `trial.output_ids()`.
 - Discover scalars and arms: `trial.results.summary()`.
 - Download time series as pandas when available: `trial.results.timeseries({...}).to_dataframe()`.

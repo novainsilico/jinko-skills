@@ -12,6 +12,19 @@ folder = client.get_folder_by_name("2026-06-15-analysis", exact_match_only=True)
 viz = trial.create_empty_trial_visualization(folder=folder, name="My trial viz")
 ```
 
+### Defaults Of A New Visualization
+
+Jinkō fills each section that the creation payload leaves out.
+`create_empty_trial_visualization` sends none, so the new visualization
+starts with:
+
+- up to five time series and five scalars of the trial, once the trial has
+  run;
+- a data overlay with the trial's data tables and ranges on, when the trial
+  has data tables.
+
+Read `viz.content()` before you add to a section.
+
 Or from an existing JSON export:
 
 ```python
@@ -97,6 +110,12 @@ viz.data_overlay.set_ranges_enabled(True)
 
 `add_table` also accepts a raw `{"coreItemId": ..., "snapshotId": ...}` reference instead of a `DataTable` handle. `label`, when provided, may only contain letters, digits, `-`, `_`, or `:`.
 
+When the overlay already holds the table, `add_table` replaces it, with the
+options of the call. Use `set_tables([...])` to show the same table twice.
+
+`add_table` uses the revision of the table object you pass. An object loaded
+before an edit of the table still shows the older revision.
+
 ## Filters And Groups
 
 ```python
@@ -115,6 +134,15 @@ diagnostics = (
 if diagnostics.has_errors():
     print(diagnostics.errors())
 ```
+
+A data-overlay warning names the table in `entry.items` and keeps its tag in
+`entry.reason`. For `VisualizationArmsNotFound` and
+`VisualizationOutputsNotFound`, `entry.details` names the arms or outputs that
+the table has no data for.
+
+`VisualizationArmsNotFound` and `VisualizationOutputsNotFound` are
+informational when the table covers only some arms or outputs: report them,
+and do not change the visualization to clear them.
 
 `diagnostics.for_field("timeseries", "scalars")` filters an already-fetched view client-side (use this when you don't want to re-request a specific `only` scope from the API).
 

@@ -118,7 +118,9 @@ def reference(args: argparse.Namespace) -> int:
     series: list[dict[str, Any]] = []
     for start in range(0, len(ids), SOLVE_BATCH):
         batch = ids[start : start + SOLVE_BATCH]
-        output = model.simple_solve(timeseries_ids=["Time", *batch])
+        output = model.simple_solve(
+            timeseries_ids=["Time", *batch], raise_on_error=False
+        )
         if output.error:
             raise ValueError(f"the Jinkō solve failed: {output.error}")
         by_id = {result.id: result for result in output.results}

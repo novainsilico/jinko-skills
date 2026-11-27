@@ -10,6 +10,12 @@ Each entry in `measures` is a bare output-id string (shorthand for `{"timeseries
   Discover valid ids with `model.time_dependent_ids()` — do not invent ids.
 - `name`: custom measure name.
 - `origin`: one of `"OnEachArm"`, `"DifferenceVsControl"`, or `"RatioVsControl"`.
+  A measure with a `function` needs an `origin`. Without one, the platform reads
+  it as a plain output: it computes no scalar for the `function`, and the `name`
+  does not appear in the Trial results. The SDK methods fill it with their
+  `default_origin` argument, `"OnEachArm"` unless you pass another value;
+  `default_origin=None` sends the measures as given. The raw JSON path below
+  sends your JSON as it is, so set `origin` there.
 - `function`: how the scalar is computed from the output timeseries.
 
 `function` supports two forms.
@@ -81,6 +87,8 @@ Raw JSON escape hatch: `client.create_simple_output_set_from_json(json_content=.
 ## Inspecting and editing
 
 - `output_set.content()`: full structured definition (source model reference, measures, metadata).
+  It is a pydantic object: dump it with `.model_dump(mode="json", by_alias=True)`
+  to get the API keys, such as `AcrossTime` instead of `AcrossTime_1`.
 - `output_set.measures`: just the measures list.
 - `output_set.replace_all_measures(measures)`: discard existing measures, write exactly the given entries.
 - `output_set.add_measures(measures)`: append one or more measures.

@@ -30,6 +30,12 @@ The additive EPS carries the prediction's unit, not `dimensionless`; adding a
 dimensionless quantity to a concentration is a dimension error and Jinkō
 rejects it.
 
+For `Y = IPRED + W*EPS(1)`, read the weight diagnosis. For example,
+`W = SQRT(θp²*IPRED² + θa²)` combines proportional and additive variance
+through one EPS. When the report says “without residual error,” compare
+the structural output against `PRED` or `IPRED` with matching covariates,
+dosing, and ETAs. Do not use that output to validate noisy observations or a VPC.
+
 ## The approximation, stated plainly
 
 **NONMEM draws EPS afresh at every observation record. A Jinkō parameter is

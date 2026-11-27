@@ -18,7 +18,7 @@ compatibility: >-
   write and run permissions.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.22,<2.0"
+  requires_sdk: ">=1.23,<2.0"
 license: MIT
 ---
 
@@ -97,7 +97,7 @@ A calibration keeps the exact Snapshot of each component. After you edit the mod
 
 ```python
 calibration.run()
-final_status = calibration.wait_until_completed(timeout=3600)
+final_status = calibration.wait_until_completed(timeout=3600, raise_on_error=True)
 ```
 
 See `references/running-and-polling.md` for `.get_sanity()`, `.status()`, and

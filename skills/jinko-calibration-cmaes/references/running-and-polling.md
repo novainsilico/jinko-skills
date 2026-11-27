@@ -41,7 +41,10 @@ calibration.status()  # -> {"status": ..., "stoppingReason": ...}, wraps status_
 ## Poll to completion
 
 ```python
-final_status = calibration.wait_until_completed(timeout=3600, poll_interval=5.0)
+final_status = calibration.wait_until_completed(
+    timeout=3600, poll_interval=5.0, raise_on_error=True
+)
 ```
 
 Polls until `status` is `completed`/`stopped`/`error` (or `isRunning` flips false); raises `TimeoutError` past `timeout`.
+With `raise_on_error=True`, an `error` status raises `RunError`, and `error.status` holds the final status dict; a `stopped` run returns. Pass it when the next step reads results. Without it, the wait returns the `error` status.

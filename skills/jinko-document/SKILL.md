@@ -12,7 +12,7 @@ compatibility: >-
   access to the target Jinkō project.
 metadata:
   author: Nova In Silico
-  requires_sdk: ">=1.22,<2.0"
+  requires_sdk: ">=1.23,<2.0"
 license: MIT
 ---
 
@@ -44,7 +44,7 @@ surface whenever possible.
 - Cite an extract (`as-...`) with its bare URL at the end of the sentence line. A labeled link drops the extract badge. Read "Extracts in documents" in `references/document-workflow.md` before you reword or merge extract sentences.
 - Do not put backticks inside a Jinkō markdown-link label. Prefer `[cm-example](<resource.url>)` over ``[`cm-example`](...)`` because exported markdown can turn code-styled labels into code-wrapped, non-clickable link text.
 - When a reference targets a specific project-item revision, use the resource's configured app URL with `?revision=n`, preferably via `resource.url_with_fixed_revision(n)`. Do not use a card for a revision-specific reference.
-- Keep the exact markdown payload used for creation or update as the durable local mirror. Mirror the upload payload, not a subsequent `document.content()` response.
+- Keep the exact markdown payload used for creation or update as the durable local mirror. Mirror the upload payload, not a subsequent `document.content()` response. When no payload was kept, for example on a new clone or for a document that another person published, start the mirror from `document.content()`, then check it and repair what the export changed before the first update from it (`references/document-workflow.md`, "Fetching a document back out").
 - Before updating a production document containing tables, equations, images, or many links, publish a disposable canary with representative syntax and inspect the rendered Jinkō document. Delete the canary after validation.
 - Before applying a production update, run `python -m jinko.cli.check_markdown_structure` against the last approved payload and candidate. Name each append-only history section explicitly; do not proceed when the command reports a loss.
 - Use the SDK's document-creation script for local images; it validates declared files and uploads images.

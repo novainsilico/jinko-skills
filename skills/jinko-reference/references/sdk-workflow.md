@@ -25,6 +25,11 @@ for highlight in extract.highlights:
     print(highlight.url, highlight.text)
 ```
 
+A rectangular, formula, data table, or plot highlight usually has an image:
+`highlight.file` returns it as a file, like `reference.file`, or `None` without
+an image, as for a textual highlight. Save the image with
+`highlight.file.save_content_to_file(path)`.
+
 Use `reference.iter_extracts()` to retrieve all extracts attached to one source;
 filter by kind or classification when reviewing a large collection.
 
